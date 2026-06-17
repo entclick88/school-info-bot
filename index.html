@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบข้อมูลพื้นฐาน มอ.วิทยานุสรณ์</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a3a6e;
+      --accent: #2563eb;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+    }
+
+    /* ── 2-column layout: ซ้าย = ผู้ช่วยแชท, ขวา = ลิงก์ลัดระบบย่อย ── */
+    .layout {
+      display: flex;
+      height: 100dvh;
+      overflow: hidden;
+    }
+    .left-panel {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .right-panel {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      padding: 14px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .right-panel-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2px;
+    }
+    .right-panel-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .quick-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 12px 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      text-align: center;
+      transition: background .15s, border-color .15s, transform .15s;
+      min-height: 78px;
+    }
+    .quick-link:hover {
+      background: #eff6ff;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .quick-link .qi-icon { font-size: 1.5rem; line-height: 1; }
+    .quick-link .qi-label { font-size: 0.68rem; font-weight: 600; line-height: 1.25; }
+
+    @media (max-width: 800px) {
+      .layout { flex-direction: column; }
+      .right-panel {
+        width: 100%;
+        max-height: 34vh;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .quick-grid { grid-template-columns: repeat(4, 1fr); }
+      .left-panel { flex: 1 1 auto; min-height: 0; }
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a3a6e 0%, #2563eb 100%);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-icon { font-size: 2rem; line-height: 1; }
+    .header-text { flex: 1; }
+    .header-text h1 { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .header-text p  { font-size: 0.78rem; opacity: 0.85; }
+    .settings-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .settings-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* ── Department tabs ── */
+    .dept-strip {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      overflow-x: auto;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .dept-strip::-webkit-scrollbar { display: none; }
+    .dept-btn {
+      flex: 0 0 auto;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      transition: opacity .15s, transform .15s;
+    }
+    .dept-btn:hover { opacity: .85; transform: scale(1.03); }
+    .dept-btn:active { transform: scale(.97); }
+
+    /* ── Chat area ── */
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    /* bubbles */
+    .msg {
+      max-width: 88%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+    .msg.bot {
+      background: var(--white);
+      border: 1px solid var(--border);
+      align-self: flex-start;
+      border-radius: 4px 16px 16px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.07);
+    }
+    .msg.user {
+      background: var(--accent);
+      color: white;
+      align-self: flex-end;
+      border-radius: 16px 4px 16px 16px;
+    }
+
+    /* result cards */
+    .result-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      transition: background .15s, border-color .15s, box-shadow .15s;
+      cursor: pointer;
+    }
+    .card:hover {
+      background: #eff6ff;
+      border-color: var(--accent);
+      box-shadow: 0 3px 8px rgba(37,99,235,.12);
+    }
+    .card-badge {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .card-name { flex: 1; font-size: 0.86rem; }
+    .card-arrow { color: var(--accent); font-size: 1rem; flex-shrink: 0; }
+    .no-result { color: var(--muted); font-style: italic; font-size: 0.88rem; }
+    .result-count { font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
+    .thinking { color: var(--muted); }
+    .thinking::after {
+      content: '';
+      display: inline-block;
+      width: 1em;
+      animation: dots 1.2s steps(4) infinite;
+      overflow: hidden;
+      vertical-align: bottom;
+    }
+    @keyframes dots { to { width: 0; } }
+    .ai-tag { display: inline-block; font-size: 0.66rem; font-weight: 700; color: var(--accent); background: #eff6ff; border-radius: 8px; padding: 1px 7px; margin-bottom: 5px; }
+
+    /* ── Input area ── */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 9px 15px;
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color .2s;
+      background: var(--bg);
+    }
+    .input-row input:focus { border-color: var(--accent); background: white; }
+    .input-row button {
+      padding: 9px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    .input-row button:hover { background: var(--primary); }
+
+    @media (max-width: 480px) {
+      .header-text h1 { font-size: 0.88rem; }
+      .msg { max-width: 94%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <div class="left-panel">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">🏫</div>
+      <div class="header-text">
+        <h1>ระบบข้อมูลพื้นฐาน</h1>
+        <p>โรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี</p>
+      </div>
+      <button class="settings-btn" id="settingsBtn" title="ตั้งค่าผู้ช่วย AI">⚙️</button>
+    </div>
+
+    <!-- Department tabs -->
+    <div class="dept-strip" id="deptStrip"></div>
+
+    <!-- Chat -->
+    <div class="chat" id="chat"></div>
+
+    <!-- Input -->
+    <div class="input-row">
+      <input id="inp" type="text" placeholder="พิมพ์คำค้นหา เช่น วิชาการ, ประชุม, นักเรียน, STEM…" autocomplete="off">
+      <button id="sendBtn">ค้นหา</button>
+    </div>
+  </div>
+
+  <!-- Right panel: ลิงก์ลัดระบบย่อย -->
+  <div class="right-panel">
+    <div class="right-panel-title">🔗 ระบบย่อยที่ใช้บ่อย</div>
+    <div class="right-panel-sub">ระบบอื่น ๆ ค้นหาได้จากแชทด้านซ้าย</div>
+    <div class="quick-grid" id="quickGrid"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// DATA — ดึงจาก Google Sheet (MENU tab) จริง
+// ════════════════════════════════════════════════
+const DEPTS = [
+  {
+    id: 'academic', name: 'วิชาการ', icon: '🎓', color: '#dc2626',
+    links: [
+      { name: '🌐 Google Site ฝ่ายวิชาการและงานทะเบียน', url: 'https://sites.google.com/view/reg-psuwitsurat/%E0%B8%AB%E0%B8%99%E0%B8%B2%E0%B9%81%E0%B8%A3%E0%B8%81' },
+      { name: '📆 ปฏิทินการประชุมฝ่ายวิชาการ', url: 'https://docs.google.com/spreadsheets/d/1pcxke9pZP2MMIvIiqXLzSxjGtfCtbTBbuGUlSaNBfnw/edit' },
+      { name: '🕹️ การดำเนินงานยกระดับ', url: 'https://docs.google.com/spreadsheets/d/1_6m9nLoxx7eb3Ybk9BnyBxcTa77GTL9tIpwHwnFjDtg/edit' },
+      { name: '🕹️ การดำเนินงานจัดทำหลักสูตร FIEP', url: 'https://docs.google.com/spreadsheets/d/1Yb55x9qHUMoa8sDGr5MDPnHtdz81I5sbMNc5w38bBLw/edit' },
+      { name: '⭐ โครงการปรับพื้นฐานนักเรียนใหม่ ม.1 และ ม.4 ปี 2569', url: 'https://docs.google.com/spreadsheets/d/1fRaK6VX2Fwd7d6xBpy3SG7IAxP85KpII3YSszcdMIV8/edit' },
+      { name: '📝 บันทึกการนิเทศ สังเกตการสอน 2569', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdc6ljb4OLfU5a8P12NOeoqsEBdI7AwpXuKAQvCFbrRFfFTQw/viewform' },
+      { name: '🗳️ ตารางบันทึกการนิเทศ สังเกตการสอน 2569', url: 'https://docs.google.com/spreadsheets/d/1Opda-ogg6i_u89PTOp6h3_AobfCesZix5GRrHPL2P7E/edit' },
+      { name: 'งานธุรการวิชาการ', url: 'https://sites.google.com/view/reg-psuwitsurat' },
+      { name: '🗃️ ทะเบียนหนังสือออกฝ่ายวิชาการ (ตั้งแต่ 1 มี.ค. 2567)', url: 'https://docs.google.com/spreadsheets/d/1Kh59lUeZtrzYf4JCQHZk-DNSLKFPJJGb8cogqqGcDjM/edit' },
+      { name: '📥 นำส่งไฟล์หนังสือออกฝ่ายวิชาการ', url: 'https://forms.gle/yz4BrAjq7GhJF1Kr9' },
+      { name: '✍️ แบบบันทึกมอบหมายงาน (ตั้งแต่ 1 ธ.ค. 2568)', url: 'https://docs.google.com/spreadsheets/d/13hV4Y7KHzc3aU3RYWHlXRdvGfEytH4NkqgXmcGoa-lM/edit' },
+      { name: '📋 แบบฟอร์มงานวิชาการ (วช.) (ตั้งแต่ 5 ม.ค. 2569)', url: 'https://drive.google.com/drive/folders/1_2NCBDlUNmnNNdnCqliXEVR8JAjzJOtA' },
+      { name: '📋 แบบฟอร์ม คำสั่ง ครูฝึกประสบการณ์วิชาชีพครู', url: 'https://drive.google.com/drive/folders/1_4Ni8UZthQYX-X9XcH0Gk45htcPxc4Tk' },
+      { name: 'งานทะเบียน', url: 'https://sites.google.com/view/reg-psuwitsurat' },
+      { name: '🧑‍🤝‍🧑 รายชื่อนักเรียน', url: 'https://docs.google.com/spreadsheets/d/1v1ryoUZl_lNH0wnxum9I23q4jTVmuuaYqmK7fHVyh5g/edit' },
+      { name: 'คำร้องขอ ปพ.ออนไลน์ และตรวจสอบสถานะ', url: 'https://sites.google.com/view/reg-psuwitsurat/%E0%B8%AB%E0%B8%99%E0%B8%B2%E0%B9%81%E0%B8%A3%E0%B8%81' },
+      { name: 'งานหลักสูตร / เล่มหลักสูตร', url: 'https://drive.google.com/drive/u/1/folders/1KoJ7_U2ybB-94d3TPrhDFvkSfycGOcRY' },
+      { name: '🔎 ติดตามเวลาเรียนของนักเรียน', url: 'https://docs.google.com/spreadsheets/d/19hUFtf2W_kMcMRMkOqta0JG0K-_NOfM8IuRi1-I-GCY/edit' },
+      { name: '🔎 ติดตามพฤติกรรมในชั้นเรียน', url: 'https://docs.google.com/spreadsheets/d/1nEBMn4wvE_sZmmYeDR84NZrwT23MaW30AQUZZHm4kj4/edit' },
+      { name: '🛡️ เกณฑ์การนับเวลาเรียน การเลื่อนชั้น การสอบประมวลความรู้', url: 'https://drive.google.com/drive/folders/1LDbSDHkBjHGhV6r8d6L5reffPraDc57-' },
+      { name: '✍️ การสอบประมวลความรู้', url: 'https://drive.google.com/drive/folders/1urKZ0xTlkpNPdOONdG8He0RGOG334EC4' },
+      { name: '📥 ส่งคะแนนเก็บและผลการเรียนนักเรียนย้ายเข้า', url: 'https://docs.google.com/spreadsheets/d/11bc2TbmH3394GU6ciURi8f9IKv-98qGj69vhIp_GrME/edit' },
+      { name: 'แจ้งผลการปรับแก้เกรด', url: 'https://docs.google.com/spreadsheets/d/12rQKOTOXvBpMtnjK8Fm8nHoCSXZnNnMbxpmt39UBz5Q/edit' },
+      { name: '🔎 นักเรียนไม่ผ่านเกณฑ์', url: 'https://docs.google.com/spreadsheets/d/1mBdT3QSsgu09kbZ9gLfx3NdZGLBzWgRsslp-bkrj4T0/edit' },
+      { name: '💰 งบประมาณโครงการและการแข่งขันทักษะวิชาการ', url: 'https://docs.google.com/spreadsheets/d/177T-RZBKagAU6VxsdwgLeLgPYwpWRV4z9MDLySQNVrk/edit' },
+      { name: '📋 แนวทางการจัดสรรงบประมาณโครงการส่งเสริมความเป็นเลิศฯ', url: 'https://drive.google.com/file/d/18tGbyoGyp1XrjhD-4iBa8rkmox8smYk1/view' },
+      { name: '🔔 ประชาสัมพันธ์รายการแข่งขันทักษะวิชาการ ปี 2569', url: 'https://docs.google.com/spreadsheets/d/1n9ur6WYAQKJvvMFF9Uz4mHmdIMZp0q-jWjF9oT5U9xU/edit' },
+      { name: '🏆 ผลการแข่งขันวิชาการ', url: 'https://docs.google.com/spreadsheets/d/1JBzThdTqJaAw8PTwydhHay6sL9lAlQnRgFJnpqn6eV4/edit' },
+      { name: '💻 กรอกข้อมูลแหล่งเรียนรู้นอกห้องเรียน', url: 'https://docs.google.com/spreadsheets/d/14BOk59Z--7J7i6W___5nsnORGpJfUa4BlbEnKlrUBh8/edit' },
+      { name: '🧪 หนังสือประกอบการเรียน: วิทยาศาสตร์', url: 'https://fliphtml5.com/bookcase/xejkp' },
+      { name: '🎲 หนังสือประกอบการเรียน: คณิตศาสตร์และเทคโนโลยี', url: 'https://fliphtml5.com/bookcase/lnhjo' },
+      { name: '🔠 หนังสือประกอบการเรียน: สังคม ภาษา และการสื่อสาร', url: 'https://fliphtml5.com/bookcase/ipobd' },
+      { name: '🎨 หนังสือประกอบการเรียน: สุนทรียะและทักษะชีวิต', url: 'https://fliphtml5.com/bookcase/opajw' },
+      { name: '📰 ปฏิทินการจัดทำหนังสือประกอบการเรียน ปี 2568', url: 'https://drive.google.com/file/d/1WvL6d_sT67nSlV17XTcPeO7S4WCr_GEn/view' },
+      { name: '📒 งานจัดทำหนังสือประกอบการเรียน', url: 'https://drive.google.com/drive/folders/1NJVlzHWhduxG2llcUd18IYKPfCCA-uhS' },
+      { name: '✅ สถานะการจัดทำหนังสือ', url: 'https://docs.google.com/spreadsheets/d/12DxHIVeTLzGlrFjtKikslVgiE52__ToGMiSiNZSvl14/edit' },
+      { name: '📖 O-NET', url: 'https://docs.google.com/spreadsheets/d/1pfrnouHCGttePRiuPQ0GWp9tlCHAEhQILtiCWllEyXw/edit' },
+      { name: '👩‍🏫 ข้อมูลนักศึกษาฝึกงาน', url: 'https://docs.google.com/spreadsheets/d/1wG4XGNUBeIABzS2fdeOmUc07wW6I0PiNx0U5JmWvXBU/edit' },
+      { name: 'งานแนะแนว', url: 'https://docs.google.com/spreadsheets/u/0/d/100axnxYXau40sY0uDBb4uLhwGcHCK4IFY2vr4DPZY_g/edit' },
+      { name: '📥 แบบฟอร์มงานแนะแนว', url: 'https://drive.google.com/drive/folders/1syp4wx222IBDxq26ANCdmy4O4atbSpbn' },
+      { name: '1. บริการสำรวจข้อมูลรายบุคคล', url: 'https://www.admissionpremium.com/gis/admin/index.php' },
+      { name: '2.1 แหล่งทุนการศึกษา', url: 'https://www.facebook.com/connected1978/' },
+      { name: '2.2 แอปพลิเคชันงานแนะแนว', url: 'https://drive.google.com/file/d/1_wbQK4xUjMeUj_-SxfNub4y5p_xVL_4Y/view' },
+      { name: '2.3 แนะแนวการศึกษาต่อ', url: 'https://docs.google.com/spreadsheets/u/0/d/1Wf9aeQa0K3-aVi5gC4tvP950K-4ZLVTY4f_5lrA30Zw/edit' },
+      { name: '2.4 แนะแนวอาชีพ', url: 'https://docs.google.com/spreadsheets/d/1Go46Pzns8cHO99qBpz7wBoDNE_g7KAnNtFLmObVb6Tw/edit' },
+      { name: '2.5 แฟ้มสะสมผลงาน', url: 'https://drive.google.com/drive/folders/1PMAOTKTyhQx0MiYckGlHcSyyoorQAgWn' },
+      { name: '3. บริการให้คำปรึกษา', url: 'https://docs.google.com/spreadsheets/d/1OL9Lhz7aVZxUlD2S7GaPqlZ5asrR0pHnhF-hISq7LIE/edit' },
+      { name: '4.1 รายละเอียดและตารางฝึกประสบการณ์การปฏิบัติงาน', url: 'https://docs.google.com/spreadsheets/d/1jbAWF7lHmxTlzwFdFoMsXlsFP-6-U5q9FynAzBJpJPA/edit' },
+      { name: '5. ข้อมูลติดตามผลการศึกษาต่อ', url: 'https://docs.google.com/spreadsheets/d/1ugq9Q-uGNzjs1hWaWCMJFtqm-cjH0JPS3hi2rL8dggQ/edit' },
+      { name: '🌴 กิจกรรมปรับพื้นฐานนักเรียนใหม่ ปี 2568', url: 'https://docs.google.com/spreadsheets/d/1SFZg8tPxb-24zVdaep6pygAgiWK8uRaqHAniQsu9LAE/edit' },
+      { name: '🎨 สุนทรียะและทักษะชีวิต (สมรรถนะ)', url: 'https://docs.google.com/spreadsheets/d/1uQ4Fx3cfMT3BLMMn7R9ErXrsorX8HwKyNHvat8ZqZ-I/edit' },
+    ]
+  },
+  {
+    id: 'student-dev', name: 'พัฒนาผู้เรียน', icon: '📣', color: '#ea580c',
+    links: [
+      { name: '🌌 ฐานข้อมูลฝ่ายพัฒนาผู้เรียน', url: 'https://docs.google.com/spreadsheets/d/1K5w7AB8OOatP48WM-Afs-_oSW5dmAShvQPPJ5o9JBKg/edit' },
+      { name: '📰 โครงสร้างฝ่ายพัฒนาผู้เรียน 2569', url: 'https://drive.google.com/drive/folders/1QH8lBWRdg5tP3b1kqX_1ndcBdfEZB0eF' },
+      { name: 'งานพัฒนาคุณธรรม จริยธรรม และส่งเสริมความรักสถาบัน', url: '#' },
+      { name: 'กิจกรรมหน้าเสาธง 2569', url: 'https://docs.google.com/spreadsheets/d/1QR6aMM7cQA6PlW7tHexRwH5Kcr3PiWIHcj0K-11o0EI/edit' },
+      { name: 'แนวปฏิบัติการเข้าแถวหน้าเสาธง', url: 'https://drive.google.com/file/d/1KZnGgSUoETg-lc-igEidciqpuNzlycDn/view' },
+      { name: 'แนวทางการปฏิบัติเพื่อหาของหาย - ได้คืน', url: 'https://drive.google.com/drive/folders/1Ceskigu2Vv13kgSOuJXW5w-jn1YzqK_J' },
+      { name: 'งานพัฒนาสังคม และสาธารณประโยชน์', url: 'https://www.facebook.com/share/p/38GW19qEXdMFMckT/' },
+      { name: 'แบบบันทึกผลโครงการ We not Me ไม่ใช่แค่ฉัน แต่คือเรา 2569', url: 'https://drive.google.com/drive/folders/1AmI9gxPU7Ie4XP60Gy76QLSeaz8CLB0S' },
+      { name: 'โครงสร้างสภานักเรียน รุ่นที่ 12', url: 'https://drive.google.com/drive/folders/1V5ActfVn0Sw_FV9WDEQhoU8OOR8PJTY6' },
+      { name: 'ประกาศโรงเรียน เรื่อง การเลือกตั้ง 2567', url: 'https://drive.google.com/drive/folders/1RYVPNZN01yjnNN41W_pPOblSMY6599_m' },
+      { name: 'งานพัฒนากิจกรรมนักเรียน', url: '#' },
+      { name: 'กิจกรรมชุมนุม ปีการศึกษา 2568', url: 'https://docs.google.com/spreadsheets/d/1Q80Mxn8PBFYd_-857whW7_KI08oh6nLebe_mpW4u3Wo/edit' },
+      { name: 'กิจกรรมลูกเสือ เนตรนารี 2569', url: 'https://drive.google.com/drive/folders/1zWFKMBXWq2ShKkCZ5cueQjFWpl_wyNc1' },
+      { name: 'ทะเบียนบันทึกข้อความฝ่ายพัฒนาผู้เรียน', url: 'https://docs.google.com/spreadsheets/d/1-1cHImkd0c2On_7S9DpsRIBYxdLHBLOrfBt0uWxqVwM/edit' },
+      { name: 'นำส่งไฟล์บันทึกข้อความฝ่ายพัฒนาผู้เรียน', url: 'https://docs.google.com/forms/d/1Dvm6_b2sD9PojcWAnaL4jI1szSgzIG4rylO83T3XR1w/edit' },
+      { name: 'ไฟล์หนังสือเข้า 2568', url: 'https://drive.google.com/drive/folders/1w0suwJNdR22mEOjX1QQD-wSdF_MSOBng' },
+    ]
+  },
+  {
+    id: 'student-affairs', name: 'กิจการนักเรียน', icon: '👨‍🎓', color: '#1d4ed8',
+    links: [
+      { name: 'ระเบียบนักเรียน (ไฟล์ pdf)', url: 'https://fliphtml5.com/bookcase/myttz/' },
+      { name: 'ฐานข้อมูลงานกิจการนักเรียน', url: 'https://docs.google.com/spreadsheets/d/12vX9wCFVFzGS4JU5b12ahnn9qAovBB4gIbZ8FaD9-qQ/edit' },
+      { name: 'โครงสร้างบุคลกรฝ่ายกิจการนักเรียน', url: 'https://drive.google.com/file/d/15V97K2GuY_3ray2-Tf6mgTgJHTAYzL6e/view' },
+      { name: 'งานบริหารฝ่ายกิจการนักเรียน', url: '#' },
+      { name: 'กิจกรรมประชุมผู้ปกครอง', url: 'https://drive.google.com/drive/folders/1m3Wi5-PFBe696DROG2x76GEIRRTBWgN1' },
+      { name: 'งานพัสดุฝ่ายกิจการนักเรียน', url: 'https://drive.google.com/drive/folders/1I-cViBxH9lhGh0kd9C5orz04XoyBOZyU' },
+      { name: 'งานนักศึกษาวิชาทหาร', url: 'https://docs.google.com/spreadsheets/d/14NbcplplRzt7p5VZKr24_fR7NFIZ5pIsTwo5pXTbXTw/edit' },
+      { name: 'กิจกรรมปัจฉิมนิเทศ', url: 'https://drive.google.com/drive/folders/1jzIzlSGT7EgoAtQw9Kak7KMBemkfjgxA' },
+      { name: 'งานจดหมายข่าว', url: 'https://drive.google.com/drive/folders/1-Wf2Nax6M2pziBcL2z2uxxKKiNU6ueji' },
+      { name: 'กิจกรรมส่งเสริมคุณลักษณะอันพึงประสงค์', url: 'https://drive.google.com/drive/folders/1c2nbydSeBhDYtf_vyYtnEH-QffjrKrlQ' },
+      { name: 'ยาเสพติด/อบายมุข', url: '#' },
+      { name: 'งานส่งเสริม', url: '#' },
+      { name: 'งานความปลอดภัยและกล้องวงจรปิด', url: 'https://drive.google.com/file/d/1L3n9xf4Xm2_ubOxvbMNJbMI7LYNnsACK/view' },
+      { name: 'ระบบค้นหาการกระทำผิดนักเรียนรายบุคคลและรายห้อง', url: 'https://script.google.com/a/macros/psuwitsurat.ac.th/s/AKfycbzalVgw8_35jRflbLBjNYO86wwDZbMqjMs7ejFoj' },
+      { name: 'ปฏิทินการประชุมฝ่ายกิจการนักเรียน 2569', url: 'https://docs.google.com/spreadsheets/d/1Dqw13DQqQExWgWMleqtPB1A37ZsNafbRulim0dTGJBY/edit' },
+      { name: 'โรงเรียนสีขาว', url: '#' },
+      { name: 'นำส่งไฟล์ขอเลขหนังสือออกฝ่ายกิจการนักเรียน (ตั้งแต่ 1 ม.ค. 2568)', url: 'https://script.google.com/a/macros/psuwitsurat.ac.th/s/AKfycbxacwK-xeZUHZqSfHrVNKk8D5uDN3jGxaAty3oZz' },
+      { name: 'งานประชาสัมพันธ์', url: '#' },
+      { name: 'ภาพการแต่งกายเครื่องแบบนักเรียน', url: 'https://drive.google.com/drive/folders/1CAVdeXD4iAwGTqOXuTTZKK2HlEF50VRq' },
+      { name: 'web site ฝ่ายกิจการนักเรียน', url: '#' },
+      { name: 'งานระบบดูแลช่วยเหลือนักเรียน', url: '#' },
+      { name: 'เอกสารระบบดูแลช่วยเหลือเด็กที่มีปัญหาการเรียน HERO', url: 'https://drive.google.com/file/d/1m896xvZ2061848CQeA27DIl5CHB9QW-H/view' },
+      { name: 'แนวทางการใช้ School Connex', url: 'https://drive.google.com/file/d/1WtCKb2J16q0rhAc28basEkQgX4sK6h-z/view' },
+      { name: 'แนวทางเมื่อนักเรียนลืม Check in School Connex', url: 'https://drive.google.com/file/d/15GYhIMpNjI0Yp5IYTXIZ86GA03OL_kwZ/view' },
+      { name: 'User School Connex สำหรับหัวหน้าระดับและคุณครู', url: 'https://drive.google.com/file/d/1Q00Rpt_tvlHhuK9V00y9NnlY6AGUj91Q/view' },
+      { name: 'แบบฟอร์มฝ่ายกิจการนักเรียน (กน.)', url: 'https://docs.google.com/spreadsheets/d/1Fj5ZMuR3ZEXhjvALYN6WdAcMEnLfBMjJsKcl7Tj7J-8/edit' },
+      { name: 'ขอใบรับรองความประพฤติ (กน.12) ปี 2567 เป็นต้นไป', url: 'https://forms.gle/T56kTQMHko7mjSkv5' },
+      { name: 'ดาวน์โหลดเกียรติบัตรออนไลน์ สำหรับนักเรียน', url: 'https://drive.google.com/drive/folders/13wWQPUuMOCZzbyRNS9k2nNFD_FCaRSzV' },
+      { name: 'งานประชุมระดับครู/นักเรียน', url: 'https://drive.google.com/drive/folders/1qvGj2nf7kEVaP74cxVJTtmUsfuand3Wn' },
+      { name: 'งานวินัยและความประพฤติ', url: '#' },
+      { name: 'งานสอบสวน', url: '#' },
+      { name: 'งานส่งเสริมคุณลักษณะอันพึงประสงค์', url: '#' },
+    ]
+  },
+  {
+    id: 'service', name: 'บริการ', icon: '🏡', color: '#0f766e',
+    links: [
+      { name: 'ปฏิทินการประชุมฝ่ายบริการ 2567', url: 'https://docs.google.com/spreadsheets/d/1n4XH2sGPjRkBT5_QVpWtSjhCT5mSH4KQG8XcuwA_1fQ/edit' },
+      { name: 'งานอาคาร', url: '#' },
+      { name: 'แผนผังการปฏิบัติงานฝ่ายบริการ 2569', url: 'https://drive.google.com/file/d/1KxhQQ4Aew2wjYUBlAfIOb82Pussr07ZK/view' },
+      { name: 'ระเบียบการใช้อาคาร', url: 'https://drive.google.com/file/d/1wkVxds6OKipAUsEL_AsjT2bXe2hOxWQo/view' },
+      { name: 'แผนเผชิญเหตุ : อัคคีภัย', url: 'https://drive.google.com/file/d/1krNAAltE0QJnYuu5PbKdB3YoL6yHJ7Nf/view' },
+      { name: 'แผนปฏิบัติการ : ทุกภัย อันตราย', url: 'https://drive.google.com/file/d/1TtuoCk4Con4Eo-F_WI2S2Yr_hsdEd-rh/view' },
+      { name: 'ข้อมูลพัสดุฝ่ายบริการ (ชนิด/จำนวน/ตำแหน่ง)', url: 'https://docs.google.com/spreadsheets/d/1zkVfgIQo61zCAjGG3QfuILMvS7ZJBRU3HDqBaytt5aI/edit' },
+      { name: 'ตารางเวรประจำวัน ปีการศึกษา 2568', url: 'https://docs.google.com/spreadsheets/d/1ud8Sg74zdZnzumxaK3jHJkK_cq9zDOXRpwN1k3IX8a0/edit' },
+      { name: 'การขอใช้ห้องเรียน/อาคารเรียน ปีการศึกษา 2568', url: 'https://docs.google.com/spreadsheets/d/1kKNaQrpPk5PIUDsvkvaFWbMLYMJrOinHCxphZDMF5Cc/edit' },
+      { name: 'ระบบการตรวจห้องเรียน ปีการศึกษา 2568', url: 'https://docs.google.com/spreadsheets/d/1Woa3BsBSKtDH1OZFYSczLmBaGh5Slfn0CiasTWekQMg/edit' },
+      { name: 'ระบบยืม-คืนฝ่ายบริการ ปีการศึกษา 2569', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfwu-SMLmsOyqhdjoOHiN6ATA7QB2lge7KB4v-w8ndnHgMSsg/viewform' },
+      { name: 'ข้อมูลอุปกรณ์', url: 'https://docs.google.com/spreadsheets/d/1PvpJBi1yyAK5zSj9SslVJmXQv8DGhtp-UGWFdc8X6U8/edit' },
+      { name: 'ขออนุญาตนำยานพาหนะเข้า-ออก บริเวณ รร.', url: 'https://docs.google.com/spreadsheets/d/1nsJ-K9l4HcKjLu6navUN-N3PNOPmbgXF4fSmXc8oogc/edit' },
+      { name: 'สถิติการใช้งานห้องพยาบาล', url: 'https://docs.google.com/spreadsheets/d/1MC-gLrUwHPhW5vN8XhwVcRJebOUGAFOcjd4RsUm8YVU/edit' },
+      { name: 'ระบบฐานข้อมูล BMI', url: 'https://docs.google.com/spreadsheets/d/1yBgtEUPCRkpSN3blFOIhQWB6HPxov5-8a1r00KIVKT8/edit' },
+      { name: 'ข้อมูลประกันอุบัติเหตุ', url: 'https://drive.google.com/drive/folders/1j0hQxaQDSQ1A2t6_7mvo5FsBRkKsrvyG' },
+      { name: 'ข้อมูลบัตรประกันสุขภาพนักเรียน ประจำปี 2568', url: 'https://docs.google.com/spreadsheets/u/0/d/1yePNWbDzIXfonzcP2uUGSXQn3lAS6nZUFMlE3qv_LGw/htmlview' },
+      { name: 'แจ้งข้อมูลผู้ติดเชื้อโควิด - 19 ปี 2566', url: 'https://docs.google.com/spreadsheets/d/1JwfoVJf66sOyosRsPq3mq3F_PRYh8IQaTVzumBBawhE/edit' },
+      { name: 'เอกสารโครงการโรงเรียน Eco-School', url: 'https://drive.google.com/drive/folders/14_17an4nc-73AFBa2_DbiIUeOno5cBFY' },
+      { name: 'Eco-School Guideline', url: 'https://drive.google.com/file/d/1IPoeW_c784VgZOw7f7jgSr00VUnfw04S/view' },
+      { name: 'Eco-School Planner', url: 'https://drive.google.com/file/d/1v4sdfc7M9w-1dxppiMJH8q3aHpJ42Cig/view' },
+      { name: 'การดำเนินการโครงการ Eco-School', url: 'https://docs.google.com/spreadsheets/d/183wLcLbyqfpMELCmSpXJfUzMFUbOSwchuTSxO8j_uug/edit' },
+      { name: 'สถิติค่าฝุ่นละอองขนาดเล็กบริเวณโรงเรียน ปี 2567', url: 'https://docs.google.com/spreadsheets/d/1e2hK51lP2ukbCjkUIVKwO9jlsJ_2hzPDemLEWLcE6k0/edit' },
+      { name: 'สถิติค่าฝุ่นละอองขนาดเล็กบริเวณโรงเรียน ปี 2568', url: 'https://docs.google.com/spreadsheets/d/1FlZt1xNb1RLM45jXq-MzVAyGWHavUfERsCmi6FDrRFo/edit' },
+      { name: 'คู่มือแนวทางการลดและป้องกันฝุ่นละออง PM2.5 สำหรับสถานศึกษา', url: 'https://drive.google.com/file/d/1UpLKDZzpwuskucSgqquZkOi1U-ePRgrt/view' },
+      { name: 'งานจราจรและความปลอดภัยบนท้องถนน', url: '#' },
+      { name: 'งานสุขอนามัย', url: '#' },
+      { name: 'แผนผังอาคาร', url: 'https://docs.google.com/spreadsheets/d/1BOq2ro55R--UDDQKVp8GdL1KarSQr79VTewCWaTLeBg/edit' },
+    ]
+  },
+  {
+    id: 'tech', name: 'เทคโนโลยีและสารสนเทศ', icon: '💻', color: '#15803d',
+    links: [
+      { name: 'ข้อมูลสารสนเทศโรงเรียน', url: 'https://docs.google.com/spreadsheets/d/1urU8FjqT7ameQzCTwtOHT6-FG3NK4tjKw0ueCZBBYA0/edit' },
+      { name: 'แบบฟอร์มการจอง Portfolio Space', url: 'https://docs.google.com/spreadsheets/d/1-FzXQ2DfUXruL3xgRgNWhpjHsH-RjzKVxy05JTP7ivo/edit' },
+      { name: 'รายงานผลแผนปฏิบัติการประจำปีการศึกษา', url: 'https://drive.google.com/drive/folders/1vTP_pHzqRHGDel-UL3W3C_ccvVD7t3_p' },
+      { name: 'แผนปฏิบัติการประจำปีการศึกษา', url: 'https://drive.google.com/drive/folders/1wwRlQLVu4MviogXNhZ_Ecv1HIbz1SexE' },
+      { name: 'ส่ง Poster สรุปโครงการ', url: 'https://drive.google.com/drive/folders/1fJOceEAJ5_s20vpmJmm92RXvoo0CjA7t' },
+      { name: 'รายงานการประเมินตนเอง (SAR) ย้อนหลัง', url: 'https://drive.google.com/drive/folders/1DHajB_0nlFg-WM1qzbWKNZ5RLRFzRGHU' },
+      { name: 'SAR bookcase ย้อนหลัง ปัจจุบัน - 2563', url: 'https://fliphtml5.com/bookcase/pmqsr' },
+      { name: 'ระบบการจัดเก็บ SAR 2568', url: 'https://docs.google.com/spreadsheets/d/1-fVbD8d0TsPrhfllhSygerg7mlEw28MDagfr4dW4A20/edit' },
+      { name: 'หนังสือรับรองการประเมิน สมศ/SAR65', url: '#' },
+      { name: 'งานแผนปฏิบัติการประจำปีการศึกษา', url: '#' },
+      { name: 'งานประกันคุณภาพการศึกษา', url: '#' },
+      { name: 'งานเทคโนโลยีและระบบคอมพิวเตอร์', url: '#' },
+      { name: 'จองใช้ระบบประชุม Google Meet', url: '#' },
+      { name: 'คู่มือใช้งาน Gmail & WiFi', url: '#' },
+      { name: 'Reset รหัสผ่าน Gmail', url: '#' },
+      { name: 'ระบบสืบค้นรหัสใช้งานคุณครู (Wifi/Printer/Gmail)', url: '#' },
+      { name: 'ระบบสืบค้นรหัสของนักเรียน', url: '#' },
+      { name: 'คู่มือการใช้ School Connex', url: '#' },
+      { name: 'Smart Board', url: '#' },
+      { name: 'วิดีโอสาธิตการใช้ SmartBoard', url: '#' },
+      { name: 'โปรแกรมสอนออนไลน์', url: '#' },
+      { name: 'ระบบ Printer', url: '#' },
+      { name: '📋 ระบบแจ้งการถ่ายเอกสาร / ขอเพิ่มโควตาปริ้น', url: 'https://docs.google.com/forms/d/e/1FAIpQLScQHKiHmZVX4dad1KYHXokEmmbuUnBR5zSzDBdw5qozLx1KFg/viewform' },
+      { name: 'ระบบยืมใช้งานอุปกรณ์โสตฯ', url: '#' },
+    ]
+  },
+  {
+    id: 'admin', name: 'ส่วนงานบริหารโรงเรียน', icon: '🧘', color: '#1d4ed8',
+    links: [
+      { name: '✈️ คู่มือการเดินทางไปราชการ', url: 'https://docs.google.com/spreadsheets/d/1ordeo0JZEpakTUqAQNYkcivEVDG_htG5iwhPweumKIg/edit' },
+      { name: '🚗 ระเบียบการขอใช้บริการรถโรงเรียน', url: 'https://drive.google.com/file/d/1IxUBYeBGaYJfOhLkzWfT1w4RyRjUNXyM/view' },
+      { name: '🚗 ระบบจองรถโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี', url: 'https://cococodeinfo.my.canva.site/carpsu' },
+      { name: '🚗 ระบบอนุมัติจองรถโรงเรียน', url: 'https://docs.google.com/spreadsheets/d/1lAHJfpwM0NN9r8DIkqqj0Smjhn6g0JDHYjL8np-sqcs/edit' },
+      { name: '📋 ระบบแจ้งการถ่ายเอกสาร / ขอเพิ่มโควตาปริ้น', url: 'https://docs.google.com/forms/d/e/1FAIpQLScQHKiHmZVX4dad1KYHXokEmmbuUnBR5zSzDBdw5qozLx1KFg/viewform' },
+      { name: '🗓️ ระบบขอหนังสือรับรองเงินเดือน/หนังสือรับรองเวลาทำงาน', url: 'https://forms.gle/XJR6aD2c15rt3wqq9' },
+      { name: '🧑‍🤝‍🧑 ข้อมูลบุคลากร', url: '#' },
+      { name: '🧑‍🤝‍🧑 เอกสารทั่วไปของบุคลากร', url: 'https://docs.google.com/spreadsheets/d/1d6cAty1zMl8AuqapeAKnFkSAm9uldPpdcHJQEb2qtLQ/edit' },
+      { name: '🧑‍🤝‍🧑 TOR ปีการศึกษา 2567', url: 'https://docs.google.com/spreadsheets/d/1nLKWwSCB8i5oPFU6CXJShwECECPCphRBs1HMuXtu3mw/edit' },
+      { name: '🧑‍🤝‍🧑 TOR ปีการศึกษา 2568', url: 'https://docs.google.com/spreadsheets/d/1LQWoNquX9Sc8X3CQrV3ppMy7N_RZjfTHcVPSC2pbquw/edit' },
+      { name: 'การลาเรียนหลักสูตรประกาศนียบัตรบัณฑิตวิชาชีพครู', url: '#' },
+      { name: '📚 หนังสือลาเรียนหลักสูตรประกาศนียบัตรบัณฑิตวิชาชีพครู', url: 'https://docs.google.com/document/d/1QmivhVdcH5VgL0T5BjeJDF6bYGpEt09k/edit' },
+      { name: '📚 ตัวอย่างหนังสือลาเรียนหลักสูตรประกาศนียบัตรบัณฑิตวิชาชีพครู', url: 'https://drive.google.com/file/d/1XLOuubUkL5tNzq4lnq8_TO-KjsMvc7yI/view' },
+      { name: 'งานบุคคล', url: '#' },
+      { name: '🚑 การเบิกค่ารักษาพยาบาล', url: 'https://drive.google.com/file/d/1sS31v69AB-1jdPi1YpV8sOs7HU8xA4sX/view' },
+      { name: '👪 การเบิกค่าการศึกษาบุตร', url: 'https://drive.google.com/file/d/1AHPVyRUfPYpHBDWDmPVBp-ULWfxrO2VB/view' },
+      { name: '📥 เว็บกองทุนสงเคราะห์', url: 'https://www.aidfunds.org/' },
+      { name: '💲 ขอเงินทุนเลี้ยงชีพของครูโรงเรียนเอกชน', url: 'https://drive.google.com/file/d/1dwuQOf6x6pVgZ7DnMv37Fa8lQAc7tNYE/view' },
+      { name: '🏫 ระเบียบ ขั้นตอน วิธีปฏิบัติ และการจัดสวัสดิการของกองทุนสงเคราะห์', url: 'https://drive.google.com/file/d/1pBxkWbtT8nicODltLLVenTcmJ3W0dJtI/view' },
+      { name: '🪑 ระบบครุภัณฑ์', url: 'https://docs.google.com/spreadsheets/d/1T-NvSvqWL0C50P5RdMiamB7Z56Yrmdhylk4cgoNOZmU/edit' },
+      { name: '🧭 กรอบงบและขอซื้อวัสดุ ครุภัณฑ์ ปี 2567', url: 'https://docs.google.com/spreadsheets/d/15CFLvtX0TOck9WipQspWq3RpIUmYV8hcTvdAlsxRLa8/edit' },
+      { name: '📋 ระบบแจ้งการถ่ายเอกสาร/ขอเพิ่มโควตาปริ้น', url: 'https://docs.google.com/spreadsheets/d/19mJ0WFJJZtQVg2elKTRrPil6gCXsRrj5YUFQO1X5vQA/edit' },
+      { name: '💸 ระบบเงินยืมทดลองจ่าย', url: 'https://docs.google.com/spreadsheets/d/1GjRYTL6KnyC92K5P494PpJ3HQCN3IkWnB-l6NrDH5HE/edit' },
+      { name: '💸 ประกาศอัตราค่าใช้จ่ายโครงการฯ', url: 'https://drive.google.com/file/d/1_C9UazJIvAKyZP_0LRT1KRtQu-FM5LqF/view' },
+      { name: '💸 อัตราค่าใช้จ่ายจัดประชุม/อบรมโครงการฯ', url: 'https://docs.google.com/spreadsheets/d/1tqhzh_aEhMqx6Ma7qEKi9K-zqdgN-8dz/edit' },
+      { name: '💸 ระบบชำระค่าธรรมเนียมการเรียน', url: '#' },
+      { name: '🎯 ระบบแจ้งซ่อม', url: 'https://forms.gle/ZqPFsY6E6Ft34g8C6' },
+      { name: '💸 แบบประเมินร้านอาหาร', url: 'https://forms.gle/Psy4cd36e7NVEJFq5' },
+      { name: '💸 ประกาศกำหนดอัตราการเก็บเงินรายได้จากการเช่าอาคาร', url: 'https://drive.google.com/file/d/1tJ19bEwC8ErBD3tHRoo5b7JereDnTgh_/view' },
+      { name: 'เอกสารงานการเงินและพัสดุ', url: 'https://docs.google.com/spreadsheets/d/1GxSe0eGbOx1sZ6FEVJfXzFhWpQVjC8fp/edit' },
+      { name: 'งบประมาณโครงการ', url: '#' },
+      { name: 'ภาระงานบุคลากรโรงเรียน', url: 'https://docs.google.com/spreadsheets/d/1Psk7c-rs6x0Pe9TM84hkZdLLQWu7RAOe5bCRd1aEH80/edit' },
+      { name: 'รายชื่อโรงพยาบาลที่เข้าร่วม โครงการ Clearing House', url: 'https://www.aidfunds.org/HCH/public/index.php' },
+    ]
+  },
+  {
+    id: 'policy', name: 'นโยบายและบริหารการศึกษา', icon: '📜', color: '#b45309',
+    links: [
+      { name: '⚜️ พระราชบัญญัติโรงเรียนเอกชน พ.ศ. 2550 แก้ไขเพิ่มเติม (ฉบับที่ 2) พ.ศ. 2554', url: 'https://drive.google.com/file/d/1E12BFbrxAzrK1hMqhz8dm2I6c-BKEDXG/view' },
+      { name: '⚜️ ตราสารจัดตั้งโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี (ฉบับที่ 2) พ.ศ. 2559', url: 'https://drive.google.com/file/d/1NM2GFy54ve1tnVeviNfUeGuttqsnHco6/view' },
+      { name: '⚜️ ข้อบังคับของมูลนิธิเพื่อการศึกษาโรงเรียน มอ.วิทยานุสรณ์', url: 'https://drive.google.com/file/d/1RRKMOKMwJDCrxGMgZ8HACKDpKORXyGZA/view' },
+      { name: '♾️ โครงสร้างองค์กรและโครงสร้างการบริหาร รร.มอ.ว.สฎ. (ประกาศ ณ 19 ก.พ.69)', url: 'https://drive.google.com/file/d/1XLLaFRuIeowNWNrbNF8SN6mIsESt2oFR/view' },
+      { name: '♾️ แผนขับเคลื่อน รร.มอ.ว.สฎ. ระยะ 5 ปี (2566 - 2570) ฉบับปรับปรุง พ.ศ. 2567', url: 'https://drive.google.com/open?id=1WW_C9m0fF_yBOUtGueGqwmkuwsYOgTr1' },
+      { name: '♾️ ปฏิทินและแผนปฏิบัติการ รร.มอ.ว.สฎ.', url: 'https://docs.google.com/spreadsheets/d/1H23ppLslvprgreNsxQW-P5qaxJY-dVs7g5aVXn4FZG8/edit' },
+      { name: '♾️ บันทึกข้อตกลงความร่วมมือ (MoU) / Certificate', url: 'https://docs.google.com/spreadsheets/d/1GegFPzqON6W_syl2-2T4y0-DE-1TadUPZcLD_9BwQN0/edit' },
+      { name: '♾️ Milestone', url: 'https://docs.google.com/spreadsheets/d/183ZKLYh3mREa0SlCwmyGLAozo5P8Fya9pMr7BSqJZNA/edit' },
+      { name: 'งานประชุมและบริหารการศึกษา', url: '#' },
+      { name: '🗓️ ประชุมคณะกรรมการมูลนิธิเพื่อการศึกษา รร.มอ.ว.สฎ.', url: '#' },
+      { name: '🗓️ ประชุมคณะกรรมการบริหาร รร.มอ.ว.สฎ.', url: '#' },
+      { name: '🗓️ ประชุมคณะอนุกรรมการบริหารภายใน รร.มอ.ว.สฎ.', url: 'https://docs.google.com/spreadsheets/d/1un4TbMkURGtAeh6jcpE4HMVCs-o70mVuWyxlxMDwajQ/edit' },
+      { name: '🗓️ ประชุมครูและบุคลากร รร.มอ.ว.สฎ.', url: 'https://docs.google.com/spreadsheets/d/1IKbyuLlWTOsxCfG3w-O9MclWU8Rof4uP0TeUtGTCGOw/edit' },
+      { name: '🗓️ ประชุมคณะอนุกรรมการขับเคลื่อน รร.มอ.ว.สฎ. สู่การเป็นพื้นที่นวัตกรรมการศึกษา', url: 'https://drive.google.com/file/d/12p-2IJ5U71bk55hF4ieHPgEy3IrbN94C/view' },
+      { name: '🗓️ ประชุมคณะทำงานพิจารณาจัดสรรทุนการศึกษา', url: '#' },
+      { name: '🗓️ ประชุมคณะอนุกรรมการศึกษาแนวทางการพัฒนาประสิทธิมูลนิธิฯ', url: '#' },
+      { name: 'ทุนการศึกษาเพื่อกระจายโอกาสทางการศึกษาให้กับนักเรียน', url: '#' },
+      { name: '🗃️ เอกสารงานทุนการศึกษา', url: 'https://drive.google.com/drive/folders/19CrBgdeDCoA-fcN86rNXbnNyT0jiXrbN' },
+      { name: '💻 Linkbio งานทุนการศึกษา', url: 'https://linkbio.co/EduFoundation' },
+      { name: '🏫 ข้อมูลพื้นฐานโรงเรียน', url: 'https://docs.google.com/spreadsheets/d/1zBAEs1GP9J-XMl8qoDBGkE7O3OjPU_VfIWB_7LrCbVM/edit' },
+      { name: 'งานนโยบายและแผน', url: '#' },
+      { name: 'งานส่วนงานบริหารการศึกษา (รับโอนงาน ตั้งแต่ 12 มิ.ย.)', url: 'https://drive.google.com/drive/folders/1HUlh-7Sl0c_iq-TpmYFWlOl68OgTfyVd' },
+      { name: '🗃️ ทะเบียนหนังสือรับ หนังสือภายนอก คำสั่ง ประกาศ', url: 'https://docs.google.com/spreadsheets/d/1TF2pI1mdP-CxfMuUzw1d9ceC6mr0VBIs9clsR9miMfE/edit' },
+      { name: '🗃️ ทะเบียนบันทึกข้อความภายในฝ่ายนโยบายฯ', url: 'https://docs.google.com/spreadsheets/d/1mTUhb6Yi4wVF_bSpiyBDFcVF5s5EiVldJJ3SEaEP2UE/edit' },
+      { name: '🗃️ ทะเบียนบันทึกข้อความขอใช้ลายเซ็นอิเล็กทรอนิกส์ ประจำปี 2568', url: 'https://docs.google.com/spreadsheets/d/1jLREG6X-rh1JMVF5yibskxYdMOt3oPKECYLDcNh29Pc/edit' },
+      { name: '📥 นำส่งไฟล์บันทึกข้อความภายในฝ่ายนโยบายฯ 2568', url: 'https://forms.gle/EaAb3jBCxD9SdUMs9' },
+      { name: '📥 นำส่งไฟล์หนังสือออกภายนอก', url: 'https://forms.gle/Nzh253sMPBdmc4hN9' },
+      { name: '📥 นำส่งไฟล์หนังสือเข้าจากภายนอก (คุณครู)', url: 'https://forms.gle/256ZhjqZZE9ymhdL9' },
+      { name: '📥 นำส่งไฟล์คำสั่ง', url: 'https://forms.gle/VicV9NSLbSawr5Cw7' },
+      { name: '📥 นำส่งไฟล์ประกาศ', url: 'https://forms.gle/PR9A2Eoo6PgGMcCJ9' },
+      { name: '📋 แบบฟอร์มหนังสือ รร.มอ.ว.สฎ. (ตั้งแต่ 23 ธ.ค. 2566)', url: 'https://drive.google.com/drive/folders/1LYVNOXjweS4rdUHwDs_gmKXaWUYtu_g6' },
+      { name: '📋 หนังสือขออนุญาตเดินทางไปราชการ', url: 'https://drive.google.com/drive/folders/15PS05bhGY9JLu56Ulgy6kkDiNC7mMQY1' },
+      { name: '📋 Logo', url: 'https://drive.google.com/drive/folders/1QzrtQ5osYLx3PT8_-lFI9VAxZRX4tNOC' },
+      { name: '📋 Font Chuanpim PSU-Stidti', url: 'https://drive.google.com/drive/folders/1on0b9PiTEU4SaWgKtCxoRIhfdUHvyM6L' },
+      { name: '🎗️ PWS OPEN HOUSE', url: 'https://docs.google.com/spreadsheets/d/1d3PiVLNLDzKxXKFlSD2jW17Ff5UoQGyesJVlJk7IaV4/edit' },
+      { name: '🎗️ วันครอบครัว 2567', url: 'https://docs.google.com/spreadsheets/d/1wYeOUYE4VR2L85BLneiXOSij63i880h27MvXJ8CrJcw/edit' },
+      { name: '🎗️ กิจกรรมวันคล้ายวันสถาปนาโรงเรียน', url: 'https://docs.google.com/spreadsheets/d/1kUqjKoMJE4PJY744CIN9E0qFh_SsA9hgcJqciJnzZAE/edit' },
+      { name: '📸 ระบบงานประชาสัมพันธ์ 2569 (จองนัดหมายบันทึกภาพ)', url: 'https://script.google.com/macros/s/AKfycbyDcCzeYl_3kwVI1IoeBgoTpeRhlnnGNeufJdzBQl6KSUW2DGKJwoEq_7sRf' },
+      { name: '🖼️ โลโก้ / ภาพบุคลากร / ภาพประกอบสื่อ / เพลง & วิดีโอ', url: 'https://drive.google.com/drive/folders/1nLY273ledBdlqz3ocDMCRNWM3Kg7qI_t' },
+      { name: '📑 ประกาศการจัดตั้งชมรมภายในโรงเรียน', url: 'https://drive.google.com/file/d/1chnxnLED7P6nKyyLmAt9HCWsim4VHhfN/view' },
+      { name: '📑 แบบฟอร์มการขอจัดตั้งชมรม / ต่ออายุชมรม', url: 'https://drive.google.com/file/d/1TKIILE6EUvqqoVLgT-8R1Iz-aM_1ZVzW/view' },
+      { name: '📑 รายชื่อชมรมภายในโรงเรียน มอ.ว.สฎ.', url: 'https://docs.google.com/spreadsheets/d/1Ih7WoostFOHv4duLk6pYhBh7OWsskRqPqugqCwHEZ_8/edit' },
+      { name: 'งานรับนักเรียนใหม่', url: '#' },
+      { name: '💻 Google Site งานรับนักเรียนใหม่', url: 'https://sites.google.com/psuwitsurat.ac.th/pws-newgen' },
+      { name: '🗓️ ปฏิทินรับนักเรียนใหม่', url: 'https://docs.google.com/spreadsheets/d/1DcSLZLp155PbXomYPZ0zuNb2IsQm-76wo-JTNtIXYhM/edit' },
+      { name: '🚌 PWS Roadshow', url: 'https://docs.google.com/spreadsheets/d/12heXWRMMxZBZq6PD-iYjdCLoFpYmg8ELzVlMIF0ULYA/edit' },
+      { name: '🖼️ งานส่งเสริมภาพลักษณ์', url: '#' },
+      { name: '📚 Fliphtml5 Bookcase - PR PWS', url: 'https://fliphtml5.com/bookcase/agbta' },
+      { name: '🎬 แผนผลิตสื่อประชาสัมพันธ์และเผยแพร่ในพื้นที่ภูมิภาค', url: 'https://docs.google.com/spreadsheets/d/1xUvMU2rBC_EUVQOV7aYfzRgOoPAU5gmsgXLvQRGZsxY/edit' },
+      { name: '🎯 แผนประชาสัมพันธ์ (2564 - 2567)', url: 'https://docs.google.com/spreadsheets/d/17vHgZWH5nKztBfWUf9ytb3AwwFG1aYKxSfywUiHJuoY/edit' },
+      { name: '🪪 หนังสือยินยอมอนุญาตให้เผยแพร่ภาพถ่าย วิดีโอ และ/หรือข้อมูล', url: 'https://drive.google.com/drive/folders/1j9Nk7qyXk_Oedss_817MkqlgmCdcrDSo' },
+      { name: 'ภาระงาน ครูและบุคลากร ฝ่ายนโยบายฯ', url: 'https://docs.google.com/spreadsheets/d/1wDCzIzVuK6WgPOV4NwUeBtWSkj_M_tiA9de4eTbeD-k/edit' },
+      { name: '🌎 โครงการยกระดับการจัดการศึกษานอกห้องเรียน (PWS Educulture)', url: 'https://docs.google.com/spreadsheets/d/1-ki69ap1r-0ne6BS-ZnekVvLv8T9909AUktdIw0ZBkU/edit' },
+      { name: '🧩 โครงการอบรมเชิงปฏิบัติการเพื่อพัฒนาศักยภาพการบริหารและนวัตกรรม', url: 'https://docs.google.com/spreadsheets/d/19I-X-rSc8sq-3Lpr8D5ch-aqs7dMAU8S8HjFfGO7F44/edit' },
+    ]
+  },
+  {
+    id: 'stem', name: 'ศูนย์สะเต็มศึกษา', icon: '🔬', color: '#7c3aed',
+    links: [
+      { name: '🗓️ ปฏิทินการปฏิบัติงาน', url: 'https://calendar.google.com/calendar/u/0/r/month' },
+      { name: '📋 แผนปฏิบัติงาน ประจำปี 2566', url: 'https://docs.google.com/spreadsheets/d/1ibFE066ZTHA3pgumISrtsYJm765XvVL6Gnrn6FS44rg/edit' },
+      { name: '👨‍✈️ โครงสร้างบุคลากร STEM', url: 'https://drive.google.com/file/d/1rYXskr3ONQ5knJXjkVSlBA67-YC89sic/view' },
+      { name: 'ห้อง STEM', url: '#' },
+      { name: '🗓️ ตารางการปฏิบัติงานห้อง STEM', url: 'https://docs.google.com/spreadsheets/d/15GHJpC7ur2XlTklwpEVc5sliuUw8tPGPWKK7UPZXkuY/edit' },
+      { name: '📥 แบบแจ้งความประสงค์ขอใช้เครื่องพิมพ์สามมิติ STEM LAB', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfeIhh4kI17UjfAe2cMA1xBuqY5GmrR46mOtzn8qO_peC9dew/viewform' },
+      { name: '📥 ตรวจสอบสถานะการขอใช้ห้องและอุปกรณ์ภายใน STEM LAB', url: 'https://shorturl.asia/APVaL' },
+      { name: '🥫 แบบแจ้งความประสงค์ขอใช้เครื่องพิมพ์ 3D', url: '#' },
+      { name: '✈️ China ASEAN Youth Online STEM Study Contest', url: 'https://docs.google.com/spreadsheets/d/1Eo4EJM1j5YDjarJ5mCJ3LOlqr_zl4k4qlFVEjQD0gOY/edit' },
+      { name: '✈️ The 28th Asian Technology Conference in Mathematics', url: 'https://docs.google.com/spreadsheets/d/1ox6GDqxxfsoqcxUercY4qjFPZWwWhAN1XUDq9fo0Ymc/edit' },
+      { name: '✈️ The 7th Belt and Road Teenager Maker Camp & Teacher Workshop', url: 'https://docs.google.com/spreadsheets/d/1EX2Gax675e9XSnd7XUxQkTqKuVJXLxDmENKs2Ih-aDo/edit' },
+      { name: '🤖 Learning Coding using robots', url: 'https://youtu.be/DZ3RHuyl15g' },
+      { name: '🎑 Making Pop-Up Cards', url: 'https://www.youtube.com/watch?v=OJ6TMXrLf84' },
+      { name: '🦆 Magic Bubble', url: '#' },
+      { name: '🧠 Creative Thinking and Decision Making', url: '#' },
+      { name: '📷 3D Photography', url: '#' },
+      { name: '⚡ Basic Electronics for Science Projects', url: '#' },
+      { name: 'บริการวิชาการ', url: '#' },
+      { name: 'กิจกรรม/โครงการ STEM', url: '#' },
+    ]
+  },
+  {
+    id: 'contact', name: 'ติดต่อเรา', icon: '📞', color: '#475569',
+    links: [
+      { name: '🌐 Website : www.psuwitsurat.ac.th', url: 'http://www.psuwitsurat.ac.th/' },
+      { name: '🔵 Facebook : PSU.Wittayanusorn Surat Thani School', url: 'https://www.facebook.com/PSU.Wittayanusorn.Surat/' },
+      { name: '🔴 Youtube : PSU.Wittayanusorn Surat Thani School', url: 'https://www.youtube.com/channel/UCGwUmRuoKFTyi2gqikUWJdg' },
+      { name: '🟡 TikTok : psuwitsurat', url: 'https://www.tiktok.com/@psuwitsurat' },
+      { name: '🟢 Line ID : psuwitsurat', url: 'https://line.me/ti/p/EUAN-HPxQv' },
+      { name: '🟢 Line Openchat : รับนักเรียนใหม่ รร.มอ.ว.สฎ.', url: 'https://line.me/ti/g2/HzZkWwyB2WrJBviBq7AGgsNN4LsF8TDuUcLOWA' },
+      { name: '🔵 Facebook : หอพักนักเรียน', url: 'https://www.facebook.com/DormitoryPSU.WittayanusornSuratthani' },
+      { name: '🟣 Instagram : dpsuwitsuratofficial', url: 'https://www.instagram.com/dpsuwitsuratofficial/' },
+      { name: '🟡 TikTok : dpws_official', url: 'https://www.tiktok.com/@dpws_official' },
+      { name: '🔵 Facebook : SciUs PSU Surat', url: 'https://www.facebook.com/scius.surat' },
+      { name: '🟡 TikTok : sciuspsusurat', url: 'https://www.tiktok.com/@scius_psu_surat' },
+      { name: '🟣 Instagram : scius_psu_surat', url: 'https://www.instagram.com/scius_psu_surat/' },
+      { name: '🟢 Line ID : 0905912556 (วมว.)', url: 'https://line.me/ti/p/EUAN-HPxQv' },
+      { name: '🔵 Facebook : สภานักเรียน โรงเรียน มอ.วิทยานุสรณ์', url: 'https://www.facebook.com/pwsstudentcouncil' },
+      { name: '🟡 TikTok : psuwitsurat_council', url: 'https://www.tiktok.com/@psuwitsurat_council' },
+      { name: '🟣 Instagram : psu.witsurat_council', url: 'https://www.instagram.com/psu.witsurat_council/' },
+    ]
+  }
+];
+
+// ════════════════════════════════════════════════
+// LIVE DATA — ดึงข้อมูลสดจาก Google Sheet (ชีทอื่นๆ นอกจาก MENU)
+// ════════════════════════════════════════════════
+const SHEET_ID = '15jTvPkpiCYkhrwITbnWHbTgZHsFOPkwgchUA0IM5pAg';
+const csvCache = {};
+let jsonpSeq = 0;
+
+// Google's gviz tq endpoint does not send CORS headers for plain fetch(),
+// so it must be loaded via a <script> tag using its JSONP-style callback
+// (tqx=responseHandler:<name>) instead of fetch().
+function fetchSheetJSONP(sheetName) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gviz_cb_' + (jsonpSeq++);
+    const script = document.createElement('script');
+    const timer = setTimeout(() => { cleanup(); reject(new Error('โหลดชีท "' + sheetName + '" หมดเวลา')); }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = (resp) => {
+      cleanup();
+      if (resp.status === 'error') {
+        reject(new Error('โหลดชีท "' + sheetName + '" ไม่สำเร็จ: ' + (resp.errors && resp.errors[0] && resp.errors[0].detailed_message || 'unknown error')));
+        return;
+      }
+      resolve(resp.table);
+    };
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName}&sheet=${encodeURIComponent(sheetName)}`;
+    script.src = url;
+    script.onerror = () => { cleanup(); reject(new Error('โหลดชีท "' + sheetName + '" ไม่สำเร็จ (network)')); };
+    document.head.appendChild(script);
+  });
+}
+
+function gvizCellText(cell) {
+  if (!cell) return '';
+  const val = (cell.f !== undefined && cell.f !== null) ? cell.f : cell.v;
+  if (val === undefined || val === null) return '';
+  return String(val);
+}
+
+function csvEscapeField(s) {
+  if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+// Reconstruct an out:csv-equivalent text blob from the gviz JSON table,
+// so all downstream regex/parseCSV logic stays unchanged.
+function gvizTableToCsv(table) {
+  const numCols = table.cols.length;
+  const lines = [table.cols.map(c => csvEscapeField(c.label || '')).join(',')];
+  table.rows.forEach(row => {
+    const cells = [];
+    for (let i = 0; i < numCols; i++) cells.push(csvEscapeField(gvizCellText(row.c && row.c[i])));
+    lines.push(cells.join(','));
+  });
+  return lines.join('\n');
+}
+
+async function fetchSheetCSV(sheetName) {
+  if (csvCache[sheetName]) return csvCache[sheetName];
+  const table = await fetchSheetJSONP(sheetName);
+  const csv = gvizTableToCsv(table);
+  csvCache[sheetName] = csv;
+  return csv;
+}
+
+// Minimal RFC4180-ish CSV parser (handles quoted fields, embedded commas/newlines)
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// normalize Thai text with duplicated combining-mark typos
+// (e.g. "ฝ่่าย" -> "ฝ่าย", "พััฒนา" -> "พัฒนา", "นัักเรียน" -> "นักเรียน")
+function normalizeThai(s) {
+  return (s || '').replace(/([ัิ-ฺ็-๎])\1+/g, '$1').trim();
+}
+
+// หา index ของคอลัมน์จาก header โดยเทียบคำสำคัญ (ไม่ผูกกับลำดับคอลัมน์ตายตัว
+// เพื่อให้ทนทานต่อการแก้ไขชีทในอนาคต)
+function findCol(headers, keywords) {
+  for (let i = 0; i < headers.length; i++) {
+    const h = normalizeThai(headers[i] || '').toLowerCase();
+    if (keywords.some(k => h.includes(k))) return i;
+  }
+  return -1;
+}
+
+function toNumber(s) {
+  const n = parseFloat(String(s || '').replace(/,/g, '').trim());
+  return isNaN(n) ? null : n;
+}
+
+// ── ตัวสรุปข้อมูลแบบรวม (aggregate-only) จากชีทอื่นๆ ──
+// หลักการ: ส่งออกได้เฉพาะ "ตัวเลขสรุป/รายการหมวดหมู่" เท่านั้น
+// ห้ามดึงชื่อนักเรียนรายบุคคล เลขบัตรประชาชน ที่อยู่ เบอร์โทร หรือข้อมูลส่วนบุคคลอื่นๆ ออกมา
+async function buildClubDigest() {
+  try {
+    const csv = await fetchSheetCSV('สังกัดชุมนุม');
+    const rows = parseCSV(csv);
+    const headers = rows[0] || [];
+    const clubCol = findCol(headers, ['ชุมนุม']);
+    if (clubCol === -1) return null;
+    const counts = {};
+    rows.slice(1).forEach(r => {
+      const c = normalizeThai((r[clubCol] || '').trim());
+      if (!c) return;
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return null;
+    return `รายชื่อชุมนุมและจำนวนนักเรียนในชุมนุม (รวม ${entries.length} ชุมนุม):\n` +
+      entries.map(([k, v]) => `- ${k}: ${v} คน`).join('\n');
+  } catch (e) { return null; }
+}
+
+async function buildBudgetDigest() {
+  try {
+    const csv = await fetchSheetCSV('งบประมาณโครงการ');
+    const rows = parseCSV(csv);
+    const headers = rows[0] || [];
+    const nameCol = findCol(headers, ['ชื่อโครงการ', 'โครงการ']);
+    const amountCol = findCol(headers, ['งบประมาณ', 'จำนวนเงิน', 'อนุมัติ', 'เบิกจ่าย', 'ใช้จริง']);
+    const dataRows = rows.slice(1).filter(r => r.some(c => c && c.trim()));
+    if (!dataRows.length) return null;
+    let total = 0, counted = 0;
+    const projects = new Set();
+    dataRows.forEach(r => {
+      if (nameCol !== -1 && r[nameCol] && r[nameCol].trim()) projects.add(normalizeThai(r[nameCol].trim()));
+      if (amountCol !== -1) {
+        const n = toNumber(r[amountCol]);
+        if (n !== null) { total += n; counted++; }
+      }
+    });
+    let out = `ข้อมูลงบประมาณโครงการ: มีโครงการทั้งหมด ${projects.size || dataRows.length} โครงการ (จาก ${dataRows.length} รายการในบันทึก)`;
+    if (counted) out += `, ยอดรวม${headers[amountCol] ? ' "' + headers[amountCol] + '"' : 'งบประมาณ'} ประมาณ ${total.toLocaleString('th-TH')} บาท`;
+    return out;
+  } catch (e) { return null; }
+}
+
+// ── Tier 1: client-side stat calculators (live, exact, no AI / no PII sent anywhere) ──
+const STATS = [
+  {
+    keywords: ['นักเรียนทั้งหมด', 'จำนวนนักเรียน', 'นักเรียนกี่คน', 'มีนักเรียน', 'นักเรียนทั้งโรงเรียน'],
+    handler: async () => {
+      const csv = await fetchSheetCSV('ทะเบียน');
+      const m = csv.match(/รายงานจำนวนนักเรียนทั้งหมด\s*([\d,]+)\s*คน/);
+      if (!m) return null;
+      const gradeMatches = [...csv.matchAll(/นักเรียนชั้น\s*(ม\.\d)\s*จำนวน\s*([\d,]+)/g)];
+      let detail = '';
+      if (gradeMatches.length) {
+        detail = '<br><br><strong>แยกตามระดับชั้น:</strong><br>' +
+          gradeMatches.map(g => `• ${g[1]}: ${g[2]} คน`).join('<br>');
+      }
+      return `<span class="ai-tag">📊 ข้อมูลสด</span><br><strong>นักเรียนทั้งหมด ${m[1]} คน</strong>${detail}`;
+    }
+  },
+  {
+    keywords: ['บุคลากรทั้งหมด', 'ครูทั้งหมด', 'จำนวนครู', 'จำนวนบุคลากร', 'มีครูกี่คน', 'มีบุคลากรกี่คน', 'ครูกี่คน', 'บุคลากรกี่คน'],
+    handler: async () => {
+      const csv = await fetchSheetCSV('ข้อมูลบุคลากร');
+      const rows = parseCSV(csv);
+      const dataRows = rows.slice(1).filter(r => r[1] && r[1].trim() && r[1].trim() !== 'ชื่อ - สกุล');
+      const total = dataRows.length;
+      if (!total) return null;
+      const counts = {};
+      dataRows.forEach(r => {
+        const dept = normalizeThai(r[9]);
+        if (!dept) return;
+        counts[dept] = (counts[dept] || 0) + 1;
+      });
+      const deptLines = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => `• ${k}: ${v} คน`).join('<br>');
+      return `<span class="ai-tag">📊 ข้อมูลสด</span><br><strong>บุคลากรทั้งหมด ${total} คน</strong>` +
+        (deptLines ? `<br><br><strong>แยกตามฝ่าย:</strong><br>${deptLines}` : '');
+    }
+  },
+  {
+    keywords: ['ชุมนุมมีอะไรบ้าง', 'รายชื่อชุมนุม', 'ชุมนุมทั้งหมด', 'มีชุมนุมอะไร', 'จำนวนชุมนุม', 'ชุมนุมกี่ชุมนุม'],
+    handler: async () => {
+      const info = await buildClubDigest();
+      if (!info) return null;
+      const lines = info.split('\n');
+      const header = lines[0];
+      const body = lines.slice(1).map(l => l.replace(/^- /, '• ')).join('<br>');
+      return `<span class="ai-tag">📊 ข้อมูลสด</span><br><strong>${header}</strong><br>${body}`;
+    }
+  },
+  {
+    keywords: ['งบประมาณโครงการ', 'งบโครงการ', 'โครงการทั้งหมดกี่โครงการ', 'งบประมาณทั้งหมด', 'จำนวนโครงการ'],
+    handler: async () => {
+      const info = await buildBudgetDigest();
+      if (!info) return null;
+      return `<span class="ai-tag">📊 ข้อมูลสด</span><br>${info}`;
+    }
+  }
+];
+
+// ── Tier 2 fallback: Claude API (ผู้ใช้ตั้งค่า API key ของตัวเอง, เก็บใน localStorage เท่านั้น) ──
+function getApiKey() { return localStorage.getItem('claude_api_key') || ''; }
+function setApiKey(k) {
+  if (k) localStorage.setItem('claude_api_key', k);
+  else localStorage.removeItem('claude_api_key');
+}
+
+// สร้าง system digest แบบ "สด" — ดึงข้อมูลสรุป (นับ/รวมยอด) จากชีทที่ปลอดภัยจริงๆ
+// (ไม่มีชื่อนักเรียนรายบุคคล/เลขบัตร/ที่อยู่/เบอร์โทร) มาต่อกับข้อมูลพื้นฐานคงที่
+// เพื่อให้ AI ตอบคำถามปลายเปิดได้กว้างขึ้น โดยไม่ส่งข้อมูลส่วนบุคคลออกไปยัง Claude API เด็ดขาด
+async function buildLiveDigest() {
+  const base = `คุณเป็นผู้ช่วยตอบคำถามข้อมูลพื้นฐานของโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี (PSU Wittayanusorn Surat Thani School)
+ข้อมูลที่คุณมี (เป็นข้อมูลสรุป/รวมยอดเท่านั้น ไม่มีข้อมูลส่วนบุคคล):
+- จำนวนนักเรียนทั้งหมดและแยกตามระดับชั้น ม.1-ม.6 (จากระบบทะเบียน)
+- จำนวนบุคลากร/ครูทั้งหมดและแยกตามฝ่ายงาน
+- ฝ่ายงานของโรงเรียน 9 ฝ่าย: วิชาการ, พัฒนาผู้เรียน, กิจการนักเรียน, บริการ, เทคโนโลยีและสารสนเทศ, ส่วนงานบริหารโรงเรียน, นโยบายและบริหารการศึกษา, ศูนย์สะเต็มศึกษา, ติดต่อเรา`;
+
+  let extras = [];
+  try {
+    const [clubInfo, budgetInfo] = await Promise.all([
+      buildClubDigest().catch(() => null),
+      buildBudgetDigest().catch(() => null)
+    ]);
+    if (clubInfo) extras.push(clubInfo);
+    if (budgetInfo) extras.push(budgetInfo);
+  } catch (e) { /* ถ้าดึงไม่ได้ ใช้แค่ข้อมูลพื้นฐาน ไม่ทำให้ AI ตอบไม่ได้ทั้งหมด */ }
+
+  const extraBlock = extras.length
+    ? `\n\nข้อมูลสดเพิ่มเติม (สรุป/รวมยอดเท่านั้น ไม่มีชื่อนักเรียนหรือบุคลากรรายบุคคล):\n${extras.join('\n\n')}`
+    : '';
+
+  return `${base}${extraBlock}
+
+กฎสำคัญ:
+1. ห้ามสร้างหรือเดาตัวเลข/ข้อมูลที่คุณไม่มีอยู่จริง — ถ้าไม่มีข้อมูลให้บอกตรงๆ ว่าไม่มีข้อมูลนี้ และแนะนำให้ติดต่อฝ่ายที่เกี่ยวข้อง
+2. ห้ามให้ข้อมูลส่วนบุคคลของนักเรียน/บุคลากรรายบุคคล (ชื่อ, 
