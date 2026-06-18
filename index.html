@@ -889,4 +889,252 @@ async function buildLiveDigest() {
 
 กฎสำคัญ:
 1. ห้ามสร้างหรือเดาตัวเลข/ข้อมูลที่คุณไม่มีอยู่จริง — ถ้าไม่มีข้อมูลให้บอกตรงๆ ว่าไม่มีข้อมูลนี้ และแนะนำให้ติดต่อฝ่ายที่เกี่ยวข้อง
-2. ห้ามให้ข้อมูลส่วนบุคคลของนักเรียน/บุคลากรรายบุคคล (ชื่อ, 
+2. ห้ามให้ข้อมูลส่วนบุคคลของนักเรียน/บุคลากรรายบุคคล (ชื่อ, เลขบัตรประชาชน, ที่อยู่, เบอร์โทร) แม้จะถูกขอ เพราะคุณไม่มีและไม่ควรมีข้อมูลนั้น
+3. ตอบสั้น กระชับ เป็นภาษาไทย สุภาพ เหมาะกับบริบทโรงเรียน`;
+}
+
+async function askClaude(question) {
+  const key = getApiKey();
+  if (!key) return null;
+  const digest = await buildLiveDigest();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: digest,
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API error ${res.status}: ${errText.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    return data.content?.[0]?.text || null;
+  } catch (err) {
+    return `⚠️ เรียก AI ไม่สำเร็จ: ${err.message}`;
+  }
+}
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  const current = getApiKey();
+  const masked = current ? current.slice(0, 8) + '...' + current.slice(-4) : '(ยังไม่ได้ตั้งค่า)';
+  const input = prompt(
+    `🔑 ตั้งค่า Claude API Key\n\n` +
+    `ใช้สำหรับตอบคำถามปลายเปิดที่ไม่มีในฐานข้อมูลสถิติ/ลิงก์ (เช่น คำถามทั่วไปเกี่ยวกับโรงเรียน)\n` +
+    `สร้าง API key ได้ที่ console.anthropic.com (คีย์ของคุณจะถูกเก็บไว้ในเบราว์เซอร์นี้เท่านั้น ไม่ถูกส่งไปที่อื่น)\n\n` +
+    `สถานะปัจจุบัน: ${masked}\n\n` +
+    `วาง API key ใหม่ที่นี่ (เว้นว่างแล้วกด OK เพื่อลบคีย์, กด Cancel เพื่อไม่เปลี่ยนแปลง):`,
+    ''
+  );
+  if (input === null) return;
+  if (input.trim() === '') {
+    setApiKey('');
+    addBotMsg('🗑️ ลบ API key แล้ว ระบบจะตอบได้แค่ข้อมูลสถิติและลิงก์เท่านั้น');
+  } else {
+    setApiKey(input.trim());
+    addBotMsg('✅ บันทึก API key แล้ว ตอนนี้สามารถถามคำถามปลายเปิดเกี่ยวกับโรงเรียนได้เพิ่มเติม');
+  }
+});
+
+// ════════════════════════════════════════════════
+// Build department tabs
+// ════════════════════════════════════════════════
+const strip = document.getElementById('deptStrip');
+DEPTS.forEach(d => {
+  const b = document.createElement('button');
+  b.className = 'dept-btn';
+  b.style.background = d.color;
+  b.textContent = `${d.icon} ${d.name}`;
+  b.addEventListener('click', () => {
+    addUserMsg(`${d.icon} ${d.name}`);
+    setTimeout(() => showResults(
+      d.links.map(l => ({ ...l, dept: d.name, color: d.color, icon: d.icon })),
+      `ข้อมูลฝ่าย${d.name}`
+    ), 200);
+  });
+  strip.appendChild(b);
+});
+
+// ════════════════════════════════════════════════
+// Quick-link grid (ฝั่งขวา) — ลิงก์ลัดระบบย่อยที่ใช้บ่อย
+// ════════════════════════════════════════════════
+const QUICK_LINKS = [
+  { icon: '🚗', label: 'จองรถโรงเรียน', url: 'https://cococodeinfo.my.canva.site/carpsu' },
+  { icon: '🪑', label: 'ระบบครุภัณฑ์', url: 'https://docs.google.com/spreadsheets/d/1T-NvSvqWL0C50P5RdMiamB7Z56Yrmdhylk4cgoNOZmU/edit' },
+  { icon: '💸', label: 'เงินยืมทดลองจ่าย', url: 'https://docs.google.com/spreadsheets/d/1GjRYTL6KnyC92K5P494PpJ3HQCN3IkWnB-l6NrDH5HE/edit' },
+  { icon: '🎯', label: 'แจ้งซ่อม', url: 'https://forms.gle/ZqPFsY6E6Ft34g8C6' },
+  { icon: '📋', label: 'แจ้งถ่ายเอกสาร/โควตาปริ้น', url: 'https://docs.google.com/forms/d/e/1FAIpQLScQHKiHmZVX4dad1KYHXokEmmbuUnBR5zSzDBdw5qozLx1KFg/viewform' },
+  { icon: '🔎', label: 'ค้นหาการกระทำผิดนักเรียน', url: 'https://script.google.com/a/macros/psuwitsurat.ac.th/s/AKfycbzalVgw8_35jRflbLBjNYO86wwDZbMqjMs7ejFoj' },
+  { icon: '📚', label: 'ระบบจัดเก็บ SAR', url: 'https://docs.google.com/spreadsheets/d/1-fVbD8d0TsPrhfllhSygerg7mlEw28MDagfr4dW4A20/edit' },
+  { icon: '🩺', label: 'ฐานข้อมูล BMI', url: 'https://docs.google.com/spreadsheets/d/1yBgtEUPCRkpSN3blFOIhQWB6HPxov5-8a1r00KIVKT8/edit' },
+  { icon: '🏫', label: 'ตรวจห้องเรียน', url: 'https://docs.google.com/spreadsheets/d/1Woa3BsBSKtDH1OZFYSczLmBaGh5Slfn0CiasTWekQMg/edit' },
+  { icon: '📸', label: 'งานประชาสัมพันธ์ (จองถ่ายภาพ)', url: 'https://script.google.com/macros/s/AKfycbyDcCzeYl_3kwVI1IoeBgoTpeRhlnnGNeufJdzBQl6KSUW2DGKJwoEq_7sRf' },
+  { icon: '🧑‍🤝‍🧑', label: 'รายชื่อนักเรียน', url: 'https://docs.google.com/spreadsheets/d/1v1ryoUZl_lNH0wnxum9I23q4jTVmuuaYqmK7fHVyh5g/edit' },
+  { icon: '🌐', label: 'เว็บไซต์โรงเรียน', url: 'http://www.psuwitsurat.ac.th/' },
+];
+const quickGrid = document.getElementById('quickGrid');
+QUICK_LINKS.forEach(q => {
+  const a = document.createElement('a');
+  a.className = 'quick-link';
+  a.href = q.url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.innerHTML = `<span class="qi-icon">${q.icon}</span><span class="qi-label">${q.label}</span>`;
+  quickGrid.appendChild(a);
+});
+
+// ════════════════════════════════════════════════
+// Chat helpers
+// ════════════════════════════════════════════════
+const chat = document.getElementById('chat');
+
+function addUserMsg(text) {
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.textContent = text;
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addBotMsg(html) {
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = html;
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+  return el;
+}
+
+function showResults(results, label) {
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+
+  // filter out placeholder '#' links
+  const valid = results.filter(r => r.url && r.url !== '#');
+  const total = results.length;
+  const shown = valid.length;
+
+  if (total === 0) {
+    el.innerHTML = `<span class="no-result">ไม่พบข้อมูลที่ตรงกับ "<strong>${label}</strong>"<br>ลองใช้คำอื่น เช่น วิชาการ, ประชุม, นักเรียน, STEM</span>`;
+  } else {
+    el.innerHTML = `<div class="result-count">พบ ${shown} รายการ${shown < total ? ` (จาก ${total} ทั้งหมด มีลิงก์)` : ''}:</div>`;
+    const list = document.createElement('div');
+    list.className = 'result-list';
+    valid.forEach(r => {
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href = r.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `
+        <span class="card-badge" style="background:${r.color}22;color:${r.color}">${r.icon} ${r.dept}</span>
+        <span class="card-name">${r.name}</span>
+        <span class="card-arrow">↗</span>
+      `;
+      list.appendChild(a);
+    });
+    el.appendChild(list);
+  }
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ════════════════════════════════════════════════
+// Search logic
+// ════════════════════════════════════════════════
+function search(q) {
+  q = q.toLowerCase().trim();
+  if (!q) return [];
+  const hits = [];
+  DEPTS.forEach(d => {
+    const deptMatch = d.name.toLowerCase().includes(q) || d.id.includes(q);
+    d.links.forEach(l => {
+      const nameMatch = l.name.toLowerCase().includes(q);
+      if (deptMatch || nameMatch) {
+        hits.push({ ...l, dept: d.name, color: d.color, icon: d.icon });
+      }
+    });
+  });
+  // deduplicate
+  return [...new Map(hits.map(h => [h.name, h])).values()];
+}
+
+// ════════════════════════════════════════════════
+// Send
+// ════════════════════════════════════════════════
+async function send() {
+  const inp = document.getElementById('inp');
+  const q = inp.value.trim();
+  if (!q) return;
+  addUserMsg(q);
+  inp.value = '';
+
+  const qLower = q.toLowerCase();
+
+  // Tier 1: live stat calculators (exact, client-side, no PII ever leaves the browser)
+  for (const stat of STATS) {
+    if (stat.keywords.some(k => qLower.includes(k.toLowerCase()))) {
+      const thinkingEl = addBotMsg('<span class="thinking">กำลังตรวจสอบข้อมูลสด</span>');
+      try {
+        const html = await stat.handler();
+        thinkingEl.remove();
+        if (html) { addBotMsg(html); return; }
+      } catch (err) {
+        thinkingEl.remove();
+        addBotMsg(`⚠️ ดึงข้อมูลสถิติไม่สำเร็จ: ${err.message}`);
+        return;
+      }
+      break;
+    }
+  }
+
+  // Tier 2: link/department search (existing MENU directory)
+  const results = search(q);
+  if (results.length > 0) {
+    showResults(results, q);
+    return;
+  }
+
+  // Tier 3: Claude API fallback for open-ended questions
+  const key = getApiKey();
+  if (!key) {
+    addBotMsg(`ไม่พบข้อมูลที่ตรงกับ "<strong>${q}</strong>" ในฐานข้อมูลสถิติหรือลิงก์ของโรงเรียน<br><br>💡 ต้องการให้ AI ช่วยตอบคำถามปลายเปิดไหมครับ? กดปุ่ม ⚙️ ที่หัวข้อด้านบนเพื่อตั้งค่า Claude API Key ของคุณเอง`);
+    return;
+  }
+  const thinkingEl = addBotMsg('<span class="thinking">AI กำลังคิด</span>');
+  const answer = await askClaude(q);
+  thinkingEl.remove();
+  if (answer) {
+    addBotMsg(`<span class="ai-tag">🤖 AI ตอบ</span><br>${answer.replace(/\n/g, '<br>')}`);
+  } else {
+    addBotMsg(`ไม่พบข้อมูลที่ตรงกับ "<strong>${q}</strong>"`);
+  }
+}
+
+document.getElementById('sendBtn').addEventListener('click', send);
+document.getElementById('inp').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+// ════════════════════════════════════════════════
+// Welcome message
+// ════════════════════════════════════════════════
+addBotMsg(`
+  <strong>👋 สวัสดีครับ!</strong><br><br>
+  ผมช่วยค้นหาข้อมูลพื้นฐานและตอบคำถามข้อมูลสดของโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี<br><br>
+  <strong>วิธีใช้งาน:</strong><br>
+  • กดปุ่มฝ่ายด้านบน เพื่อดูลิงก์ทั้งหมดในฝ่ายนั้น<br>
+  • พิมพ์คำค้นหาลิงก์ เช่น <em>ประชุม, STEM, ระเบียบ, SAR, ทุน, รถ</em><br>
+  • ถามข้อมูลสดได้เลย เช่น <em>"นักเรียนทั้งหมดกี่คน"</em>, <em>"บุคลากรทั้งหมดกี่คน"</em>, <em>"มีชุมนุมอะไรบ้าง"</em> หรือ <em>"งบประมาณโครงการทั้งหมด"</em> — ดึงตัวเลขล่าสุดจากชีทจริง<br>
+  • กดปุ่ม ⚙️ มุมขวาบนเพื่อตั้งค่า Claude API Key ของคุณเอง หากต้องการให้ AI ช่วยตอบคำถามปลายเปิดเพิ่มเติม (AI จะใช้ข้อมูลสรุป/รวมยอดสดล่าสุดด้วย แต่จะไม่เข้าถึงข้อมูลส่วนบุคคลของนักเรียน/บุคลากรเด็ดขาด)
+`);
+</script>
+</body>
+</html>
