@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบเขียนบันทึกข้อความ — โรงเรียน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0;
+    --bg:#f3f6fa;
+    --card:#ffffff;
+    --border:#dfe6ee;
+    --text:#1f2a37;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Sarabun',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  .back{display:inline-block;margin-bottom:14px;color:var(--accent);text-decoration:none;font-size:0.9rem;}
+  .back:hover{text-decoration:underline;}
+  h1{font-size:1.4rem;margin:0 0 4px;}
+  .sub{color:#667; margin:0 0 20px; font-size:0.88rem;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    box-shadow:0 2px 10px rgba(20,40,80,0.05);
+    margin-bottom:18px;
+  }
+  .section-title{
+    font-weight:600;
+    font-size:1rem;
+    color:var(--accent);
+    margin:0 0 14px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  label{display:block; font-size:0.86rem; font-weight:500; margin:0 0 6px; color:#445;}
+  .field{margin-bottom:16px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  input[type=text], input[type=date], textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-family:'Sarabun',sans-serif;
+    font-size:0.92rem;
+    background:#fbfcfe;
+  }
+  input:focus, textarea:focus{outline:none; border-color:var(--accent); background:#fff;}
+  textarea{resize:vertical; min-height:80px; line-height:1.5;}
+  .hint{font-size:0.76rem; color:#8a97a8; margin-top:4px;}
+  .actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px;}
+  button{
+    font-family:'Sarabun',sans-serif;
+    font-size:0.95rem;
+    font-weight:600;
+    padding:12px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:#155a96;}
+  .btn-primary:disabled{background:#aebed0; cursor:not-allowed;}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  #status{margin-top:12px; font-size:0.86rem;}
+  #status.err{color:#c0392b;}
+  #status.ok{color:#1e7d3c;}
+  .req{color:#c0392b;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./index.html">← กลับหน้าหลัก</a>
+  <h1>📝 ระบบเขียนบันทึกข้อความ</h1>
+  <p class="sub">กรอกรายละเอียดด้านล่าง แล้วกดสร้างไฟล์ — ระบบจะใส่ข้อมูลลงในแบบฟอร์มบันทึกข้อความตามรูปแบบมาตรฐาน (master_fixed.docx) และดาวน์โหลดเป็นไฟล์ Word (.docx) ให้ทันที</p>
+
+  <form id="memoForm">
+    <div class="card">
+      <div class="section-title">ส่วนหัวบันทึก</div>
+      <div class="row2">
+        <div class="field">
+          <label>ฝ่าย / ส่วนงาน <span class="req">*</span></label>
+          <input type="text" id="ฝ่าย" placeholder="เช่น ฝ่ายบริหารงานทั่วไป" required>
+        </div>
+        <div class="field">
+          <label>ที่ (เลขที่หนังสือ) <span class="req">*</span></label>
+          <input type="text" id="เลขที่" placeholder="เช่น ศธ 04345.../2569" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>วันที่ <span class="req">*</span></label>
+        <input type="date" id="วันที่" required>
+      </div>
+      <div class="field">
+        <label>เรื่อง <span class="req">*</span></label>
+        <input type="text" id="เรื่อง" placeholder="เรื่องที่บันทึก" required>
+      </div>
+      <div class="field">
+        <label>เรียน <span class="req">*</span></label>
+        <input type="text" id="เรียน" placeholder="เช่น ผู้อำนวยการโรงเรียน" required>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">เนื้อความบันทึก</div>
+      <div class="field">
+        <label>ภาคเหตุ <span class="req">*</span></label>
+        <textarea id="ภาคเหตุ" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุของการบันทึก)" required></textarea>
+        <div class="hint">อธิบายที่มา/มูลเหตุที่ต้องบันทึกข้อความนี้</div>
+      </div>
+      <div class="field">
+        <label>ภาคความประสงค์</label>
+        <textarea id="ภาคความประสงค์" placeholder="จึงเรียนมาเพื่อ ... (สิ่งที่ต้องการให้พิจารณา/ดำเนินการ)"></textarea>
+      </div>
+      <div class="field">
+        <label>ภาคสรุป</label>
+        <textarea id="ภาคสรุป" placeholder="ข้อสรุป/คำขอท้ายบันทึก (ถ้ามี)"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">ผู้ลงนาม</div>
+      <div class="row2">
+        <div class="field">
+          <label>ลงชื่อผู้บันทึก <span class="req">*</span></label>
+          <input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล ผู้บันทึก" required>
+        </div>
+        <div class="field">
+          <label>ตำแหน่งผู้บันทึก <span class="req">*</span></label>
+          <input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>ลงชื่อผู้รับ/ผู้อนุมัติ</label>
+        <input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล ผู้รับเรื่อง (ถ้ามี)">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-primary" id="genBtn">📄 สร้างไฟล์ Word (.docx)</button>
+      <button type="reset" class="btn-secondary">ล้างข้อมูล</button>
+    </div>
+    <div id="status"></div>
+  </form>
+</div>
+
+<script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+<script src="https://unpkg.com/docxtemplater@3.44.0/js/docxtemplater.js"></script>
+<script>
+function thaiDate(isoStr){
+  if(!isoStr) return '';
+  const [y,m,d] = isoStr.split('-').map(Number);
+  const months = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const buddhistYear = y + 543;
+  return `${d} ${months[m]} ${buddhistYear}`;
+}
+
+document.getElementById('memoForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const statusEl = document.getElementById('status');
+  const genBtn = document.getElementById('genBtn');
+  statusEl.className = '';
+  statusEl.textContent = '';
+
+  const data = {
+    'ฝ่าย': document.getElementById('ฝ่าย').value,
+    'เลขที่': document.getElementById('เลขที่').value,
+    'วันที่': thaiDate(document.getElementById('วันที่').value),
+    'เรื่อง': document.getElementById('เรื่อง').value,
+    'เรียน': document.getElementById('เรียน').value,
+    'ภาคเหตุ': document.getElementById('ภาคเหตุ').value,
+    'ภาคความประสงค์': document.getElementById('ภาคความประสงค์').value,
+    'ภาคสรุป': document.getElementById('ภาคสรุป').value,
+    'ลงชื่อ1': document.getElementById('ลงชื่อ1').value,
+    'ตำแหน่ง1': document.getElementById('ตำแหน่ง1').value,
+    'ลงชื่อ2': document.getElementById('ลงชื่อ2').value,
+  };
+
+  genBtn.disabled = true;
+  genBtn.textContent = '⏳ กำลังสร้างไฟล์...';
+
+  try{
+    const resp = await fetch('./master_fixed.docx');
+    if(!resp.ok) throw new Error('โหลดไฟล์แบบฟอร์มต้นฉบับไม่สำเร็จ');
+    const buf = await resp.arrayBuffer();
+    const zip = new PizZip(buf);
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      delimiters: { start: '{{', end: '}}' }
+    });
+    doc.render(data);
+    const out = doc.getZip().generate({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+
+    const fileName = `บันทึกข้อความ_${(data['เรื่อง']||'ไม่มีชื่อเรื่อง').slice(0,40)}.docx`;
+    const url = URL.createObjectURL(out);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    statusEl.className = 'ok';
+    statusEl.textContent = '✅ สร้างไฟล์สำเร็จ — ระบบดาวน์โหลดไฟล์ให้แล้ว';
+  }catch(err){
+    console.error(err);
+    statusEl.className = 'err';
+    statusEl.textContent = '❌ เกิดข้อผิดพลาด: ' + (err.message || err);
+  }finally{
+    genBtn.disabled = false;
+    genBtn.textContent = '📄 สร้างไฟล์ Word (.docx)';
+  }
+});
+</script>
+</body>
+</html>
