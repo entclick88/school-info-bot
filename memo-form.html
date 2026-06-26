@@ -126,23 +126,51 @@
         <label>ภาคสรุป</label>
         <textarea id="ภาคสรุป" placeholder="ข้อสรุป/คำขอท้ายบันทึก (ถ้ามี)"></textarea>
       </div>
+      <div class="field">
+        <label>จึงเรียนมาเพื่อ... <span class="req">*</span></label>
+        <input type="text" id="จึงเรียนมาเพื่อ..." placeholder="เช่น โปรดพิจารณาอนุมัติ" required>
+      </div>
     </div>
 
     <div class="card">
-      <div class="section-title">ผู้ลงนาม</div>
+      <div class="section-title">ผู้ลงนามที่ 1 (ผู้บันทึก)</div>
       <div class="row2">
         <div class="field">
-          <label>ลงชื่อผู้บันทึก <span class="req">*</span></label>
+          <label>ลงชื่อ <span class="req">*</span></label>
           <input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล ผู้บันทึก" required>
         </div>
         <div class="field">
-          <label>ตำแหน่งผู้บันทึก <span class="req">*</span></label>
+          <label>ตำแหน่ง <span class="req">*</span></label>
           <input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required>
         </div>
       </div>
-      <div class="field">
-        <label>ลงชื่อผู้รับ/ผู้อนุมัติ</label>
-        <input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล ผู้รับเรื่อง (ถ้ามี)">
+    </div>
+
+    <div class="card">
+      <div class="section-title">ผู้ลงนามที่ 2</div>
+      <div class="row2">
+        <div class="field">
+          <label>ลงชื่อ</label>
+          <input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล (ถ้ามี)">
+        </div>
+        <div class="field">
+          <label>ตำแหน่ง</label>
+          <input type="text" id="ตำแหน่ง2" placeholder="ตำแหน่ง (ถ้ามี)">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">ผู้ลงนามที่ 3</div>
+      <div class="row2">
+        <div class="field">
+          <label>ลงชื่อ</label>
+          <input type="text" id="ลงชื่อ3" placeholder="ชื่อ-สกุล (ถ้ามี)">
+        </div>
+        <div class="field">
+          <label>ตำแหน่ง</label>
+          <input type="text" id="ตำแหน่ง3" placeholder="ตำแหน่ง (ถ้ามี)">
+        </div>
       </div>
     </div>
 
@@ -181,9 +209,13 @@ document.getElementById('memoForm').addEventListener('submit', async function(e)
     'ภาคเหตุ': document.getElementById('ภาคเหตุ').value,
     'ภาคความประสงค์': document.getElementById('ภาคความประสงค์').value,
     'ภาคสรุป': document.getElementById('ภาคสรุป').value,
+    'จึงเรียนมาเพื่อ...': document.getElementById('จึงเรียนมาเพื่อ...').value,
     'ลงชื่อ1': document.getElementById('ลงชื่อ1').value,
     'ตำแหน่ง1': document.getElementById('ตำแหน่ง1').value,
     'ลงชื่อ2': document.getElementById('ลงชื่อ2').value,
+    'ตำแหน่ง2': document.getElementById('ตำแหน่ง2').value,
+    'ลงชื่อ3': document.getElementById('ลงชื่อ3').value,
+    'ตำแหน่ง3': document.getElementById('ตำแหน่ง3').value,
   };
 
   genBtn.disabled = true;
