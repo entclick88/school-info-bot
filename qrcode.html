@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สร้าง QR Code — โรงเรียน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0;
+    --bg:#f3f6fa;
+    --card:#ffffff;
+    --border:#dfe6ee;
+    --text:#1f2a37;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Sarabun',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  .back{display:inline-block;margin-bottom:14px;color:var(--accent);text-decoration:none;font-size:0.9rem;}
+  .back:hover{text-decoration:underline;}
+  h1{font-size:1.4rem;margin:0 0 4px;}
+  .sub{color:#667; margin:0 0 20px; font-size:0.88rem;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    box-shadow:0 2px 10px rgba(20,40,80,0.05);
+    margin-bottom:18px;
+  }
+  label{display:block; font-size:0.86rem; font-weight:500; margin:0 0 6px; color:#445;}
+  .field{margin-bottom:16px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  textarea, input[type=text], select, input[type=color]{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-family:'Sarabun',sans-serif;
+    font-size:0.92rem;
+    background:#fbfcfe;
+  }
+  input[type=color]{padding:4px; height:42px; cursor:pointer;}
+  textarea{resize:vertical; min-height:90px; line-height:1.5;}
+  input:focus, textarea:focus, select:focus{outline:none; border-color:var(--accent); background:#fff;}
+  .actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px;}
+  button{
+    font-family:'Sarabun',sans-serif;
+    font-size:0.95rem;
+    font-weight:600;
+    padding:12px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:#155a96;}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .preview-card{
+    text-align:center;
+  }
+  #qrCanvas{
+    max-width:100%;
+    border-radius:8px;
+    margin:0 auto 16px;
+    display:block;
+  }
+  #status{margin-top:12px; font-size:0.86rem; min-height:1.2em;}
+  #status.err{color:#c0392b;}
+  #status.ok{color:#1e7d3c;}
+  .placeholder-box{
+    color:#9aa6b5;
+    font-size:0.86rem;
+    padding:60px 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./index.html">← กลับหน้าหลัก</a>
+  <h1>🔳 สร้าง QR Code</h1>
+  <p class="sub">กรอกข้อความหรือลิงก์ที่ต้องการ แล้วระบบจะสร้าง QR Code ให้ทันที — ดาวน์โหลดเป็นไฟล์ภาพ PNG ได้เลย</p>
+
+  <div class="card">
+    <div class="field">
+      <label>ข้อความ / ลิงก์ <span style="color:#c0392b">*</span></label>
+      <textarea id="qrText" placeholder="เช่น https://example.com หรือข้อความใด ๆ"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>สีลายกราฟิก</label>
+        <input type="color" id="fgColor" value="#1a3a6e">
+      </div>
+      <div class="field">
+        <label>สีพื้นหลัง</label>
+        <input type="color" id="bgColor" value="#ffffff">
+      </div>
+    </div>
+    <div class="field">
+      <label>ขนาด</label>
+      <select id="qrSize">
+        <option value="240">เล็ก (240px)</option>
+        <option value="360" selected>กลาง (360px)</option>
+        <option value="512">ใหญ่ (512px)</option>
+        <option value="800">ใหญ่มาก (800px)</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-primary" id="genBtn">⚡ สร้าง QR Code</button>
+      <button type="button" class="btn-secondary" id="clearBtn">ล้างข้อมูล</button>
+    </div>
+  </div>
+
+  <div class="card preview-card">
+    <canvas id="qrCanvas" style="display:none;"></canvas>
+    <div id="placeholder" class="placeholder-box">ยังไม่มี QR Code — กรอกข้อความแล้วกดสร้าง</div>
+    <div class="actions" style="justify-content:center;" id="downloadRow">
+      <button type="button" class="btn-secondary" id="downloadBtn" style="display:none;">⬇️ ดาวน์โหลด PNG</button>
+    </div>
+    <div id="status"></div>
+  </div>
+</div>
+
+<script type="module">
+import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm";
+
+const qrText = document.getElementById('qrText');
+const fgColor = document.getElementById('fgColor');
+const bgColor = document.getElementById('bgColor');
+const qrSize = document.getElementById('qrSize');
+const canvas = document.getElementById('qrCanvas');
+const placeholder = document.getElementById('placeholder');
+const downloadBtn = document.getElementById('downloadBtn');
+const statusEl = document.getElementById('status');
+const genBtn = document.getElementById('genBtn');
+
+async function generate(){
+  statusEl.className = '';
+  statusEl.textContent = '';
+  const text = qrText.value.trim();
+  if(!text){
+    statusEl.className = 'err';
+    statusEl.textContent = '❌ กรุณากรอกข้อความหรือลิงก์ก่อนสร้าง QR Code';
+    return;
+  }
+  try{
+    const size = parseInt(qrSize.value, 10);
+    await QRCode.toCanvas(canvas, text, {
+      width: size,
+      margin: 2,
+      color: {
+        dark: fgColor.value,
+        light: bgColor.value
+      }
+    });
+    canvas.style.display = 'block';
+    placeholder.style.display = 'none';
+    downloadBtn.style.display = 'inline-block';
+    statusEl.className = 'ok';
+    statusEl.textContent = '✅ สร้าง QR Code สำเร็จ';
+  }catch(err){
+    console.error(err);
+    statusEl.className = 'err';
+    statusEl.textContent = '❌ เกิดข้อผิดพลาด: ' + (err.message || err);
+  }
+}
+
+genBtn.addEventListener('click', generate);
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  qrText.value = '';
+  canvas.style.display = 'none';
+  placeholder.style.display = 'block';
+  downloadBtn.style.display = 'none';
+  statusEl.className = '';
+  statusEl.textContent = '';
+});
+
+downloadBtn.addEventListener('click', () => {
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'qrcode.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+</script>
+</body>
+</html>
