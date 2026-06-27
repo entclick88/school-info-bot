@@ -15,6 +15,7 @@
  *    PRINT_STUDENTS_API_URL in print-student.html
  */
 
+const SPREADSHEET_ID = '1vTjkpVu-yBbCHuuGZ2vQmrnz-wEdjCpC9zQu7urzTo8';
 const SHEET_NAME = 'total';
 
 // Column headers as they appear in row 1 of the sheet.
@@ -27,7 +28,7 @@ const COL = {
 };
 
 function doGet(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
   if (!sheet) {
     return jsonResponse({ error: `ไม่พบชีตชื่อ "${SHEET_NAME}"` });
   }
