@@ -5,7 +5,7 @@
  * print-student.html tool.
  *
  * SETUP:
- * 1. Open the spreadsheet: docs.google.com/spreadsheets/d/1vTjkpVu-yBbCHuuGZ2vQmrnz-wEdjCpC9zQu7urzTo8
+ * 1. Open the spreadsheet: docs.google.com/spreadsheets/d/1UK1iYfvezu8bW3BapdnjLsitLd6Du0_W316bNe5nrtk
  * 2. Extensions > Apps Script
  * 3. Paste this whole file in (replace Code.gs content), Save.
  * 4. Deploy > New deployment > type: Web app
@@ -15,7 +15,7 @@
  *    PRINT_STUDENTS_API_URL in print-student.html
  */
 
-const SPREADSHEET_ID = '1vTjkpVu-yBbCHuuGZ2vQmrnz-wEdjCpC9zQu7urzTo8';
+const SPREADSHEET_ID = '1UK1iYfvezu8bW3BapdnjLsitLd6Du0_W316bNe5nrtk';
 const SHEET_NAME = 'total';
 
 // Column headers as they appear in row 1 of the sheet.
