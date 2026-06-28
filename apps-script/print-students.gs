@@ -10,7 +10,15 @@
  * 3. Paste this whole file in (replace Code.gs content), Save.
  * 4. Deploy > New deployment > type: Web app
  *      - Execute as: Me
- *      - Who has access: Anyone within psuwitsurat.ac.th (or "Anyone" if no Workspace domain restriction available)
+ *      - Who has access: Anyone
+ *        (Domain-restricted access ("Anyone within <domain>") does NOT work
+ *        here: the print-student.html page is hosted on a different origin
+ *        (GitHub Pages), and cross-site script/fetch requests don't carry
+ *        the browser's Google login cookies, so the request always looks
+ *        anonymous and gets redirected to a login page instead of data.
+ *        "Anyone" access is fine because this endpoint only ever returns
+ *        non-sensitive fields — เลขที่/ชื่อ-สกุล/ห้อง/ระดับ — never the ID
+ *        card number, address, or phone columns from the source sheet.)
  * 5. Copy the deployment URL (ends in /exec) and paste it into
  *    PRINT_STUDENTS_API_URL in print-student.html
  */
