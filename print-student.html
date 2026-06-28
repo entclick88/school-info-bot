@@ -133,6 +133,37 @@ function naturalCompare(a, b){
   return String(a).localeCompare(String(b), 'th', { numeric: true });
 }
 
+let jsonpSeq = 0;
+
+// fetch() across origins breaks here because the domain-restricted Apps
+// Script Web App responds with a redirect to a Google login page when the
+// session isn't recognized in a CORS request. Loading via a <script> tag
+// (JSONP) sidesteps CORS entirely and carries the browser's existing Google
+// login session, so the school-domain restriction still works.
+function fetchStudentsJSONP(){
+  return new Promise((resolve, reject) => {
+    const cbName = '__print_students_cb_' + (jsonpSeq++);
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('หมดเวลาเชื่อมต่อ (timeout) — ตรวจสอบว่า login บัญชี Google ของโรงเรียนอยู่หรือไม่'));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+    }
+
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('โหลดสคริปต์ไม่สำเร็จ')); };
+
+    const sep = PRINT_STUDENTS_API_URL.indexOf('?') === -1 ? '?' : '&';
+    script.src = `${PRINT_STUDENTS_API_URL}${sep}callback=${cbName}`;
+    document.body.appendChild(script);
+  });
+}
+
 async function loadStudents(){
   const statusEl = document.getElementById('status');
   if(!PRINT_STUDENTS_API_URL || PRINT_STUDENTS_API_URL.indexOf('PASTE_YOUR') === 0){
@@ -141,8 +172,7 @@ async function loadStudents(){
     return;
   }
   try{
-    const res = await fetch(PRINT_STUDENTS_API_URL);
-    const data = await res.json();
+    const data = await fetchStudentsJSONP();
     if(data.error) throw new Error(data.error);
     ALL_STUDENTS = data.students || [];
     populateFilters();

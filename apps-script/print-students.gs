@@ -29,8 +29,10 @@ const COL = {
 
 function doGet(e) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
+  const callback = e && e.parameter && e.parameter.callback;
+
   if (!sheet) {
-    return jsonResponse({ error: `ไม่พบชีตชื่อ "${SHEET_NAME}"` });
+    return respond({ error: `ไม่พบชีตชื่อ "${SHEET_NAME}"` }, callback);
   }
 
   const values = sheet.getDataRange().getValues();
@@ -53,10 +55,18 @@ function doGet(e) {
     });
   }
 
-  return jsonResponse({ students: students });
+  return respond({ students: students }, callback);
 }
 
-function jsonResponse(obj) {
+// JSONP (script-tag) response when a ?callback= param is present — this avoids
+// the CORS/login-redirect issue that breaks plain fetch() across origins for
+// a domain-restricted Apps Script Web App. Falls back to plain JSON otherwise.
+function respond(obj, callback) {
+  if (callback) {
+    return ContentService
+      .createTextOutput(`${callback}(${JSON.stringify(obj)});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
