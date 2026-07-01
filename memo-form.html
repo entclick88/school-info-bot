@@ -161,77 +161,86 @@
     font-weight:600;
   }
 
-  /* A4-like document preview */
+  /* A4-like document preview — mirrors ตย บันทึกข้อความ layout */
   .doc-preview{
     background:#fff;
     border:1px solid #d0d9e8;
     border-radius:4px;
     box-shadow:0 4px 20px rgba(0,0,0,.1);
-    padding:36px 40px;
-    font-family:var(--preview-font);
-    font-size:.82rem;
-    line-height:1.8;
+    padding:28px 32px 32px;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:13.5px;
+    line-height:1.9;
     color:#1a1a1a;
     min-height:500px;
   }
-  .doc-logo-row{
+  /* Header row: logo left, title right */
+  .doc-header-row{
     display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:8px;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:4px;
   }
-  .doc-school-name{
-    text-align:center;
-    font-size:.9rem;
-    font-weight:700;
-    margin-bottom:2px;
-    color:#111;
+  .doc-logo{
+    width:46px; height:46px;
+    flex-shrink:0;
+    object-fit:contain;
   }
-  .doc-title{
+  .doc-title-block{
+    flex:1;
     text-align:center;
-    font-size:1.05rem;
+    font-size:15px;
     font-weight:700;
-    margin:10px 0 16px;
-    letter-spacing:.05em;
+    padding-top:6px;
+  }
+  /* Meta fields */
+  .doc-meta{
+    margin-top:4px;
+    font-size:13px;
+    line-height:2;
+  }
+  .doc-meta-row{
+    display:flex;
+    gap:0;
+  }
+  .doc-meta-label{
+    white-space:nowrap;
+    min-width:5em;
+  }
+  .doc-meta-value{
+    flex:1;
+  }
+  .doc-meta-right{
+    margin-left:auto;
+    white-space:nowrap;
+    padding-left:12px;
   }
   .doc-divider{
     border:none;
-    border-top:2px solid #1a1a1a;
-    margin:8px 0;
+    border-top:1.5px solid #111;
+    margin:6px 0 4px;
   }
-  .doc-meta-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-bottom:10px;
-  }
-  .doc-meta-table td{
-    padding:2px 0;
-    vertical-align:top;
-  }
-  .doc-meta-table td:first-child{
-    white-space:nowrap;
-    padding-right:6px;
-  }
-  .doc-section{margin-bottom:8px;}
-  .doc-body-line{margin-bottom:6px;}
-  .doc-indent{padding-left:32px;}
+  /* Body */
+  .doc-body{margin-top:4px; font-size:13px; line-height:2;}
+  .doc-para{text-indent:3em; text-align:justify; margin-bottom:0;}
+  .doc-close{margin-top:2px; text-indent:3em;}
+  /* Signers */
   .doc-sign-row{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
-    gap:8px;
-    margin-top:28px;
+    gap:4px;
+    margin-top:24px;
+    text-align:center;
+    font-size:12px;
   }
-  .doc-sign-block{text-align:center; font-size:.78rem;}
+  .doc-sign-block{}
+  .doc-sign-label{margin-bottom:28px;}
   .doc-sign-name{
-    border-top:1px solid #888;
-    margin:0 auto 2px;
-    padding-top:4px;
-    margin-top:40px;
+    border-top:1px solid #555;
+    padding-top:3px;
+    margin:0 4px;
   }
-  .doc-placeholder{
-    color:#bbb;
-    font-style:italic;
-  }
+  .doc-placeholder{color:#bbb; font-style:italic;}
   .preview-note{
     font-size:.74rem;
     color:var(--muted);
@@ -395,53 +404,60 @@
     </div>
 
     <div class="doc-preview" id="docPreview">
-      <div class="doc-school-name">โรงเรียนพิมพ์วิทย์ ม.อ.</div>
-      <div class="doc-title">บันทึกข้อความ</div>
+
+      <!-- Header: logo + title (mirrors ตย layout) -->
+      <div class="doc-header-row">
+        <img src="./logo.png" class="doc-logo" alt="logo">
+        <div class="doc-title-block">บันทึกข้อความ</div>
+      </div>
+
       <hr class="doc-divider">
 
-      <table class="doc-meta-table">
-        <tr>
-          <td><b>ส่วนราชการ</b></td>
-          <td id="pv-ฝ่าย" class="doc-placeholder">—</td>
-        </tr>
-        <tr>
-          <td><b>ที่</b></td>
-          <td id="pv-เลขที่" class="doc-placeholder">—</td>
-        </tr>
-        <tr>
-          <td><b>วันที่</b></td>
-          <td id="pv-วันที่" class="doc-placeholder">—</td>
-        </tr>
-        <tr>
-          <td><b>เรื่อง</b></td>
-          <td id="pv-เรื่อง" class="doc-placeholder">—</td>
-        </tr>
-        <tr>
-          <td><b>เรียน</b></td>
-          <td id="pv-เรียน" class="doc-placeholder">—</td>
-        </tr>
-      </table>
-      <hr class="doc-divider" style="margin-bottom:12px;">
-
-      <div class="doc-section">
-        <div class="doc-indent" id="pv-ภาคเหตุ" style="white-space:pre-line;" class="doc-placeholder">—</div>
-      </div>
-      <div class="doc-section" id="pv-wrap-ประสงค์" style="display:none;">
-        <div class="doc-indent" id="pv-ภาคความประสงค์" style="white-space:pre-line;"></div>
-      </div>
-      <div class="doc-section" id="pv-wrap-สรุป" style="display:none;">
-        <div class="doc-indent" id="pv-ภาคสรุป" style="white-space:pre-line;"></div>
-      </div>
-      <div class="doc-body-line" style="margin-top:6px;">
-        &emsp;&emsp;จึงเรียนมาเพื่อ <span id="pv-จึงเรียน" class="doc-placeholder">—</span>
+      <!-- Meta fields -->
+      <div class="doc-meta">
+        <div class="doc-meta-row">
+          <span class="doc-meta-label">ส่วนราชการ</span>
+          <span class="doc-meta-value" id="pv-ฝ่าย"><span class="doc-placeholder">—</span></span>
+        </div>
+        <div class="doc-meta-row">
+          <span class="doc-meta-label">ที่</span>
+          <span class="doc-meta-value" id="pv-เลขที่"><span class="doc-placeholder">—</span></span>
+          <span class="doc-meta-right">วันที่&nbsp;&nbsp;<span id="pv-วันที่" class="doc-placeholder">—</span></span>
+        </div>
+        <div class="doc-meta-row">
+          <span class="doc-meta-label">เรื่อง</span>
+          <span class="doc-meta-value" id="pv-เรื่อง"><span class="doc-placeholder">—</span></span>
+        </div>
       </div>
 
+      <hr class="doc-divider">
+
+      <div class="doc-meta" style="margin-bottom:6px;">
+        <div class="doc-meta-row">
+          <span class="doc-meta-label">เรียน</span>
+          <span class="doc-meta-value" id="pv-เรียน"><span class="doc-placeholder">—</span></span>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="doc-body">
+        <div class="doc-para" id="pv-ภาคเหตุ" style="white-space:pre-line;"><span class="doc-placeholder">—</span></div>
+        <div class="doc-para" id="pv-ภาคความประสงค์" style="white-space:pre-line; display:none;"></div>
+        <div class="doc-para" id="pv-ภาคสรุป" style="white-space:pre-line; display:none;"></div>
+        <div class="doc-close">
+          จึงเรียนมาเพื่อ <span id="pv-จึงเรียน" class="doc-placeholder">—</span>
+        </div>
+      </div>
+
+      <!-- Signers -->
       <div class="doc-sign-row" id="pvSignRow">
-        <!-- filled by JS -->
+        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
+        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
+        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
       </div>
     </div>
 
-    <div class="preview-note">ตัวอย่างนี้แสดงโครงสร้างข้อความเท่านั้น — ไฟล์จริงจะใช้แบบฟอร์มมาตรฐาน (master_fixed.docx)</div>
+    <div class="preview-note">ตัวอย่างนี้แสดงโครงสร้างเท่านั้น — ไฟล์จริงใช้แบบฟอร์ม master_fixed.docx</div>
   </div>
 </div>
 
@@ -514,59 +530,63 @@ function loadData(){
 }
 
 /* ─── Live preview ─── */
+function pvSet(id, val){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(val){
+    el.textContent = val;
+    el.classList.remove('doc-placeholder');
+  } else {
+    el.innerHTML = '<span class="doc-placeholder">—</span>';
+  }
+}
+
 function updatePreview(){
   const vals = {};
   FIELDS.forEach(f => vals[f] = getVal(f));
 
   const tDate = thaiDate(vals['วันที่']);
 
-  // Update date preview hint
+  // Thai date hint
   const dp = document.getElementById('thaiDatePreview');
   dp.textContent = tDate || '— วันที่จะแสดงที่นี่ —';
 
-  setText('pv-ฝ่าย', vals['ฝ่าย']);
-  setText('pv-เลขที่', vals['เลขที่']);
-  setText('pv-วันที่', tDate);
-  setText('pv-เรื่อง', vals['เรื่อง']);
-  setText('pv-เรียน', vals['เรียน']);
-  setText('pv-ภาคเหตุ', vals['ภาคเหตุ']);
+  pvSet('pv-ฝ่าย',   vals['ฝ่าย']);
+  pvSet('pv-เลขที่', vals['เลขที่']);
+  pvSet('pv-วันที่', tDate);
+  pvSet('pv-เรื่อง', vals['เรื่อง']);
+  pvSet('pv-เรียน',  vals['เรียน']);
 
-  const pWrap = document.getElementById('pv-wrap-ประสงค์');
-  const sWrap = document.getElementById('pv-wrap-สรุป');
+  // Body paragraphs
+  pvSet('pv-ภาคเหตุ', vals['ภาคเหตุ']);
+
+  const pvP = document.getElementById('pv-ภาคความประสงค์');
   if(vals['ภาคความประสงค์']){
-    document.getElementById('pv-ภาคความประสงค์').textContent = vals['ภาคความประสงค์'];
-    pWrap.style.display = '';
-  } else {
-    pWrap.style.display = 'none';
-  }
+    pvP.textContent = vals['ภาคความประสงค์'];
+    pvP.style.display = '';
+  } else { pvP.style.display = 'none'; }
+
+  const pvS = document.getElementById('pv-ภาคสรุป');
   if(vals['ภาคสรุป']){
-    document.getElementById('pv-ภาคสรุป').textContent = vals['ภาคสรุป'];
-    sWrap.style.display = '';
-  } else {
-    sWrap.style.display = 'none';
-  }
+    pvS.textContent = vals['ภาคสรุป'];
+    pvS.style.display = '';
+  } else { pvS.style.display = 'none'; }
 
-  setText('pv-จึงเรียน', vals['จึงเรียนมาเพื่อ...']);
+  pvSet('pv-จึงเรียน', vals['จึงเรียนมาเพื่อ...']);
 
-  // Signers
+  // Signers (always show 3 slots, dim if empty)
   const signers = [
     { name: vals['ลงชื่อ1'], pos: vals['ตำแหน่ง1'] },
     { name: vals['ลงชื่อ2'], pos: vals['ตำแหน่ง2'] },
     { name: vals['ลงชื่อ3'], pos: vals['ตำแหน่ง3'] },
-  ].filter(s => s.name || s.pos);
-
-  const signRow = document.getElementById('pvSignRow');
-  if(signers.length === 0){
-    signRow.innerHTML = '<div style="color:#bbb;font-style:italic;font-size:.78rem;text-align:center;grid-column:1/-1;">ยังไม่มีผู้ลงนาม</div>';
-  } else {
-    signRow.innerHTML = signers.map(s => `
-      <div class="doc-sign-block">
-        <div class="doc-sign-name">${s.name || '—'}</div>
-        <div>${s.pos || ''}</div>
-      </div>
-    `).join('');
-    signRow.style.gridTemplateColumns = signers.length === 1 ? '1fr' : signers.length === 2 ? '1fr 1fr' : '1fr 1fr 1fr';
-  }
+  ];
+  document.getElementById('pvSignRow').innerHTML = signers.map(s => `
+    <div class="doc-sign-block">
+      <div class="doc-sign-label">ลงชื่อ</div>
+      <div class="doc-sign-name ${s.name ? '' : 'doc-placeholder'}">${s.name ? '('+s.name+')' : '—'}</div>
+      <div class="${s.pos ? '' : 'doc-placeholder'}">${s.pos || '—'}</div>
+    </div>
+  `).join('');
 }
 
 /* ─── Event wiring ─── */
