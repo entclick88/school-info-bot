@@ -158,15 +158,13 @@
   .doc-para.empty-line{ color:#ccc; text-indent:0; }
   .doc-close{text-indent:2.5em; font-size:.95em; margin-top:2px;}
 
-  /* Signers */
-  .doc-sign-area{display:flex; justify-content:flex-end; margin-top:2em; gap:2em;}
-  .doc-sign-block{font-size:.9em; line-height:1.9;}
-  .doc-sign-row{display:flex; gap:.3em; align-items:baseline;}
-  .doc-sign-lbl{white-space:nowrap;}
-  .doc-sign-dots{
-    flex:1; border-bottom:1px dotted #555; min-width:6em;
-    min-height:1em; padding-bottom:1px;
+  /* Signers — stacked vertically, shifted left from right edge */
+  .doc-sign-area{
+    display:flex; flex-direction:column; align-items:flex-end;
+    padding-right:15%; margin-top:1.5em; gap:.1em;
   }
+  .doc-sign-block{font-size:.9em; line-height:1.9; text-align:left;}
+  .doc-sign-row{white-space:nowrap;}
 
   .doc-placeholder{color:#bbb;}
 
@@ -178,12 +176,27 @@
     .preview-side{position:static; height:auto; border-top:1px solid var(--border);}
     .form-side{border-right:none;}
   }
+  .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
+  .btn-print:hover{background:#dcfce7;}
+
   @media print{
-    .topbar,.form-side,.preview-header,.preview-note{display:none!important;}
-    .main{display:block;}
-    .preview-side{padding:0; background:#fff;}
-    .doc-wrap{box-shadow:none; border:none; aspect-ratio:auto;}
-    .doc-inner{position:static; padding:10mm 18mm;}
+    .topbar,.form-side,.preview-header,.preview-note,
+    .form-actions,#genStatus{display:none!important;}
+    .main{display:block; max-width:100%;}
+    .preview-side{padding:0; background:#fff; height:auto; position:static;}
+    .doc-wrap{
+      box-shadow:none; border:none;
+      aspect-ratio:auto; width:210mm; height:297mm;
+      page-break-after:always;
+    }
+    .doc-inner{
+      position:static;
+      padding:15mm 20mm 15mm 30mm;
+      font-size:16pt;
+      line-height:1.8;
+      overflow:visible;
+    }
+    .doc-title{font-size:29pt;}
   }
 </style>
 </head>
@@ -245,7 +258,7 @@
         <div class="field">
           <label>ภาคเหตุ <span class="req">*</span></label>
           <div class="para-group">
-            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคเหตุ" rows="3" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุของการบันทึก)" required></textarea></div>
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคเหตุ" rows="3" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุของการบันทึก)" spellcheck="true" lang="th" required></textarea></div>
             <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคเหตุ2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
             <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคเหตุ3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
             <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคเหตุ4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
@@ -308,6 +321,7 @@
       <div class="card">
         <div class="form-actions">
           <button type="submit" class="btn-primary" id="genBtn">📄 สร้างไฟล์ Word (.docx)</button>
+          <button type="button" class="btn-print" id="printBtn">🖨️ พิมพ์ / บันทึก PDF</button>
           <button type="button" class="btn-danger" id="clearBtn">🗑️ ล้างข้อมูลทั้งหมด</button>
         </div>
         <div id="genStatus"></div>
@@ -480,21 +494,15 @@ function updatePreview(){
   ].filter(s=>s.name||s.pos);
 
   const signRow=document.getElementById('pvSignRow');
+  const renderSigner = s => `<div class="doc-sign-block">
+    <div class="doc-sign-row">(ลงชื่อ)</div>
+    <div class="doc-sign-row">(${escHtml(s?.name)||'พิมพ์ชื่อเต็ม'})</div>
+    <div class="doc-sign-row">(${escHtml(s?.pos)||'ตำแหน่ง'})</div>
+  </div>`;
   if(signers.length===0){
-    // show blank signer template
-    signRow.innerHTML=`<div class="doc-sign-block">
-      <div class="doc-sign-row"><span class="doc-sign-lbl">(ลงชื่อ)</span><span class="doc-sign-dots"></span></div>
-      <div class="doc-sign-row"><span class="doc-sign-lbl">(พิมพ์ชื่อเต็ม)</span><span class="doc-sign-dots"></span></div>
-      <div class="doc-sign-row"><span class="doc-sign-lbl">(ตำแหน่ง)</span><span class="doc-sign-dots"></span></div>
-    </div>`;
+    signRow.innerHTML = renderSigner(null);
   } else {
-    signRow.innerHTML = signers.map(s=>`
-      <div class="doc-sign-block">
-        <div class="doc-sign-row"><span class="doc-sign-lbl">(ลงชื่อ)</span><span class="doc-sign-dots"></span></div>
-        <div class="doc-sign-row"><span class="doc-sign-lbl">(${escHtml(s.name)||'พิมพ์ชื่อเต็ม'})</span><span class="doc-sign-dots" style="min-width:0"></span></div>
-        <div class="doc-sign-row"><span class="doc-sign-lbl">(${escHtml(s.pos)||'ตำแหน่ง'})</span><span class="doc-sign-dots" style="min-width:0"></span></div>
-      </div>
-    `).join('');
+    signRow.innerHTML = signers.map(s=>renderSigner(s)).join('');
   }
 }
 
@@ -513,6 +521,11 @@ FIELDS.forEach(f=>{
       saveTimer=setTimeout(saveData,800);
     });
   });
+});
+
+/* ── Print / PDF ── */
+document.getElementById('printBtn').addEventListener('click',()=>{
+  window.print();
 });
 
 /* ── Clear ── */
