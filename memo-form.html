@@ -131,14 +131,15 @@
   }
 
   /* Field rows with dotted underline */
-  .doc-field{display:flex; align-items:baseline; line-height:1.9; gap:.3em;}
-  .doc-field-lbl{white-space:nowrap; font-size:.95em;}
+  .doc-field{display:flex; align-items:baseline; line-height:1.9; gap:.3em; flex-wrap:wrap;}
+  .doc-field-lbl{white-space:nowrap; font-size:.95em; flex-shrink:0;}
   .doc-field-val{
-    flex:1; border-bottom:1px dotted #555;
-    min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+    flex:1; border-bottom:1px dotted #aaa;
+    min-width:3em; word-break:break-word; white-space:normal;
     padding-bottom:1px; font-size:.95em; min-height:1.1em;
   }
-  .doc-field-val.empty{color:#ccc;}
+  .doc-field-val:not(.empty){ border-bottom-color:transparent; }
+  .doc-field-val.empty{color:#bbb;}
   /* ที่ + วันที่ split row */
   .doc-row2{display:flex; gap:1em;}
   .doc-row2 .doc-field{flex:1;}
@@ -151,12 +152,10 @@
   .doc-para{
     text-indent:2.5em; text-align:justify;
     white-space:pre-wrap; word-break:break-word;
-    border-bottom:1px dotted #bbb; line-height:1.85;
-    font-size:.95em; min-height:1.4em;
-    padding-bottom:1px;
+    line-height:1.85; font-size:.95em; min-height:1.4em;
   }
-  .doc-para.filled{border-bottom-color:#555; color:#111;}
-  .doc-para.empty-line{color:#ccc; text-indent:0;}
+  .doc-para.filled{ color:#111; }
+  .doc-para.empty-line{ color:#ccc; text-indent:0; }
   .doc-close{text-indent:2.5em; font-size:.95em; margin-top:2px;}
 
   /* Signers */
@@ -335,7 +334,7 @@
 
         <!-- ส่วนงาน (full width dotted) -->
         <div class="doc-field">
-          <span class="doc-field-lbl">ส่วนงานจัดการศึกษา</span>
+          <span class="doc-field-lbl">ส่วนงาน</span>
           <span class="doc-field-val empty" id="pv-ฝ่าย"></span>
         </div>
 
