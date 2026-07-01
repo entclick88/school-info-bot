@@ -111,54 +111,58 @@
   }
   .doc-inner{
     position:absolute; inset:0;
-    /* margins: top 1.5cm, left 3cm, right 2cm, bottom 1.5cm — scaled proportionally */
+    /* margin: top 1.5cm, left 3cm, right 2cm, bottom 1.5cm — scaled */
     padding:5% 7% 5% 11%;
-    font-family:'Sarabun',sans-serif;
-    font-size:clamp(7px,1.25vw,12px);
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:clamp(7px,1.2vw,11.5px); /* ≈16pt scaled */
     line-height:1.75;
     color:#111;
     overflow:hidden;
   }
 
-  /* Header row: logo + title */
+  /* Header: logo absolute-left, title centered on full width */
   .doc-header-row{
-    display:flex; align-items:center; gap:8px; margin-bottom:3px;
+    position:relative; text-align:center; margin-bottom:4px;
+    min-height:3.5em; display:flex; align-items:center;
   }
-  .doc-logo{height:3.5em; width:auto; flex-shrink:0; object-fit:contain;}
+  .doc-logo{
+    position:absolute; left:0; top:0;
+    height:3.5em; width:auto; object-fit:contain;
+  }
   .doc-title{
-    flex:1; font-weight:900; font-size:1.7em; line-height:1;
-    letter-spacing:.02em;
+    width:100%; font-weight:700; font-size:1.9em; line-height:1.1;
+    letter-spacing:.03em;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
   }
 
-  /* Field rows with dotted underline */
-  .doc-field{display:flex; align-items:baseline; line-height:1.9; gap:.3em; flex-wrap:wrap;}
-  .doc-field-lbl{white-space:nowrap; font-size:.95em; flex-shrink:0;}
+  /* Field rows */
+  .doc-field{display:flex; align-items:baseline; line-height:1.85; gap:.3em; flex-wrap:wrap;}
+  .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
   .doc-field-val{
     flex:1; border-bottom:1px dotted #aaa;
     min-width:3em; word-break:break-word; white-space:normal;
-    padding-bottom:1px; font-size:.95em; min-height:1.1em;
+    padding-bottom:1px; font-size:1em; min-height:1.1em;
   }
   .doc-field-val:not(.empty){ border-bottom-color:transparent; }
   .doc-field-val.empty{color:#bbb;}
-  /* ที่ + วันที่ split row */
+  /* ที่ + วันที่ split */
   .doc-row2{display:flex; gap:1em;}
   .doc-row2 .doc-field{flex:1;}
 
   /* Divider */
   .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 2px;}
 
-  /* Body paragraphs — 2.5cm indent */
+  /* Body paragraphs */
   .doc-body{margin-top:2px;}
   .doc-para{
     text-indent:2.5em;
-    text-align: justify;
-    text-justify: distribute;
+    text-align:justify; text-justify:distribute;
     white-space:pre-wrap; word-break:break-word;
-    line-height:1.85; font-size:.95em; min-height:1.4em;
+    line-height:1.85; font-size:1em; min-height:1.4em;
   }
   .doc-para.filled{ color:#111; }
   .doc-para.empty-line{ color:#ccc; text-indent:0; }
-  .doc-close{text-indent:2.5em; font-size:.95em; margin-top:2px;}
+  .doc-close{text-indent:2.5em; font-size:1em; margin-top:2px;}
 
   /* Signer — centered on page */
   .doc-sign-area{
