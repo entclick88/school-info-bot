@@ -99,9 +99,8 @@
     padding:3px 9px; border-radius:20px; font-weight:600;
   }
 
-  /* A4 document preview */
+  /* ── A4 document preview ── */
   .doc-wrap{
-    /* A4 ratio 210:297 ≈ 1:1.414 */
     width:100%;
     background:#fff;
     border:1px solid #c8d4e3;
@@ -110,42 +109,67 @@
     overflow:hidden;
     position:relative;
   }
-  /* scale inner content to fit the fixed aspect-ratio box */
   .doc-inner{
     position:absolute; inset:0;
-    padding:7% 8%;
-    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
-    font-size:clamp(8px,1.4vw,13px);
-    line-height:1.85;
+    /* margins: top 1.5cm, left 3cm, right 2cm, bottom 1.5cm — scaled proportionally */
+    padding:5% 7% 5% 11%;
+    font-family:'Sarabun',sans-serif;
+    font-size:clamp(7px,1.25vw,12px);
+    line-height:1.75;
     color:#111;
     overflow:hidden;
   }
 
-  /* Header */
-  .doc-header-row{display:flex; align-items:flex-start; gap:8px; margin-bottom:2px;}
-  .doc-logo{width:9%; flex-shrink:0; object-fit:contain;}
-  .doc-title-block{flex:1; text-align:center; font-weight:700; font-size:1.1em; padding-top:4px;}
+  /* Header row: logo + title */
+  .doc-header-row{
+    display:flex; align-items:center; gap:8px; margin-bottom:3px;
+  }
+  .doc-logo{height:3.5em; width:auto; flex-shrink:0; object-fit:contain;}
+  .doc-title{
+    flex:1; font-weight:900; font-size:1.7em; line-height:1;
+    letter-spacing:.02em;
+  }
 
-  /* Meta */
-  .doc-meta{font-size:.95em; line-height:2;}
-  .doc-meta-row{display:flex; align-items:baseline;}
-  .doc-meta-label{white-space:nowrap; min-width:4.5em;}
-  .doc-meta-value{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .doc-meta-right{white-space:nowrap; padding-left:8px;}
-  .doc-divider{border:none; border-top:1.5px solid #111; margin:4px 0;}
+  /* Field rows with dotted underline */
+  .doc-field{display:flex; align-items:baseline; line-height:1.9; gap:.3em;}
+  .doc-field-lbl{white-space:nowrap; font-size:.95em;}
+  .doc-field-val{
+    flex:1; border-bottom:1px dotted #555;
+    min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+    padding-bottom:1px; font-size:.95em; min-height:1.1em;
+  }
+  .doc-field-val.empty{color:#ccc;}
+  /* ที่ + วันที่ split row */
+  .doc-row2{display:flex; gap:1em;}
+  .doc-row2 .doc-field{flex:1;}
 
-  /* Body */
-  .doc-body{font-size:.95em; line-height:1.9;}
-  .doc-para{text-indent:2.5em; text-align:justify; white-space:pre-wrap; word-break:break-word;}
-  .doc-close{text-indent:2.5em;}
+  /* Divider */
+  .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 2px;}
+
+  /* Body paragraphs — 2.5cm indent */
+  .doc-body{margin-top:2px;}
+  .doc-para{
+    text-indent:2.5em; text-align:justify;
+    white-space:pre-wrap; word-break:break-word;
+    border-bottom:1px dotted #bbb; line-height:1.85;
+    font-size:.95em; min-height:1.4em;
+    padding-bottom:1px;
+  }
+  .doc-para.filled{border-bottom-color:#555; color:#111;}
+  .doc-para.empty-line{color:#ccc; text-indent:0;}
+  .doc-close{text-indent:2.5em; font-size:.95em; margin-top:2px;}
 
   /* Signers */
-  .doc-sign-area{display:flex; justify-content:flex-end; gap:0; margin-top:16px;}
-  .doc-sign-block{text-align:center; font-size:.85em; min-width:120px; padding:0 8px;}
-  .doc-sign-space{height:2em;}
-  .doc-sign-name{border-top:1px solid #555; padding-top:2px;}
+  .doc-sign-area{display:flex; justify-content:flex-end; margin-top:2em; gap:2em;}
+  .doc-sign-block{font-size:.9em; line-height:1.9;}
+  .doc-sign-row{display:flex; gap:.3em; align-items:baseline;}
+  .doc-sign-lbl{white-space:nowrap;}
+  .doc-sign-dots{
+    flex:1; border-bottom:1px dotted #555; min-width:6em;
+    min-height:1em; padding-bottom:1px;
+  }
 
-  .doc-placeholder{color:#bbb; font-style:italic;}
+  .doc-placeholder{color:#bbb;}
 
   .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
 
@@ -303,44 +327,48 @@
     <div class="doc-wrap">
       <div class="doc-inner">
 
-        <!-- Header: logo + title -->
+        <!-- Header: logo + title (matches PDF: logo left 1.5cm, title bold 29pt) -->
         <div class="doc-header-row">
           <img src="./logo.png" class="doc-logo" alt="logo">
-          <div class="doc-title-block">บันทึกข้อความ</div>
+          <div class="doc-title">บันทึกข้อความ</div>
         </div>
 
-        <!-- Meta fields (no divider above) -->
-        <div class="doc-meta">
-          <div class="doc-meta-row">
-            <span class="doc-meta-label">ส่วนราชการ</span>
-            <span class="doc-meta-value" id="pv-ฝ่าย"><span class="doc-placeholder">—</span></span>
+        <!-- ส่วนงาน (full width dotted) -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">ส่วนงานจัดการศึกษา</span>
+          <span class="doc-field-val empty" id="pv-ฝ่าย"></span>
+        </div>
+
+        <!-- ที่ + วันที่ split -->
+        <div class="doc-row2">
+          <div class="doc-field">
+            <span class="doc-field-lbl">ที่</span>
+            <span class="doc-field-val empty" id="pv-เลขที่"></span>
           </div>
-          <div class="doc-meta-row">
-            <span class="doc-meta-label">ที่</span>
-            <span class="doc-meta-value" id="pv-เลขที่"><span class="doc-placeholder">—</span></span>
-            <span class="doc-meta-right">วันที่ <span id="pv-วันที่" class="doc-placeholder">—</span></span>
+          <div class="doc-field">
+            <span class="doc-field-lbl">วันที่</span>
+            <span class="doc-field-val empty" id="pv-วันที่"></span>
           </div>
-          <div class="doc-meta-row">
-            <span class="doc-meta-label">เรื่อง</span>
-            <span class="doc-meta-value" id="pv-เรื่อง"><span class="doc-placeholder">—</span></span>
-          </div>
+        </div>
+
+        <!-- เรื่อง -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val empty" id="pv-เรื่อง"></span>
         </div>
 
         <hr class="doc-divider">
 
-        <div class="doc-meta" style="margin-bottom:4px;">
-          <div class="doc-meta-row">
-            <span class="doc-meta-label">เรียน</span>
-            <span class="doc-meta-value" id="pv-เรียน"><span class="doc-placeholder">—</span></span>
-          </div>
+        <!-- เรียน -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรียน</span>
+          <span class="doc-field-val empty" id="pv-เรียน"></span>
         </div>
 
-        <!-- Body -->
-        <div class="doc-body" id="pvBody">
-          <!-- filled by JS -->
-        </div>
+        <!-- Body paragraphs -->
+        <div class="doc-body" id="pvBody"></div>
 
-        <!-- Signers — right-aligned, only filled -->
+        <!-- Signers -->
         <div class="doc-sign-area" id="pvSignRow"></div>
 
       </div>
@@ -377,8 +405,8 @@ function getVal(id){ const el=document.getElementById(id); return el?el.value:''
 function pvSet(id, val){
   const el=document.getElementById(id);
   if(!el) return;
-  if(val){ el.textContent=val; el.classList.remove('doc-placeholder'); }
-  else { el.innerHTML='<span class="doc-placeholder">—</span>'; }
+  if(val){ el.textContent=val; el.classList.remove('empty'); }
+  else { el.textContent=''; el.classList.add('empty'); }
 }
 
 /* ── Auto-save ── */
@@ -421,19 +449,31 @@ function updatePreview(){
   pvSet('pv-เรื่อง', v['เรื่อง']);
   pvSet('pv-เรียน', v['เรียน']);
 
-  // Body paragraphs — collect non-empty across all ภาค groups
-  const bodyKeys = [
-    'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
-    'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
-    'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
+  // Body — each ภาค group: show filled paras, always show at least 1 dotted line per group
+  const groups = [
+    {label:'ภาคเหตุ', keys:['ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4']},
+    {label:'ภาคความประสงค์', keys:['ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4']},
+    {label:'ภาคสรุป', keys:['ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4']},
   ];
-  const bodyParas = bodyKeys.map(k=>v[k]).filter(Boolean);
-  let bodyHTML = bodyParas.map(t=>`<div class="doc-para">${escHtml(t)}</div>`).join('');
-  if(!bodyHTML) bodyHTML='<div class="doc-para doc-placeholder">—</div>';
-  bodyHTML += `<div class="doc-close">จึงเรียนมาเพื่อ <span class="${v['จึงเรียนมาเพื่อ...']?'':'doc-placeholder'}">${escHtml(v['จึงเรียนมาเพื่อ...'])||'—'}</span></div>`;
+  let bodyHTML = '';
+  groups.forEach(g=>{
+    const vals = g.keys.map(k=>v[k]);
+    const anyFilled = vals.some(Boolean);
+    if(anyFilled){
+      vals.forEach((t,i)=>{
+        if(t) bodyHTML += `<div class="doc-para filled">${escHtml(t)}</div>`;
+        else if(i===0) bodyHTML += `<div class="doc-para empty-line">...........................................................................</div>`;
+      });
+    } else {
+      // show empty dotted line
+      bodyHTML += `<div class="doc-para empty-line">...........................................................................</div>`;
+    }
+  });
+  const closeVal = v['จึงเรียนมาเพื่อ...'];
+  bodyHTML += `<div class="doc-close">${closeVal ? escHtml(closeVal) : '<span class="doc-placeholder">จึงเรียนมาเพื่อ...</span>'}</div>`;
   document.getElementById('pvBody').innerHTML = bodyHTML;
 
-  // Signers — only filled, right-aligned
+  // Signers — only filled, right-aligned, PDF format
   const signers = [
     {name:v['ลงชื่อ1'], pos:v['ตำแหน่ง1']},
     {name:v['ลงชื่อ2'], pos:v['ตำแหน่ง2']},
@@ -442,13 +482,18 @@ function updatePreview(){
 
   const signRow=document.getElementById('pvSignRow');
   if(signers.length===0){
-    signRow.innerHTML='';
+    // show blank signer template
+    signRow.innerHTML=`<div class="doc-sign-block">
+      <div class="doc-sign-row"><span class="doc-sign-lbl">(ลงชื่อ)</span><span class="doc-sign-dots"></span></div>
+      <div class="doc-sign-row"><span class="doc-sign-lbl">(พิมพ์ชื่อเต็ม)</span><span class="doc-sign-dots"></span></div>
+      <div class="doc-sign-row"><span class="doc-sign-lbl">(ตำแหน่ง)</span><span class="doc-sign-dots"></span></div>
+    </div>`;
   } else {
     signRow.innerHTML = signers.map(s=>`
       <div class="doc-sign-block">
-        <div class="doc-sign-space"></div>
-        <div class="doc-sign-name">(${escHtml(s.name)||'—'})</div>
-        <div>${escHtml(s.pos)||''}</div>
+        <div class="doc-sign-row"><span class="doc-sign-lbl">(ลงชื่อ)</span><span class="doc-sign-dots"></span></div>
+        <div class="doc-sign-row"><span class="doc-sign-lbl">(${escHtml(s.name)||'พิมพ์ชื่อเต็ม'})</span><span class="doc-sign-dots" style="min-width:0"></span></div>
+        <div class="doc-sign-row"><span class="doc-sign-lbl">(${escHtml(s.pos)||'ตำแหน่ง'})</span><span class="doc-sign-dots" style="min-width:0"></span></div>
       </div>
     `).join('');
   }
