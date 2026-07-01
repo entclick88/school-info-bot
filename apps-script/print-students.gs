@@ -1,26 +1,25 @@
 /**
- * Web App endpoint that serves a privacy-trimmed student roster
- * (เลขที่, ชื่อ-สกุล, ห้อง, ระดับ only — no ID card no., address, phone)
- * from the "total" tab of the รุ่น/ทำเนียบนักเรียน spreadsheet, for the
- * print-student.html tool.
+ * Self-contained Web App: serves both the print-roster UI and its data
+ * from the same Apps Script deployment (same origin as script.google.com),
+ * so the "Anyone within <domain>" access restriction works correctly.
+ *
+ * (A separate static page on GitHub Pages calling this as a cross-origin
+ * API does NOT work: the browser won't send the Google login cookie on a
+ * cross-site script/fetch request, so the domain-restricted deployment
+ * always looks anonymous and redirects to a login page. Serving the whole
+ * page from script.google.com avoids that — it's a normal top-level page
+ * load, so the domain check applies to the user as themselves.)
  *
  * SETUP:
  * 1. Open the spreadsheet: docs.google.com/spreadsheets/d/1UK1iYfvezu8bW3BapdnjLsitLd6Du0_W316bNe5nrtk
  * 2. Extensions > Apps Script
  * 3. Paste this whole file in (replace Code.gs content), Save.
- * 4. Deploy > New deployment > type: Web app
+ * 4. Deploy > Manage deployments > edit existing deployment (or New deployment) > type: Web app
  *      - Execute as: Me
- *      - Who has access: Anyone
- *        (Domain-restricted access ("Anyone within <domain>") does NOT work
- *        here: the print-student.html page is hosted on a different origin
- *        (GitHub Pages), and cross-site script/fetch requests don't carry
- *        the browser's Google login cookies, so the request always looks
- *        anonymous and gets redirected to a login page instead of data.
- *        "Anyone" access is fine because this endpoint only ever returns
- *        non-sensitive fields — เลขที่/ชื่อ-สกุล/ห้อง/ระดับ — never the ID
- *        card number, address, or phone columns from the source sheet.)
- * 5. Copy the deployment URL (ends in /exec) and paste it into
- *    PRINT_STUDENTS_API_URL in print-student.html
+ *      - Who has access: Anyone within psuwitsurat.ac.th
+ * 5. Copy the deployment URL (ends in /exec) and send it back — it gets
+ *    linked directly from the 🛠️ tools menu in index.html (opens in a new
+ *    tab; it is no longer fetched cross-origin from print-student.html).
  */
 
 const SPREADSHEET_ID = '1UK1iYfvezu8bW3BapdnjLsitLd6Du0_W316bNe5nrtk';
@@ -28,7 +27,6 @@ const SHEET_NAME = 'total';
 
 // Column headers as they appear in row 1 of the sheet.
 const COL = {
-  STUDENT_ID: 'รหัสนักเรียน',
   ROOM: 'ห้อง',
   NO: 'เลขที่',
   LEVEL: 'ระดับ',
@@ -36,11 +34,18 @@ const COL = {
 };
 
 function doGet(e) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
-  const callback = e && e.parameter && e.parameter.callback;
+  if (e && e.parameter && e.parameter.action === 'data') {
+    return jsonResponse(getStudents());
+  }
+  return HtmlService.createHtmlOutput(PAGE_HTML)
+    .setTitle('พิมพ์รายชื่อนักเรียน')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
 
+function getStudents() {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
   if (!sheet) {
-    return respond({ error: `ไม่พบชีตชื่อ "${SHEET_NAME}"` }, callback);
+    return { error: `ไม่พบชีตชื่อ "${SHEET_NAME}"` };
   }
 
   const values = sheet.getDataRange().getValues();
@@ -63,19 +68,174 @@ function doGet(e) {
     });
   }
 
-  return respond({ students: students }, callback);
+  return { students: students };
 }
 
-// JSONP (script-tag) response when a ?callback= param is present — this avoids
-// the CORS/login-redirect issue that breaks plain fetch() across origins for
-// a domain-restricted Apps Script Web App. Falls back to plain JSON otherwise.
-function respond(obj, callback) {
-  if (callback) {
-    return ContentService
-      .createTextOutput(`${callback}(${JSON.stringify(obj)});`)
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
+function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+const PAGE_HTML = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>พิมพ์รายชื่อนักเรียน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#1a73c0; --bg:#f3f6fa; --card:#ffffff; --border:#dfe6ee; --text:#1f2a37; }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); padding:24px; }
+  .wrap{max-width:860px;margin:0 auto;}
+  h1{font-size:1.4rem;margin:0 0 4px;}
+  .sub{color:#667; margin:0 0 20px; font-size:0.88rem;}
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px;
+    box-shadow:0 2px 10px rgba(20,40,80,0.05); margin-bottom:18px; }
+  label{display:block; font-size:0.86rem; font-weight:500; margin:0 0 6px; color:#445;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:18px;}
+  select{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+    font-family:'Sarabun',sans-serif; font-size:0.92rem; background:#fbfcfe; }
+  select:focus{outline:none; border-color:var(--accent); background:#fff;}
+  .actions{display:flex; gap:12px; flex-wrap:wrap;}
+  button{ font-family:'Sarabun',sans-serif; font-size:0.95rem; font-weight:600; padding:12px 22px;
+    border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:#155a96;}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .btn-secondary:disabled{opacity:.5; cursor:not-allowed;}
+  #status{margin-top:12px; font-size:0.86rem; min-height:1.2em;}
+  #status.err{color:#c0392b;}
+  table{width:100%; border-collapse:collapse; margin-top:4px;}
+  th, td{border:1px solid var(--border); padding:8px 10px; text-align:left; font-size:0.88rem;}
+  th{background:#eef4fb; font-weight:600;}
+  tr:nth-child(even) td{background:#fafcfe;}
+  .roster-title{text-align:center; margin:0 0 14px;}
+  .roster-title h2{margin:0; font-size:1.15rem;}
+  .roster-title p{margin:4px 0 0; font-size:0.85rem; color:#667;}
+  @media print {
+    body{ background:#fff; padding:0; }
+    .card.controls, .actions, #status{ display:none !important; }
+    .card.roster{ box-shadow:none; border:none; padding:0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🖨️ พิมพ์รายชื่อนักเรียน</h1>
+  <p class="sub">เลือกระดับและห้อง แล้วกดค้นหารายชื่อ จากนั้นกดพิมพ์ — ข้อมูลดึงจากทำเนียบนักเรียน (เฉพาะ เลขที่ / ชื่อ-สกุล / ห้อง เท่านั้น ไม่รวมข้อมูลส่วนตัวอื่น ๆ)</p>
+
+  <div class="card controls">
+    <div class="row3">
+      <div><label>ระดับ</label><select id="levelSelect"><option value="">— ทุกระดับ —</option></select></div>
+      <div><label>ห้อง</label><select id="roomSelect"><option value="">— ทุกห้อง —</option></select></div>
+      <div style="display:flex; align-items:flex-end;">
+        <button type="button" class="btn-primary" id="searchBtn" style="width:100%;">🔍 ค้นหารายชื่อ</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-secondary" id="printBtn" disabled>🖨️ พิมพ์รายชื่อ</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card roster" id="rosterCard" style="display:none;">
+    <div class="roster-title">
+      <h2 id="rosterHeading">รายชื่อนักเรียน</h2>
+      <p id="rosterSub"></p>
+    </div>
+    <table>
+      <thead><tr><th style="width:70px;">เลขที่</th><th>ชื่อ-สกุล</th><th style="width:110px;">ห้อง</th></tr></thead>
+      <tbody id="rosterBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let ALL_STUDENTS = [];
+function naturalCompare(a, b){ return String(a).localeCompare(String(b), 'th', { numeric: true }); }
+
+async function loadStudents(){
+  const statusEl = document.getElementById('status');
+  try{
+    const res = await fetch('?action=data');
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    ALL_STUDENTS = data.students || [];
+    populateFilters();
+  }catch(err){
+    statusEl.className = 'err';
+    statusEl.textContent = '❌ โหลดข้อมูลไม่สำเร็จ: ' + (err.message || err);
+  }
+}
+
+function populateFilters(){
+  const levels = [...new Set(ALL_STUDENTS.map(s => s.level).filter(Boolean))].sort(naturalCompare);
+  const levelSelect = document.getElementById('levelSelect');
+  levels.forEach(l => {
+    const o = document.createElement('option');
+    o.value = l; o.textContent = l;
+    levelSelect.appendChild(o);
+  });
+  updateRoomOptions();
+}
+
+function updateRoomOptions(){
+  const level = document.getElementById('levelSelect').value;
+  const roomSelect = document.getElementById('roomSelect');
+  roomSelect.innerHTML = '<option value="">— ทุกห้อง —</option>';
+  const rooms = [...new Set(
+    ALL_STUDENTS.filter(s => !level || s.level === level).map(s => s.room).filter(Boolean)
+  )].sort(naturalCompare);
+  rooms.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    roomSelect.appendChild(o);
+  });
+}
+
+document.getElementById('levelSelect').addEventListener('change', updateRoomOptions);
+
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const level = document.getElementById('levelSelect').value;
+  const room = document.getElementById('roomSelect').value;
+  const statusEl = document.getElementById('status');
+  statusEl.className = ''; statusEl.textContent = '';
+
+  const filtered = ALL_STUDENTS
+    .filter(s => (!level || s.level === level) && (!room || s.room === room))
+    .sort((a, b) => naturalCompare(a.no, b.no));
+
+  const rosterCard = document.getElementById('rosterCard');
+  const tbody = document.getElementById('rosterBody');
+  const printBtn = document.getElementById('printBtn');
+
+  if(filtered.length === 0){
+    rosterCard.style.display = 'block';
+    tbody.innerHTML = '';
+    document.getElementById('rosterHeading').textContent = 'ไม่พบรายชื่อนักเรียน';
+    document.getElementById('rosterSub').textContent = '';
+    printBtn.disabled = true;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(s =>
+    '<tr><td>' + s.no + '</td><td>' + s.name + '</td><td>' + s.room + '</td></tr>'
+  ).join('');
+
+  const heading = level || room
+    ? ('รายชื่อนักเรียน ' + (level ? 'ระดับ ' + level : '') + ' ' + (room ? 'ห้อง ' + room : '')).trim()
+    : 'รายชื่อนักเรียนทั้งหมด';
+  document.getElementById('rosterHeading').textContent = heading;
+  document.getElementById('rosterSub').textContent = 'จำนวน ' + filtered.length + ' คน';
+  rosterCard.style.display = 'block';
+  printBtn.disabled = false;
+});
+
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+loadStudents();
+</script>
+</body>
+</html>`;
