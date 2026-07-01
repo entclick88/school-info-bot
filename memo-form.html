@@ -150,7 +150,9 @@
   /* Body paragraphs — 2.5cm indent */
   .doc-body{margin-top:2px;}
   .doc-para{
-    text-indent:2.5em; text-align:left;
+    text-indent:2.5em;
+    text-align: justify;
+    text-justify: distribute;
     white-space:pre-wrap; word-break:break-word;
     line-height:1.85; font-size:.95em; min-height:1.4em;
   }
@@ -158,18 +160,12 @@
   .doc-para.empty-line{ color:#ccc; text-indent:0; }
   .doc-close{text-indent:2.5em; font-size:.95em; margin-top:2px;}
 
-  /* Signers — stacked vertically, shifted left from right edge */
+  /* Signer — centered on page */
   .doc-sign-area{
     margin-top:1.5em;
-    padding-right:8%; /* shift left from edge */
+    display:flex; justify-content:center;
   }
-  .doc-sign-block{
-    font-size:.9em; line-height:1.85; text-align:left;
-    display:inline-block; /* shrink to content width */
-    float:right; clear:right; /* each block stacks below the previous */
-  }
-  .doc-sign-block::after{content:''; display:table; clear:both;}
-  .doc-sign-area::after{content:''; display:table; clear:both;}
+  .doc-sign-block{font-size:.9em; line-height:1.85; text-align:left;}
   .doc-sign-row{white-space:nowrap; display:block;}
 
   .doc-placeholder{color:#bbb;}
@@ -253,7 +249,8 @@
 
         <div class="field">
           <label>เรื่อง <span class="req">*</span></label>
-          <input type="text" id="เรื่อง" placeholder="เรื่องที่บันทึก" required>
+          <input type="text" id="เรื่อง" placeholder="บรรทัดที่ 1" required>
+          <input type="text" id="เรื่อง2" placeholder="บรรทัดที่ 2 (ถ้ามี)" style="margin-top:6px;">
         </div>
         <div class="field">
           <label>เรียน <span class="req">*</span></label>
@@ -302,29 +299,13 @@
 
       <div class="card">
         <div class="section-title">✍️ ผู้ลงนาม</div>
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px;">กรอกอย่างน้อย 1 ท่าน — ท่านที่ 2 และ 3 เว้นว่างได้ ระบบแสดงเฉพาะที่กรอก</div>
-
-        <div style="background:#f5f9ff;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
-          <div style="font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:10px;">ผู้ลงนามที่ 1 <span class="req">*</span></div>
-          <div class="row2">
-            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required></div>
-            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required></div>
-          </div>
+        <div class="row2">
+          <div class="field"><label>ลงชื่อ <span class="req">*</span></label><input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required></div>
+          <div class="field"><label>ตำแหน่ง <span class="req">*</span></label><input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required></div>
         </div>
-        <div style="background:#fafafa;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
-          <div style="font-size:.8rem;font-weight:700;color:#667;margin-bottom:10px;">ผู้ลงนามที่ 2</div>
-          <div class="row2">
-            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล (ถ้ามี)"></div>
-            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง2" placeholder="ตำแหน่ง (ถ้ามี)"></div>
-          </div>
-        </div>
-        <div style="background:#fafafa;border-radius:10px;padding:14px 16px;">
-          <div style="font-size:.8rem;font-weight:700;color:#667;margin-bottom:10px;">ผู้ลงนามที่ 3</div>
-          <div class="row2">
-            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ3" placeholder="ชื่อ-สกุล (ถ้ามี)"></div>
-            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง3" placeholder="ตำแหน่ง (ถ้ามี)"></div>
-          </div>
-        </div>
+        <!-- hidden fields to keep FIELDS array valid -->
+        <input type="hidden" id="ลงชื่อ2"><input type="hidden" id="ตำแหน่ง2">
+        <input type="hidden" id="ลงชื่อ3"><input type="hidden" id="ตำแหน่ง3">
       </div>
 
       <div class="card">
@@ -373,10 +354,10 @@
           </div>
         </div>
 
-        <!-- เรื่อง -->
-        <div class="doc-field">
+        <!-- เรื่อง (2 lines) -->
+        <div class="doc-field" style="align-items:flex-start;">
           <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val empty" id="pv-เรื่อง"></span>
+          <span class="doc-field-val empty" id="pv-เรื่อง" style="white-space:normal;word-break:break-word;"></span>
         </div>
 
         <hr class="doc-divider">
@@ -406,7 +387,7 @@
 const STORAGE_KEY = 'memoFormData_v2';
 
 const FIELDS = [
-  'ฝ่าย','เลขที่','วันที่','เรื่อง','เรียน',
+  'ฝ่าย','เลขที่','วันที่','เรื่อง','เรื่อง2','เรียน',
   'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
   'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
   'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
@@ -427,8 +408,13 @@ function getVal(id){ const el=document.getElementById(id); return el?el.value:''
 function pvSet(id, val){
   const el=document.getElementById(id);
   if(!el) return;
-  if(val){ el.textContent=val; el.classList.remove('empty'); }
-  else { el.textContent=''; el.classList.add('empty'); }
+  if(val){
+    el.style.whiteSpace='pre-wrap';
+    el.textContent=val;
+    el.classList.remove('empty');
+  } else {
+    el.textContent=''; el.classList.add('empty');
+  }
 }
 
 /* ── Auto-save ── */
@@ -468,7 +454,9 @@ function updatePreview(){
   pvSet('pv-ฝ่าย', v['ฝ่าย']);
   pvSet('pv-เลขที่', v['เลขที่']);
   pvSet('pv-วันที่', tDate);
-  pvSet('pv-เรื่อง', v['เรื่อง']);
+  // เรื่อง: combine 2 lines
+  const เรื่องFull = [v['เรื่อง'], v['เรื่อง2']].filter(Boolean).join('\n');
+  pvSet('pv-เรื่อง', เรื่องFull);
   pvSet('pv-เรียน', v['เรียน']);
 
   // Body — each ภาค group: show filled paras, always show at least 1 dotted line per group
@@ -560,7 +548,7 @@ document.getElementById('memoForm').addEventListener('submit', async function(e)
     'ฝ่าย':v['ฝ่าย'],
     'เลขที่':v['เลขที่'],
     'วันที่':thaiDate(v['วันที่']),
-    'เรื่อง':v['เรื่อง'],
+    'เรื่อง':[v['เรื่อง'], v['เรื่อง2']].filter(Boolean).join('\n'),
     'เรียน':v['เรียน'],
     'ภาคเหตุ':v['ภาคเหตุ'],
     'ภาคเหตุ2':v['ภาคเหตุ2'],
