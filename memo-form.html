@@ -7,43 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --accent:#1a73c0;
-    --accent2:#1558a0;
-    --bg:#f3f6fa;
-    --card:#ffffff;
-    --border:#dfe6ee;
-    --text:#1f2a37;
-    --muted:#667788;
-    --success:#1e7d3c;
-    --danger:#c0392b;
-    --preview-font:'Sarabun',sans-serif;
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    font-family:'Sarabun',sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
-  }
+  body{font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;}
 
-  /* ─── Top bar ─── */
+  /* ── Top bar ── */
   .topbar{
-    background:var(--accent);
-    color:#fff;
-    padding:12px 24px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    position:sticky;
-    top:0;
-    z-index:100;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    background:var(--accent); color:#fff; padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15);
   }
   .topbar-left{display:flex; align-items:center; gap:12px;}
   .topbar a.back{color:rgba(255,255,255,.85); text-decoration:none; font-size:.88rem;}
   .topbar a.back:hover{color:#fff;}
-  .topbar h1{font-size:1.1rem; font-weight:700; letter-spacing:.02em;}
+  .topbar h1{font-size:1.1rem; font-weight:700;}
   .save-badge{
     font-size:.78rem; background:rgba(255,255,255,.2); border-radius:6px;
     padding:3px 10px; display:flex; align-items:center; gap:5px;
@@ -51,79 +31,48 @@
   .save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
   .save-badge.unsaved .dot{background:#fbbf24;}
 
-  /* ─── Main layout ─── */
+  /* ── Main layout ── */
   .main{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:0;
-    max-width:1400px;
-    margin:0 auto;
-    min-height:calc(100vh - 52px);
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    max-width:1400px; margin:0 auto; min-height:calc(100vh - 52px);
   }
 
-  /* ─── Form side ─── */
-  .form-side{
-    padding:24px;
-    overflow-y:auto;
-    border-right:1px solid var(--border);
-  }
+  /* ── Form side ── */
+  .form-side{padding:24px; overflow-y:auto; border-right:1px solid var(--border);}
   .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:20px 22px;
-    box-shadow:0 1px 6px rgba(20,40,80,.05);
-    margin-bottom:16px;
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; box-shadow:0 1px 6px rgba(20,40,80,.05); margin-bottom:16px;
   }
   .section-title{
-    font-weight:700;
-    font-size:.95rem;
-    color:var(--accent);
-    margin-bottom:14px;
-    padding-bottom:8px;
-    border-bottom:2px solid #e8f0fb;
-    display:flex;
-    align-items:center;
-    gap:6px;
+    font-weight:700; font-size:.95rem; color:var(--accent);
+    margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid #e8f0fb;
+    display:flex; align-items:center; gap:6px;
   }
   label{display:block; font-size:.84rem; font-weight:600; margin-bottom:5px; color:#445566;}
   .field{margin-bottom:14px;}
   .field:last-child{margin-bottom:0;}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
   input[type=text], input[type=date], textarea, select{
-    width:100%;
-    padding:9px 12px;
-    border:1.5px solid var(--border);
-    border-radius:8px;
-    font-family:'Sarabun',sans-serif;
-    font-size:.9rem;
-    background:#fbfcfe;
-    color:var(--text);
-    transition:border-color .15s;
+    width:100%; padding:9px 12px; border:1.5px solid var(--border);
+    border-radius:8px; font-family:'Sarabun',sans-serif; font-size:.9rem;
+    background:#fbfcfe; color:var(--text); transition:border-color .15s;
   }
   input:focus, textarea:focus, select:focus{
-    outline:none;
-    border-color:var(--accent);
-    background:#fff;
+    outline:none; border-color:var(--accent); background:#fff;
     box-shadow:0 0 0 3px rgba(26,115,192,.1);
   }
-  textarea{resize:vertical; min-height:80px; line-height:1.6;}
+  textarea{resize:vertical; min-height:72px; line-height:1.6;}
   .hint{font-size:.75rem; color:#8a97a8; margin-top:3px;}
   .req{color:var(--danger);}
+  .para-group{display:flex; flex-direction:column; gap:8px;}
+  .para-label{font-size:.76rem; color:var(--muted); font-weight:600; margin-bottom:2px;}
 
   /* Action buttons */
-  .form-actions{
-    display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;
-  }
+  .form-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;}
   button{
-    font-family:'Sarabun',sans-serif;
-    font-size:.92rem;
-    font-weight:600;
-    padding:11px 20px;
-    border-radius:10px;
-    border:none;
-    cursor:pointer;
-    transition:background .15s, opacity .15s;
+    font-family:'Sarabun',sans-serif; font-size:.92rem; font-weight:600;
+    padding:11px 20px; border-radius:10px; border:none; cursor:pointer;
+    transition:background .15s;
   }
   .btn-primary{background:var(--accent); color:#fff;}
   .btn-primary:hover{background:var(--accent2);}
@@ -136,140 +85,87 @@
   #genStatus.err{color:var(--danger);}
   #genStatus.ok{color:var(--success);}
 
-  /* ─── Preview side ─── */
+  /* ── Preview side ── */
   .preview-side{
-    padding:24px;
-    background:#f8f9fb;
-    overflow-y:auto;
-    position:sticky;
-    top:52px;
-    height:calc(100vh - 52px);
+    padding:20px 20px 24px; background:#f0f2f5;
+    overflow-y:auto; position:sticky; top:52px; height:calc(100vh - 52px);
   }
   .preview-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:14px;
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
   }
-  .preview-header h2{font-size:.95rem; color:var(--muted); font-weight:600;}
+  .preview-header h2{font-size:.9rem; color:var(--muted); font-weight:600;}
   .preview-label{
-    font-size:.72rem;
-    background:#e8f0fb;
-    color:var(--accent);
-    padding:3px 9px;
-    border-radius:20px;
-    font-weight:600;
+    font-size:.7rem; background:#e8f0fb; color:var(--accent);
+    padding:3px 9px; border-radius:20px; font-weight:600;
   }
 
-  /* A4-like document preview — mirrors ตย บันทึกข้อความ layout */
-  .doc-preview{
+  /* A4 document preview */
+  .doc-wrap{
+    /* A4 ratio 210:297 ≈ 1:1.414 */
+    width:100%;
     background:#fff;
-    border:1px solid #d0d9e8;
-    border-radius:4px;
-    box-shadow:0 4px 20px rgba(0,0,0,.1);
-    padding:28px 32px 32px;
+    border:1px solid #c8d4e3;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);
+    aspect-ratio:210/297;
+    overflow:hidden;
+    position:relative;
+  }
+  /* scale inner content to fit the fixed aspect-ratio box */
+  .doc-inner{
+    position:absolute; inset:0;
+    padding:7% 8%;
     font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
-    font-size:13.5px;
-    line-height:1.9;
-    color:#1a1a1a;
-    min-height:500px;
+    font-size:clamp(8px,1.4vw,13px);
+    line-height:1.85;
+    color:#111;
+    overflow:hidden;
   }
-  /* Header row: logo left, title right */
-  .doc-header-row{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    margin-bottom:4px;
-  }
-  .doc-logo{
-    width:46px; height:46px;
-    flex-shrink:0;
-    object-fit:contain;
-  }
-  .doc-title-block{
-    flex:1;
-    text-align:center;
-    font-size:15px;
-    font-weight:700;
-    padding-top:6px;
-  }
-  /* Meta fields */
-  .doc-meta{
-    margin-top:4px;
-    font-size:13px;
-    line-height:2;
-  }
-  .doc-meta-row{
-    display:flex;
-    gap:0;
-  }
-  .doc-meta-label{
-    white-space:nowrap;
-    min-width:5em;
-  }
-  .doc-meta-value{
-    flex:1;
-  }
-  .doc-meta-right{
-    margin-left:auto;
-    white-space:nowrap;
-    padding-left:12px;
-  }
-  .doc-divider{
-    border:none;
-    border-top:1.5px solid #111;
-    margin:6px 0 4px;
-  }
+
+  /* Header */
+  .doc-header-row{display:flex; align-items:flex-start; gap:8px; margin-bottom:2px;}
+  .doc-logo{width:9%; flex-shrink:0; object-fit:contain;}
+  .doc-title-block{flex:1; text-align:center; font-weight:700; font-size:1.1em; padding-top:4px;}
+
+  /* Meta */
+  .doc-meta{font-size:.95em; line-height:2;}
+  .doc-meta-row{display:flex; align-items:baseline;}
+  .doc-meta-label{white-space:nowrap; min-width:4.5em;}
+  .doc-meta-value{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .doc-meta-right{white-space:nowrap; padding-left:8px;}
+  .doc-divider{border:none; border-top:1.5px solid #111; margin:4px 0;}
+
   /* Body */
-  .doc-body{margin-top:4px; font-size:13px; line-height:2;}
-  .doc-para{text-indent:3em; text-align:justify; margin-bottom:0;}
-  .doc-close{margin-top:2px; text-indent:3em;}
+  .doc-body{font-size:.95em; line-height:1.9;}
+  .doc-para{text-indent:2.5em; text-align:justify; white-space:pre-wrap; word-break:break-word;}
+  .doc-close{text-indent:2.5em;}
+
   /* Signers */
-  .doc-sign-row{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:4px;
-    margin-top:24px;
-    text-align:center;
-    font-size:12px;
-  }
-  .doc-sign-block{}
-  .doc-sign-label{margin-bottom:28px;}
-  .doc-sign-name{
-    border-top:1px solid #555;
-    padding-top:3px;
-    margin:0 4px;
-  }
+  .doc-sign-area{display:flex; justify-content:flex-end; gap:0; margin-top:16px;}
+  .doc-sign-block{text-align:center; font-size:.85em; min-width:120px; padding:0 8px;}
+  .doc-sign-space{height:2em;}
+  .doc-sign-name{border-top:1px solid #555; padding-top:2px;}
+
   .doc-placeholder{color:#bbb; font-style:italic;}
-  .preview-note{
-    font-size:.74rem;
-    color:var(--muted);
-    text-align:center;
-    margin-top:12px;
-  }
+
+  .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
 
   /* Responsive */
   @media(max-width:900px){
     .main{grid-template-columns:1fr;}
-    .preview-side{
-      position:static;
-      height:auto;
-      border-top:1px solid var(--border);
-    }
+    .preview-side{position:static; height:auto; border-top:1px solid var(--border);}
     .form-side{border-right:none;}
   }
-
   @media print{
     .topbar,.form-side,.preview-header,.preview-note{display:none!important;}
     .main{display:block;}
     .preview-side{padding:0; background:#fff;}
-    .doc-preview{box-shadow:none; border:none; padding:20px;}
+    .doc-wrap{box-shadow:none; border:none; aspect-ratio:auto;}
+    .doc-inner{position:static; padding:10mm 18mm;}
   }
 </style>
 </head>
 <body>
 
-<!-- Top bar -->
 <div class="topbar">
   <div class="topbar-left">
     <a class="back" href="./index.html">← กลับ</a>
@@ -282,31 +178,34 @@
 </div>
 
 <div class="main">
-  <!-- ══ FORM SIDE ══ -->
+  <!-- ══ FORM ══ -->
   <div class="form-side">
     <form id="memoForm" autocomplete="off">
 
       <div class="card">
         <div class="section-title">📋 ส่วนหัวบันทึก</div>
+
+        <div class="field">
+          <label>ฝ่าย / ส่วนงาน <span class="req">*</span></label>
+          <select id="ฝ่าย" required>
+            <option value="">— เลือกส่วนงาน —</option>
+            <option value="ส่วนงานการจัดการศึกษา ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ส่วนงานการจัดการศึกษา ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="ส่วนงานการจัดการศึกษา ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ส่วนงานการจัดการศึกษา ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+          </select>
+        </div>
+
         <div class="row2">
-          <div class="field">
-            <label>ฝ่าย / ส่วนงาน <span class="req">*</span></label>
-            <input type="text" id="ฝ่าย" placeholder="เช่น ฝ่ายบริหารงานทั่วไป" required>
-          </div>
           <div class="field">
             <label>ที่ (เลขที่หนังสือ) <span class="req">*</span></label>
-            <input type="text" id="เลขที่" placeholder="เช่น ศธ 04345.../2569" required>
+            <input type="text" id="เลขที่" placeholder="เช่น มอ.ว.สฎ.1.6/69-136" required>
           </div>
-        </div>
-        <div class="row2">
           <div class="field">
             <label>วันที่ <span class="req">*</span></label>
             <input type="date" id="วันที่" required>
           </div>
-          <div class="field" style="display:flex;align-items:flex-end;">
-            <div style="background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:9px 12px;width:100%;font-size:.88rem;color:#335;" id="thaiDatePreview">— วันที่จะแสดงที่นี่ —</div>
-          </div>
         </div>
+        <div id="thaiDatePreview" style="font-size:.82rem;color:#335;background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:7px 12px;margin-bottom:14px;">— วันที่จะแสดงที่นี่ —</div>
+
         <div class="field">
           <label>เรื่อง <span class="req">*</span></label>
           <input type="text" id="เรื่อง" placeholder="เรื่องที่บันทึก" required>
@@ -319,19 +218,37 @@
 
       <div class="card">
         <div class="section-title">📄 เนื้อความบันทึก</div>
+
         <div class="field">
           <label>ภาคเหตุ <span class="req">*</span></label>
-          <textarea id="ภาคเหตุ" rows="3" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุของการบันทึก)" required></textarea>
-          <div class="hint">อธิบายที่มา / มูลเหตุที่ต้องบันทึกข้อความนี้</div>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคเหตุ" rows="3" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุของการบันทึก)" required></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคเหตุ2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคเหตุ3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคเหตุ4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
         </div>
+
         <div class="field">
           <label>ภาคความประสงค์</label>
-          <textarea id="ภาคความประสงค์" rows="3" placeholder="สิ่งที่ต้องการให้พิจารณา / ดำเนินการ (ถ้ามี)"></textarea>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคความประสงค์" rows="2" placeholder="สิ่งที่ต้องการให้พิจารณา / ดำเนินการ (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคความประสงค์2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคความประสงค์3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคความประสงค์4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
         </div>
+
         <div class="field">
           <label>ภาคสรุป</label>
-          <textarea id="ภาคสรุป" rows="2" placeholder="ข้อสรุป / คำขอท้ายบันทึก (ถ้ามี)"></textarea>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคสรุป" rows="2" placeholder="ข้อสรุป / คำขอท้ายบันทึก (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคสรุป2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคสรุป3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคสรุป4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
         </div>
+
         <div class="field">
           <label>จึงเรียนมาเพื่อ... <span class="req">*</span></label>
           <input type="text" id="จึงเรียนมาเพื่อ..." placeholder="เช่น โปรดพิจารณาอนุมัติ" required>
@@ -340,47 +257,27 @@
 
       <div class="card">
         <div class="section-title">✍️ ผู้ลงนาม</div>
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px;">กรอกอย่างน้อย 1 ท่าน (ผู้บันทึก) — ท่านที่ 2 และ 3 เว้นว่างได้</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px;">กรอกอย่างน้อย 1 ท่าน — ท่านที่ 2 และ 3 เว้นว่างได้ ระบบแสดงเฉพาะที่กรอก</div>
 
-        <div style="background:#f5f9ff;border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:10px;">ผู้ลงนามที่ 1 (ผู้บันทึก) <span class="req">*</span></div>
+        <div style="background:#f5f9ff;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+          <div style="font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:10px;">ผู้ลงนามที่ 1 <span class="req">*</span></div>
           <div class="row2">
-            <div class="field">
-              <label>ลงชื่อ</label>
-              <input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required>
-            </div>
-            <div class="field">
-              <label>ตำแหน่ง</label>
-              <input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required>
-            </div>
+            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required></div>
+            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required></div>
           </div>
         </div>
-
-        <div style="background:#fafafa;border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+        <div style="background:#fafafa;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
           <div style="font-size:.8rem;font-weight:700;color:#667;margin-bottom:10px;">ผู้ลงนามที่ 2</div>
           <div class="row2">
-            <div class="field">
-              <label>ลงชื่อ</label>
-              <input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล (ถ้ามี)">
-            </div>
-            <div class="field">
-              <label>ตำแหน่ง</label>
-              <input type="text" id="ตำแหน่ง2" placeholder="ตำแหน่ง (ถ้ามี)">
-            </div>
+            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ2" placeholder="ชื่อ-สกุล (ถ้ามี)"></div>
+            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง2" placeholder="ตำแหน่ง (ถ้ามี)"></div>
           </div>
         </div>
-
         <div style="background:#fafafa;border-radius:10px;padding:14px 16px;">
           <div style="font-size:.8rem;font-weight:700;color:#667;margin-bottom:10px;">ผู้ลงนามที่ 3</div>
           <div class="row2">
-            <div class="field">
-              <label>ลงชื่อ</label>
-              <input type="text" id="ลงชื่อ3" placeholder="ชื่อ-สกุล (ถ้ามี)">
-            </div>
-            <div class="field">
-              <label>ตำแหน่ง</label>
-              <input type="text" id="ตำแหน่ง3" placeholder="ตำแหน่ง (ถ้ามี)">
-            </div>
+            <div class="field"><label>ลงชื่อ</label><input type="text" id="ลงชื่อ3" placeholder="ชื่อ-สกุล (ถ้ามี)"></div>
+            <div class="field"><label>ตำแหน่ง</label><input type="text" id="ตำแหน่ง3" placeholder="ตำแหน่ง (ถ้ามี)"></div>
           </div>
         </div>
       </div>
@@ -396,301 +293,258 @@
     </form>
   </div>
 
-  <!-- ══ PREVIEW SIDE ══ -->
+  <!-- ══ PREVIEW ══ -->
   <div class="preview-side">
     <div class="preview-header">
       <h2>👁️ ตัวอย่างบันทึกข้อความ</h2>
       <span class="preview-label">Live Preview</span>
     </div>
 
-    <div class="doc-preview" id="docPreview">
+    <div class="doc-wrap">
+      <div class="doc-inner">
 
-      <!-- Header: logo + title (mirrors ตย layout) -->
-      <div class="doc-header-row">
-        <img src="./logo.png" class="doc-logo" alt="logo">
-        <div class="doc-title-block">บันทึกข้อความ</div>
-      </div>
-
-      <hr class="doc-divider">
-
-      <!-- Meta fields -->
-      <div class="doc-meta">
-        <div class="doc-meta-row">
-          <span class="doc-meta-label">ส่วนราชการ</span>
-          <span class="doc-meta-value" id="pv-ฝ่าย"><span class="doc-placeholder">—</span></span>
+        <!-- Header: logo + title -->
+        <div class="doc-header-row">
+          <img src="./logo.png" class="doc-logo" alt="logo">
+          <div class="doc-title-block">บันทึกข้อความ</div>
         </div>
-        <div class="doc-meta-row">
-          <span class="doc-meta-label">ที่</span>
-          <span class="doc-meta-value" id="pv-เลขที่"><span class="doc-placeholder">—</span></span>
-          <span class="doc-meta-right">วันที่&nbsp;&nbsp;<span id="pv-วันที่" class="doc-placeholder">—</span></span>
-        </div>
-        <div class="doc-meta-row">
-          <span class="doc-meta-label">เรื่อง</span>
-          <span class="doc-meta-value" id="pv-เรื่อง"><span class="doc-placeholder">—</span></span>
-        </div>
-      </div>
 
-      <hr class="doc-divider">
-
-      <div class="doc-meta" style="margin-bottom:6px;">
-        <div class="doc-meta-row">
-          <span class="doc-meta-label">เรียน</span>
-          <span class="doc-meta-value" id="pv-เรียน"><span class="doc-placeholder">—</span></span>
+        <!-- Meta fields (no divider above) -->
+        <div class="doc-meta">
+          <div class="doc-meta-row">
+            <span class="doc-meta-label">ส่วนราชการ</span>
+            <span class="doc-meta-value" id="pv-ฝ่าย"><span class="doc-placeholder">—</span></span>
+          </div>
+          <div class="doc-meta-row">
+            <span class="doc-meta-label">ที่</span>
+            <span class="doc-meta-value" id="pv-เลขที่"><span class="doc-placeholder">—</span></span>
+            <span class="doc-meta-right">วันที่ <span id="pv-วันที่" class="doc-placeholder">—</span></span>
+          </div>
+          <div class="doc-meta-row">
+            <span class="doc-meta-label">เรื่อง</span>
+            <span class="doc-meta-value" id="pv-เรื่อง"><span class="doc-placeholder">—</span></span>
+          </div>
         </div>
-      </div>
 
-      <!-- Body -->
-      <div class="doc-body">
-        <div class="doc-para" id="pv-ภาคเหตุ" style="white-space:pre-line;"><span class="doc-placeholder">—</span></div>
-        <div class="doc-para" id="pv-ภาคความประสงค์" style="white-space:pre-line; display:none;"></div>
-        <div class="doc-para" id="pv-ภาคสรุป" style="white-space:pre-line; display:none;"></div>
-        <div class="doc-close">
-          จึงเรียนมาเพื่อ <span id="pv-จึงเรียน" class="doc-placeholder">—</span>
+        <hr class="doc-divider">
+
+        <div class="doc-meta" style="margin-bottom:4px;">
+          <div class="doc-meta-row">
+            <span class="doc-meta-label">เรียน</span>
+            <span class="doc-meta-value" id="pv-เรียน"><span class="doc-placeholder">—</span></span>
+          </div>
         </div>
-      </div>
 
-      <!-- Signers -->
-      <div class="doc-sign-row" id="pvSignRow">
-        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
-        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
-        <div class="doc-sign-block"><div class="doc-sign-label">ลงชื่อ</div><div class="doc-sign-name doc-placeholder">—</div><div class="doc-placeholder">—</div></div>
+        <!-- Body -->
+        <div class="doc-body" id="pvBody">
+          <!-- filled by JS -->
+        </div>
+
+        <!-- Signers — right-aligned, only filled -->
+        <div class="doc-sign-area" id="pvSignRow"></div>
+
       </div>
     </div>
 
-    <div class="preview-note">ตัวอย่างนี้แสดงโครงสร้างเท่านั้น — ไฟล์จริงใช้แบบฟอร์ม master_fixed.docx</div>
+    <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น — ไฟล์จริงใช้แบบฟอร์ม master_fixed.docx</div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.6/dist/pizzip.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.44.0/build/docxtemplater.js"></script>
 <script>
-/* ─── Helpers ─── */
-const STORAGE_KEY = 'memoFormData_v1';
+const STORAGE_KEY = 'memoFormData_v2';
 
 const FIELDS = [
   'ฝ่าย','เลขที่','วันที่','เรื่อง','เรียน',
-  'ภาคเหตุ','ภาคความประสงค์','ภาคสรุป','จึงเรียนมาเพื่อ...',
+  'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
+  'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
+  'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
+  'จึงเรียนมาเพื่อ...',
   'ลงชื่อ1','ตำแหน่ง1','ลงชื่อ2','ตำแหน่ง2','ลงชื่อ3','ตำแหน่ง3'
 ];
 
 function thaiDate(iso){
   if(!iso) return '';
   const [y,m,d] = iso.split('-').map(Number);
-  const months = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
-                  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  return `${d} ${months[m]} ${y + 543}`;
+  const months=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return `${d} ${months[m]} ${y+543}`;
 }
 
-function getVal(id){ const el = document.getElementById(id); return el ? el.value : ''; }
-function setText(id, v, placeholder){
-  const el = document.getElementById(id);
+function getVal(id){ const el=document.getElementById(id); return el?el.value:''; }
+
+function pvSet(id, val){
+  const el=document.getElementById(id);
   if(!el) return;
-  if(v){
-    el.textContent = v;
-    el.classList.remove('doc-placeholder');
-  } else {
-    el.textContent = placeholder || '—';
-    el.classList.add('doc-placeholder');
-  }
+  if(val){ el.textContent=val; el.classList.remove('doc-placeholder'); }
+  else { el.innerHTML='<span class="doc-placeholder">—</span>'; }
 }
 
-/* ─── Auto-save ─── */
-let saveTimer = null;
-const saveBadge = document.getElementById('saveBadge');
-const saveText = document.getElementById('saveText');
-
-function markUnsaved(){
-  saveBadge.classList.add('unsaved');
-  saveText.textContent = 'มีการเปลี่ยนแปลง...';
-}
-function markSaved(){
-  saveBadge.classList.remove('unsaved');
-  saveText.textContent = 'บันทึกอัตโนมัติ ✓';
-}
+/* ── Auto-save ── */
+let saveTimer=null;
+const saveBadge=document.getElementById('saveBadge');
+const saveText=document.getElementById('saveText');
+function markUnsaved(){ saveBadge.classList.add('unsaved'); saveText.textContent='มีการเปลี่ยนแปลง...'; }
+function markSaved(){ saveBadge.classList.remove('unsaved'); saveText.textContent='บันทึกอัตโนมัติ ✓'; }
 
 function saveData(){
-  const data = {};
-  FIELDS.forEach(f => { data[f] = getVal(f); });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  const d={};
+  FIELDS.forEach(f=>{d[f]=getVal(f);});
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(d));
   markSaved();
 }
-
 function loadData(){
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw=localStorage.getItem(STORAGE_KEY);
     if(!raw) return;
-    const data = JSON.parse(raw);
-    FIELDS.forEach(f => {
-      const el = document.getElementById(f);
-      if(el && data[f] !== undefined) el.value = data[f];
+    const d=JSON.parse(raw);
+    FIELDS.forEach(f=>{
+      const el=document.getElementById(f);
+      if(el && d[f]!==undefined) el.value=d[f];
     });
-    updatePreview();
-    markSaved();
+    updatePreview(); markSaved();
   }catch(e){}
 }
 
-/* ─── Live preview ─── */
-function pvSet(id, val){
-  const el = document.getElementById(id);
-  if(!el) return;
-  if(val){
-    el.textContent = val;
-    el.classList.remove('doc-placeholder');
+/* ── Live Preview ── */
+function updatePreview(){
+  const v={};
+  FIELDS.forEach(f=>{v[f]=getVal(f);});
+
+  const tDate=thaiDate(v['วันที่']);
+  document.getElementById('thaiDatePreview').textContent = tDate||'— วันที่จะแสดงที่นี่ —';
+
+  pvSet('pv-ฝ่าย', v['ฝ่าย']);
+  pvSet('pv-เลขที่', v['เลขที่']);
+  pvSet('pv-วันที่', tDate);
+  pvSet('pv-เรื่อง', v['เรื่อง']);
+  pvSet('pv-เรียน', v['เรียน']);
+
+  // Body paragraphs — collect non-empty across all ภาค groups
+  const bodyKeys = [
+    'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
+    'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
+    'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
+  ];
+  const bodyParas = bodyKeys.map(k=>v[k]).filter(Boolean);
+  let bodyHTML = bodyParas.map(t=>`<div class="doc-para">${escHtml(t)}</div>`).join('');
+  if(!bodyHTML) bodyHTML='<div class="doc-para doc-placeholder">—</div>';
+  bodyHTML += `<div class="doc-close">จึงเรียนมาเพื่อ <span class="${v['จึงเรียนมาเพื่อ...']?'':'doc-placeholder'}">${escHtml(v['จึงเรียนมาเพื่อ...'])||'—'}</span></div>`;
+  document.getElementById('pvBody').innerHTML = bodyHTML;
+
+  // Signers — only filled, right-aligned
+  const signers = [
+    {name:v['ลงชื่อ1'], pos:v['ตำแหน่ง1']},
+    {name:v['ลงชื่อ2'], pos:v['ตำแหน่ง2']},
+    {name:v['ลงชื่อ3'], pos:v['ตำแหน่ง3']},
+  ].filter(s=>s.name||s.pos);
+
+  const signRow=document.getElementById('pvSignRow');
+  if(signers.length===0){
+    signRow.innerHTML='';
   } else {
-    el.innerHTML = '<span class="doc-placeholder">—</span>';
+    signRow.innerHTML = signers.map(s=>`
+      <div class="doc-sign-block">
+        <div class="doc-sign-space"></div>
+        <div class="doc-sign-name">(${escHtml(s.name)||'—'})</div>
+        <div>${escHtml(s.pos)||''}</div>
+      </div>
+    `).join('');
   }
 }
 
-function updatePreview(){
-  const vals = {};
-  FIELDS.forEach(f => vals[f] = getVal(f));
-
-  const tDate = thaiDate(vals['วันที่']);
-
-  // Thai date hint
-  const dp = document.getElementById('thaiDatePreview');
-  dp.textContent = tDate || '— วันที่จะแสดงที่นี่ —';
-
-  pvSet('pv-ฝ่าย',   vals['ฝ่าย']);
-  pvSet('pv-เลขที่', vals['เลขที่']);
-  pvSet('pv-วันที่', tDate);
-  pvSet('pv-เรื่อง', vals['เรื่อง']);
-  pvSet('pv-เรียน',  vals['เรียน']);
-
-  // Body paragraphs
-  pvSet('pv-ภาคเหตุ', vals['ภาคเหตุ']);
-
-  const pvP = document.getElementById('pv-ภาคความประสงค์');
-  if(vals['ภาคความประสงค์']){
-    pvP.textContent = vals['ภาคความประสงค์'];
-    pvP.style.display = '';
-  } else { pvP.style.display = 'none'; }
-
-  const pvS = document.getElementById('pv-ภาคสรุป');
-  if(vals['ภาคสรุป']){
-    pvS.textContent = vals['ภาคสรุป'];
-    pvS.style.display = '';
-  } else { pvS.style.display = 'none'; }
-
-  pvSet('pv-จึงเรียน', vals['จึงเรียนมาเพื่อ...']);
-
-  // Signers (always show 3 slots, dim if empty)
-  const signers = [
-    { name: vals['ลงชื่อ1'], pos: vals['ตำแหน่ง1'] },
-    { name: vals['ลงชื่อ2'], pos: vals['ตำแหน่ง2'] },
-    { name: vals['ลงชื่อ3'], pos: vals['ตำแหน่ง3'] },
-  ];
-  document.getElementById('pvSignRow').innerHTML = signers.map(s => `
-    <div class="doc-sign-block">
-      <div class="doc-sign-label">ลงชื่อ</div>
-      <div class="doc-sign-name ${s.name ? '' : 'doc-placeholder'}">${s.name ? '('+s.name+')' : '—'}</div>
-      <div class="${s.pos ? '' : 'doc-placeholder'}">${s.pos || '—'}</div>
-    </div>
-  `).join('');
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* ─── Event wiring ─── */
-FIELDS.forEach(f => {
-  const el = document.getElementById(f);
+/* ── Event wiring ── */
+FIELDS.forEach(f=>{
+  const el=document.getElementById(f);
   if(!el) return;
-  el.addEventListener('input', () => {
-    updatePreview();
-    markUnsaved();
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveData, 800);
-  });
-  el.addEventListener('change', () => {
-    updatePreview();
-    markUnsaved();
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveData, 800);
+  ['input','change'].forEach(ev=>{
+    el.addEventListener(ev,()=>{
+      updatePreview(); markUnsaved();
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(saveData,800);
+    });
   });
 });
 
-/* ─── Clear ─── */
-document.getElementById('clearBtn').addEventListener('click', () => {
+/* ── Clear ── */
+document.getElementById('clearBtn').addEventListener('click',()=>{
   if(!confirm('ต้องการล้างข้อมูลทั้งหมดในฟอร์มและบันทึกที่เก็บไว้ใช่หรือไม่?')) return;
-  FIELDS.forEach(f => {
-    const el = document.getElementById(f);
-    if(el) el.value = '';
-  });
+  FIELDS.forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
   localStorage.removeItem(STORAGE_KEY);
-  updatePreview();
-  markSaved();
-  saveText.textContent = 'ล้างข้อมูลแล้ว';
+  updatePreview(); markSaved();
+  saveText.textContent='ล้างข้อมูลแล้ว';
 });
 
-/* ─── Generate .docx ─── */
+/* ── Generate .docx ── */
 document.getElementById('memoForm').addEventListener('submit', async function(e){
   e.preventDefault();
-  const statusEl = document.getElementById('genStatus');
-  const genBtn = document.getElementById('genBtn');
-  statusEl.className = '';
-  statusEl.textContent = '';
+  const statusEl=document.getElementById('genStatus');
+  const genBtn=document.getElementById('genBtn');
+  statusEl.className=''; statusEl.textContent='';
 
-  const vals = {};
-  FIELDS.forEach(f => { vals[f] = getVal(f); });
+  const v={};
+  FIELDS.forEach(f=>{v[f]=getVal(f);});
 
-  const data = {
-    'ฝ่าย': vals['ฝ่าย'],
-    'เลขที่': vals['เลขที่'],
-    'วันที่': thaiDate(vals['วันที่']),
-    'เรื่อง': vals['เรื่อง'],
-    'เรียน': vals['เรียน'],
-    'ภาคเหตุ': vals['ภาคเหตุ'],
-    'ภาคความประสงค์': vals['ภาคความประสงค์'],
-    'ภาคสรุป': vals['ภาคสรุป'],
-    'จึงเรียนมาเพื่อ...': vals['จึงเรียนมาเพื่อ...'],
-    'ลงชื่อ1': vals['ลงชื่อ1'],
-    'ตำแหน่ง1': vals['ตำแหน่ง1'],
-    'ลงชื่อ2': vals['ลงชื่อ2'],
-    'ตำแหน่ง2': vals['ตำแหน่ง2'],
-    'ลงชื่อ3': vals['ลงชื่อ3'],
-    'ตำแหน่ง3': vals['ตำแหน่ง3'],
+  const data={
+    'ฝ่าย':v['ฝ่าย'],
+    'เลขที่':v['เลขที่'],
+    'วันที่':thaiDate(v['วันที่']),
+    'เรื่อง':v['เรื่อง'],
+    'เรียน':v['เรียน'],
+    'ภาคเหตุ':v['ภาคเหตุ'],
+    'ภาคเหตุ2':v['ภาคเหตุ2'],
+    'ภาคเหตุ3':v['ภาคเหตุ3'],
+    'ภาคเหตุ4':v['ภาคเหตุ4'],
+    'ภาคความประสงค์':v['ภาคความประสงค์'],
+    'ภาคความประสงค์2':v['ภาคความประสงค์2'],
+    'ภาคความประสงค์3':v['ภาคความประสงค์3'],
+    'ภาคความประสงค์4':v['ภาคความประสงค์4'],
+    'ภาคสรุป':v['ภาคสรุป'],
+    'ภาคสรุป2':v['ภาคสรุป2'],
+    'ภาคสรุป3':v['ภาคสรุป3'],
+    'ภาคสรุป4':v['ภาคสรุป4'],
+    'จึงเรียนมาเพื่อ...':v['จึงเรียนมาเพื่อ...'],
+    'ลงชื่อ1':v['ลงชื่อ1'], 'ตำแหน่ง1':v['ตำแหน่ง1'],
+    'ลงชื่อ2':v['ลงชื่อ2'], 'ตำแหน่ง2':v['ตำแหน่ง2'],
+    'ลงชื่อ3':v['ลงชื่อ3'], 'ตำแหน่ง3':v['ตำแหน่ง3'],
   };
 
-  genBtn.disabled = true;
-  genBtn.textContent = '⏳ กำลังสร้างไฟล์...';
-
+  genBtn.disabled=true; genBtn.textContent='⏳ กำลังสร้างไฟล์...';
   try{
-    const resp = await fetch('./master_fixed.docx');
+    const resp=await fetch('./master_fixed.docx');
     if(!resp.ok) throw new Error('โหลดไฟล์แบบฟอร์มต้นฉบับไม่สำเร็จ');
-    const buf = await resp.arrayBuffer();
-    const zip = new PizZip(buf);
-    const doc = new window.docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      delimiters: { start: '{{', end: '}}' }
+    const buf=await resp.arrayBuffer();
+    const zip=new PizZip(buf);
+    const doc=new window.docxtemplater(zip,{
+      paragraphLoop:true, linebreaks:true,
+      delimiters:{start:'{{',end:'}}'}
     });
     doc.render(data);
-    const out = doc.getZip().generate({
-      type: 'blob',
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    const out=doc.getZip().generate({
+      type:'blob',
+      mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     });
-
-    const fileName = `บันทึกข้อความ_${(data['เรื่อง']||'ไม่มีชื่อเรื่อง').slice(0,40)}.docx`;
-    const url = URL.createObjectURL(out);
-    const a = document.createElement('a');
-    a.href = url; a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    statusEl.className = 'ok';
-    statusEl.textContent = '✅ สร้างไฟล์สำเร็จ — ระบบดาวน์โหลดไฟล์ให้แล้ว';
+    const fileName=`บันทึกข้อความ_${(data['เรื่อง']||'ไม่มีชื่อเรื่อง').slice(0,40)}.docx`;
+    const url=URL.createObjectURL(out);
+    const a=document.createElement('a');
+    a.href=url; a.download=fileName;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    statusEl.className='ok'; statusEl.textContent='✅ สร้างไฟล์สำเร็จ';
     saveData();
   }catch(err){
     console.error(err);
-    statusEl.className = 'err';
-    statusEl.textContent = '❌ เกิดข้อผิดพลาด: ' + (err.message || err);
+    statusEl.className='err'; statusEl.textContent='❌ เกิดข้อผิดพลาด: '+(err.message||err);
   }finally{
-    genBtn.disabled = false;
-    genBtn.textContent = '📄 สร้างไฟล์ Word (.docx)';
+    genBtn.disabled=false; genBtn.textContent='📄 สร้างไฟล์ Word (.docx)';
   }
 });
 
-/* ─── Init ─── */
 loadData();
 </script>
 </body>
