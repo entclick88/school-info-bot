@@ -150,7 +150,7 @@
   /* Body paragraphs — 2.5cm indent */
   .doc-body{margin-top:2px;}
   .doc-para{
-    text-indent:2.5em; text-align:justify;
+    text-indent:2.5em; text-align:left;
     white-space:pre-wrap; word-break:break-word;
     line-height:1.85; font-size:.95em; min-height:1.4em;
   }
@@ -160,11 +160,17 @@
 
   /* Signers — stacked vertically, shifted left from right edge */
   .doc-sign-area{
-    display:flex; flex-direction:column; align-items:flex-end;
-    padding-right:15%; margin-top:1.5em; gap:.1em;
+    margin-top:1.5em;
+    padding-right:8%; /* shift left from edge */
   }
-  .doc-sign-block{font-size:.9em; line-height:1.9; text-align:left;}
-  .doc-sign-row{white-space:nowrap;}
+  .doc-sign-block{
+    font-size:.9em; line-height:1.85; text-align:left;
+    display:inline-block; /* shrink to content width */
+    float:right; clear:right; /* each block stacks below the previous */
+  }
+  .doc-sign-block::after{content:''; display:table; clear:both;}
+  .doc-sign-area::after{content:''; display:table; clear:both;}
+  .doc-sign-row{white-space:nowrap; display:block;}
 
   .doc-placeholder{color:#bbb;}
 
@@ -222,11 +228,14 @@
         <div class="section-title">📋 ส่วนหัวบันทึก</div>
 
         <div class="field">
-          <label>ฝ่าย / ส่วนงาน <span class="req">*</span></label>
+          <label>ส่วนงานจัดการศึกษา <span class="req">*</span></label>
           <select id="ฝ่าย" required>
-            <option value="">— เลือกส่วนงาน —</option>
-            <option value="ส่วนงานการจัดการศึกษา ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ส่วนงานการจัดการศึกษา ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
-            <option value="ส่วนงานการจัดการศึกษา ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ส่วนงานการจัดการศึกษา ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="">— เลือกฝ่าย —</option>
+            <option value="ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="ฝ่ายนโยบาย โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายนโยบาย โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="ฝ่ายสารสนเทศและเทคโนโลยี โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายสารสนเทศและเทคโนโลยี โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
+            <option value="ฝ่ายบริการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายบริการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</option>
           </select>
         </div>
 
@@ -348,7 +357,7 @@
 
         <!-- ส่วนงาน (full width dotted) -->
         <div class="doc-field">
-          <span class="doc-field-lbl">ส่วนงาน</span>
+          <span class="doc-field-lbl">ส่วนงานจัดการศึกษา</span>
           <span class="doc-field-val empty" id="pv-ฝ่าย"></span>
         </div>
 
