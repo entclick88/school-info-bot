@@ -238,7 +238,7 @@
       </div>
 
       <div class="card">
-        <div class="section-title">👤 ผู้ขออนุมัติ</div>
+        <div class="section-title">👤 ผู้ขออนุมัติ / ผู้ลงนาม</div>
         <div class="row2">
           <div class="field">
             <label>ข้าพเจ้า (ชื่อ-สกุล) <span class="req">*</span></label>
@@ -249,6 +249,7 @@
             <input type="text" id="ตำแหน่ง" placeholder="เช่น ครูชำนาญการ" required>
           </div>
         </div>
+        <div class="hint">ชื่อและตำแหน่งนี้จะใช้เป็นลายมือชื่อผู้เสนอในบันทึกข้อความ</div>
       </div>
 
       <div class="card">
@@ -328,14 +329,8 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="section-title">✍️ ผู้ลงนาม</div>
-        <div class="row2">
-          <div class="field"><label>ลงชื่อ <span class="req">*</span></label><input type="text" id="ลงชื่อ" placeholder="ชื่อ-สกุล" required></div>
-          <div class="field"><label>ตำแหน่ง <span class="req">*</span></label><input type="text" id="ตำแหน่งลงนาม" placeholder="ตำแหน่ง" required></div>
-        </div>
-        <div class="hint">* ระบบจะคัดลอกจากช่อง "ผู้ขออนุมัติ" โดยอัตโนมัติ (แก้ไขได้)</div>
-      </div>
+      <input type="hidden" id="ลงชื่อ">
+      <input type="hidden" id="ตำแหน่งลงนาม">
 
       <div class="card">
         <div class="form-actions">
