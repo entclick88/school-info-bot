@@ -247,6 +247,10 @@
         <label class="form-label">รหัสผ่าน</label>
         <input type="password" id="login-pass" class="form-control" placeholder="••••••••" autocomplete="current-password">
       </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <input type="checkbox" id="remember-me" style="width:15px;height:15px;cursor:pointer;accent-color:var(--accent);">
+        <label for="remember-me" style="font-size:0.82rem;color:var(--muted);cursor:pointer;user-select:none;">จดจำอีเมลนี้</label>
+      </div>
       <button class="btn-primary-custom" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
 
       <div class="divider">หรือ</div>
@@ -397,6 +401,11 @@ async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   if (!email || !pass) return showError('กรุณากรอกอีเมลและรหัสผ่าน');
+  if (document.getElementById('remember-me').checked) {
+    localStorage.setItem('_login_email', email);
+  } else {
+    localStorage.removeItem('_login_email');
+  }
   setLoading('btn-login', true);
   try {
     await auth.signInWithEmailAndPassword(email, pass);
@@ -451,6 +460,15 @@ async function doForgotPassword() {
     showError(firebaseErrTH(e.code));
   }
 }
+
+// ─── Remember email ─────────────────────────────────────────────────────────
+(function loadRemembered() {
+  const saved = localStorage.getItem('_login_email');
+  if (saved) {
+    document.getElementById('login-email').value = saved;
+    document.getElementById('remember-me').checked = true;
+  }
+})();
 
 // Allow Enter key to submit
 document.addEventListener('keydown', e => {
