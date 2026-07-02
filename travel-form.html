@@ -68,7 +68,6 @@
     display:flex; align-items:center; min-width:80px; justify-content:center;
   }
 
-  /* checkboxes */
   .checkbox-group{display:flex; flex-direction:column; gap:8px; margin-top:4px;}
   .checkbox-item{display:flex; align-items:center; gap:10px; cursor:pointer;}
   .checkbox-item input[type=checkbox]{
@@ -86,8 +85,6 @@
   .btn-primary{background:var(--accent); color:#fff;}
   .btn-primary:hover{background:var(--accent2);}
   .btn-primary:disabled{background:#aebed0; cursor:not-allowed;}
-  .btn-secondary{background:#eef2f7; color:#33414f;}
-  .btn-secondary:hover{background:#e1e8f0;}
   .btn-danger{background:#fef2f2; color:var(--danger); border:1.5px solid #fecaca;}
   .btn-danger:hover{background:#fee2e2;}
   .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
@@ -96,19 +93,14 @@
   #genStatus.err{color:var(--danger);}
   #genStatus.ok{color:var(--success);}
 
-  /* Preview */
+  /* ── Preview ── */
   .preview-side{
     padding:20px 20px 24px; background:#f0f2f5;
     overflow-y:auto; position:sticky; top:52px; height:calc(100vh - 52px);
   }
-  .preview-header{
-    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
-  }
+  .preview-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
   .preview-header h2{font-size:.9rem; color:var(--muted); font-weight:600;}
-  .preview-label{
-    font-size:.7rem; background:#e8f0fb; color:var(--accent);
-    padding:3px 9px; border-radius:20px; font-weight:600;
-  }
+  .preview-label{font-size:.7rem; background:#e8f0fb; color:var(--accent); padding:3px 9px; border-radius:20px; font-weight:600;}
   .doc-wrap{
     width:100%; background:#fff; border:1px solid #c8d4e3;
     box-shadow:0 4px 24px rgba(0,0,0,.12);
@@ -133,7 +125,7 @@
   .doc-field{display:flex; align-items:baseline; line-height:1.85; gap:.3em; flex-wrap:wrap;}
   .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
   .doc-field-val{
-    flex:1; border-bottom:1px dotted #aaa; min-width:3em; word-break:break-word;
+    flex:1; border-bottom:1px solid #999; min-width:3em; word-break:break-word;
     white-space:normal; padding-bottom:1px; font-size:1em; min-height:1.1em;
   }
   .doc-field-val:not(.empty){ border-bottom-color:transparent; }
@@ -142,21 +134,30 @@
   .doc-row2 .doc-field{flex:1;}
   .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 2px;}
 
-  /* Travel-specific */
-  .doc-para-indent{
+  /* ย่อหน้า indent 2.5cm จากกั้นหน้า (ใน preview scale: ≈ 2.5em) */
+  .doc-para{
     text-indent:2.5em; text-align:justify; line-height:1.85; font-size:1em;
   }
-  .doc-vehicle-row{display:flex; gap:2em; line-height:1.85; font-size:1em; margin-top:.2em;}
-  .doc-check{display:inline-block; width:1em; text-align:center;}
-  .doc-sign-area{margin-top:1.2em; display:flex; justify-content:center;}
-  .doc-sign-block{font-size:.9em; line-height:1.85; text-align:left;}
-  .doc-sign-row{white-space:nowrap; display:block;}
-  .doc-approve-row{
-    display:flex; gap:2.5em; margin-top:1em; font-size:.95em; line-height:1.85;
-  }
-  .doc-approve-col{display:flex; flex-direction:column; gap:.2em;}
-
   .doc-placeholder{color:#bbb;}
+
+  /* ลงชื่อผู้เสนอ — เยื้องขวา */
+  .doc-sign-area{
+    margin-top:1em;
+    display:flex;
+    justify-content:flex-end;
+    padding-right:6%;
+  }
+  .doc-sign-block{font-size:.92em; line-height:1.85; text-align:center;}
+  .doc-sign-row{white-space:nowrap; display:block;}
+
+  /* คำสั่งผู้อำนวยการ — อยู่ล่างผู้เสนอ */
+  .doc-director{
+    margin-top:1em; font-size:.92em; line-height:1.85;
+    border-top:1px dashed #ccc; padding-top:.5em;
+  }
+  .doc-director-title{font-weight:700; margin-bottom:.2em;}
+  .doc-director-sign{margin-top:.5em;}
+
   .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
 
   @media(max-width:900px){
@@ -224,6 +225,11 @@
           </div>
         </div>
         <div id="thaiDatePreview" style="font-size:.82rem;color:#335;background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:7px 12px;margin-bottom:14px;">— วันที่จะแสดงที่นี่ —</div>
+
+        <div class="field">
+          <label>เรื่อง <span class="req">*</span></label>
+          <input type="text" id="เรื่อง" placeholder="เช่น ขออนุมัติเดินทางไปราชการ" value="ขออนุมัติเดินทางไปราชการ" required>
+        </div>
 
         <div class="field">
           <label>เรียน <span class="req">*</span></label>
@@ -294,18 +300,31 @@
       <div class="card">
         <div class="section-title">🚌 พาหนะที่ใช้เดินทาง</div>
         <div class="checkbox-group">
-          <label class="checkbox-item">
-            <input type="checkbox" id="veh-school"> <span>รถโรงเรียน</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="veh-private"> <span>รถส่วนตัว</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="veh-bus"> <span>รถโดยสารประจำทาง / รถรับจ้าง</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="veh-plane"> <span>เครื่องบิน</span>
-          </label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-school"> <span>โดยรถโรงเรียน</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-private"> <span>โดยรถส่วนตัว</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-bus"> <span>โดยรถโดยสารประจำทาง/รับจ้าง</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-bus-regular"> <span>โดยรถประจำทางธรรมดา</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-train"> <span>โดยรถไฟ</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="veh-plane"> <span>โดยเครื่องบิน</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">💰 ค่าใช้จ่ายที่ขอเบิก</div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:10px;">การเดินทางไปราชการดังกล่าวข้างต้น ข้าพเจ้าขอเบิกค่าใช้จ่ายตามที่จ่ายจริง ประกอบด้วย</p>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" id="exp-hotel"> <span>ค่าเช่าที่พัก</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="exp-allowance"> <span>เบี้ยเลี้ยง</span></label>
+          <label class="checkbox-item"><input type="checkbox" id="exp-transport"> <span>ค่าพาหนะ</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">👥 ผู้ปฏิบัติราชการแทน</div>
+        <div class="field">
+          <label>สำหรับงานในหน้าที่ขอมอบให้</label>
+          <input type="text" id="ผู้แทน" placeholder="ชื่อ-สกุล ผู้ปฏิบัติราชการแทน">
+          <div class="hint">เป็นผู้ปฏิบัติราชการแทน (เว้นว่างหากไม่มี)</div>
         </div>
       </div>
 
@@ -340,19 +359,16 @@
     <div class="doc-wrap">
       <div class="doc-inner">
 
-        <!-- Header -->
         <div class="doc-header-row">
           <img src="./logo.png" class="doc-logo" alt="logo">
           <div class="doc-title">บันทึกข้อความ</div>
         </div>
 
-        <!-- ส่วนงาน -->
         <div class="doc-field">
           <span class="doc-field-lbl">ส่วนงานจัดการศึกษา</span>
           <span class="doc-field-val empty" id="pv-ฝ่าย"></span>
         </div>
 
-        <!-- ที่ + วันที่ -->
         <div class="doc-row2">
           <div class="doc-field">
             <span class="doc-field-lbl">ที่</span>
@@ -366,73 +382,66 @@
 
         <hr class="doc-divider">
 
-        <!-- เรื่อง -->
         <div class="doc-field">
           <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val">ขออนุมัติเดินทางไปราชการ</span>
+          <span class="doc-field-val" id="pv-เรื่อง">ขออนุมัติเดินทางไปราชการ</span>
         </div>
 
-        <!-- เรียน -->
         <div class="doc-field">
           <span class="doc-field-lbl">เรียน</span>
           <span class="doc-field-val" id="pv-เรียน">ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</span>
         </div>
 
-        <!-- Body paragraph -->
         <div style="margin-top:.3em;">
-          <div class="doc-para-indent" id="pv-body1">
+          <div class="doc-para">
             ด้วย <span id="pv-ผู้ขอ" class="doc-placeholder">ชื่อผู้ขออนุมัติ</span>
             ตำแหน่ง <span id="pv-ตำแหน่ง" class="doc-placeholder">ตำแหน่ง</span>
             มีความประสงค์ขออนุมัติเดินทางไปราชการ
             ณ <span id="pv-สถานที่" class="doc-placeholder">สถานที่</span>
             จังหวัด<span id="pv-จังหวัด" class="doc-placeholder">จังหวัด</span>
           </div>
-          <div class="doc-para-indent">
+          <div class="doc-para">
             เพื่อ<span id="pv-เพื่อ" class="doc-placeholder">วัตถุประสงค์</span>
           </div>
-          <div class="doc-para-indent" id="pv-ref-row" style="display:none;">
+          <div class="doc-para" id="pv-ref-row" style="display:none;">
             ตามหนังสือที่ <span id="pv-ตามหนังสือที่"></span>
             ลงวันที่ <span id="pv-วันที่อ้างอิง"></span>
           </div>
-          <div class="doc-para-indent">
+          <div class="doc-para">
             ตั้งแต่วันที่ <span id="pv-วันเริ่ม" class="doc-placeholder">วันที่เริ่ม</span>
             ถึงวันที่ <span id="pv-วันสิ้นสุด" class="doc-placeholder">วันที่สิ้นสุด</span>
             รวม <span id="pv-รวมวัน" class="doc-placeholder">?</span> วัน
           </div>
-          <div class="doc-para-indent">
-            พาหนะที่ใช้:<span id="pv-พาหนะ" class="doc-placeholder"> —</span>
+          <div class="doc-para" id="pv-veh-row">
+            <span id="pv-พาหนะ" class="doc-placeholder">โดย...</span>
           </div>
-          <div class="doc-para-indent">
+          <div class="doc-para" id="pv-exp-row" style="display:none;">
+            การเดินทางไปราชการดังกล่าวข้างต้น ข้าพเจ้าขอเบิกค่าใช้จ่ายตามที่จ่ายจริง ประกอบด้วย <span id="pv-ค่าใช้จ่าย"></span>
+          </div>
+          <div class="doc-para" id="pv-sub-row" style="display:none;">
+            สำหรับงานในหน้าที่ขอมอบให้ <span id="pv-ผู้แทน"></span> เป็นผู้ปฏิบัติราชการแทน
+          </div>
+          <div class="doc-para">
             จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ
           </div>
         </div>
 
-        <!-- ลงนาม -->
+        <!-- ลงนามผู้เสนอ (เยื้องขวา) -->
         <div class="doc-sign-area">
           <div class="doc-sign-block">
-            <span class="doc-sign-row">ลงชื่อ ................................................</span>
-            <span class="doc-sign-row" style="text-indent:2em;display:block;">
-              (<span id="pv-ลงชื่อ" class="doc-placeholder">ชื่อผู้ลงนาม</span>)
-            </span>
-            <span class="doc-sign-row" style="text-indent:2em;display:block;">
-              <span id="pv-ตำแหน่งลงนาม" class="doc-placeholder">ตำแหน่ง</span>
-            </span>
+            <span class="doc-sign-row">ลงชื่อ</span>
+            <span class="doc-sign-row">(<span id="pv-ลงชื่อ" class="doc-placeholder">ชื่อผู้ลงนาม</span>)</span>
+            <span class="doc-sign-row"><span id="pv-ตำแหน่งลงนาม" class="doc-placeholder">ตำแหน่ง</span></span>
           </div>
         </div>
 
-        <!-- ผู้อนุมัติ -->
-        <div class="doc-approve-row">
-          <div class="doc-approve-col">
-            <span style="font-weight:700;">ความเห็นของผู้บังคับบัญชา</span>
-            <span>☐ อนุมัติ &nbsp; ☐ ไม่อนุมัติ</span>
-            <span style="margin-top:.5em;">ลงชื่อ .................................</span>
-            <span style="font-size:.85em;">ผู้บังคับบัญชา</span>
-          </div>
-          <div class="doc-approve-col">
-            <span style="font-weight:700;">ความเห็นของผู้อำนวยการ</span>
-            <span>☐ อนุมัติ &nbsp; ☐ ไม่อนุมัติ</span>
-            <span style="margin-top:.5em;">ลงชื่อ .................................</span>
-            <span style="font-size:.85em;">ผู้อำนวยการโรงเรียน</span>
+        <!-- คำสั่งผู้อำนวยการ (อยู่ล่างผู้เสนอ) -->
+        <div class="doc-director">
+          <div class="doc-director-title">คำสั่งผู้อำนวยการ</div>
+          <div>☐ อนุมัติ &nbsp;&nbsp; ☐ ไม่อนุมัติ</div>
+          <div class="doc-director-sign">
+            <div>ลงชื่อ</div>
+            <div>(ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี)</div>
           </div>
         </div>
 
@@ -442,12 +451,10 @@
   </div>
 </div>
 
-<!-- PizZip + docxtemplater -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <script>
-// ─── Thai helpers ─────────────────────────────────────────────
 const THAI_MONTH = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
@@ -464,23 +471,30 @@ function calcDays(start, end) {
   return Math.round(ms / 86400000) + 1;
 }
 
-// ─── Autosave ─────────────────────────────────────────────────
-const SAVE_KEY = '_travel_form_v1';
-const FIELDS = ['ฝ่าย','เลขที่','วันที่','เรียน','ผู้ขอ','ตำแหน่ง',
+const SAVE_KEY = '_travel_form_v2';
+const FIELDS = ['ฝ่าย','เลขที่','วันที่','เรื่อง','เรียน','ผู้ขอ','ตำแหน่ง',
   'สถานที่','จังหวัด','เพื่อ','ตามหนังสือที่','วันที่อ้างอิง',
-  'วันเริ่ม','วันสิ้นสุด','ลงชื่อ','ตำแหน่งลงนาม'];
-const VEH_IDS = ['veh-school','veh-private','veh-bus','veh-plane'];
+  'วันเริ่ม','วันสิ้นสุด','ผู้แทน','ลงชื่อ','ตำแหน่งลงนาม'];
+const VEH_IDS = ['veh-school','veh-private','veh-bus','veh-bus-regular','veh-train','veh-plane'];
+const EXP_IDS = ['exp-hotel','exp-allowance','exp-transport'];
+const VEH_LABEL = {
+  'veh-school':      'โดยรถโรงเรียน',
+  'veh-private':     'โดยรถส่วนตัว',
+  'veh-bus':         'โดยรถโดยสารประจำทาง/รับจ้าง',
+  'veh-bus-regular': 'โดยรถประจำทางธรรมดา',
+  'veh-train':       'โดยรถไฟ',
+  'veh-plane':       'โดยเครื่องบิน',
+};
+const EXP_LABEL = {
+  'exp-hotel':      'ค่าเช่าที่พัก',
+  'exp-allowance':  'เบี้ยเลี้ยง',
+  'exp-transport':  'ค่าพาหนะ',
+};
 
 function saveData() {
   const data = {};
-  FIELDS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) data[id] = el.value;
-  });
-  VEH_IDS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) data[id] = el.checked;
-  });
+  FIELDS.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
+  [...VEH_IDS, ...EXP_IDS].forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.checked; });
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
   const b = document.getElementById('saveBadge');
   const t = document.getElementById('saveText');
@@ -491,47 +505,36 @@ function saveData() {
 function loadData() {
   try {
     const data = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
-    FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && data[id] !== undefined) el.value = data[id];
-    });
-    VEH_IDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && data[id] !== undefined) el.checked = data[id];
-    });
+    FIELDS.forEach(id => { const el = document.getElementById(id); if (el && data[id] !== undefined) el.value = data[id]; });
+    [...VEH_IDS, ...EXP_IDS].forEach(id => { const el = document.getElementById(id); if (el && data[id] !== undefined) el.checked = data[id]; });
   } catch(e) {}
 }
 
-// ─── Live preview ─────────────────────────────────────────────
 function updatePreview() {
   const g = id => (document.getElementById(id)||{}).value || '';
   const set = (pvId, val, placeholder) => {
     const el = document.getElementById(pvId);
     if (!el) return;
-    if (val) {
-      el.textContent = val;
-      el.classList.remove('doc-placeholder');
-    } else {
-      el.textContent = placeholder || '';
-      el.classList.add('doc-placeholder');
-    }
+    if (val) { el.textContent = val; el.classList.remove('doc-placeholder'); }
+    else { el.textContent = placeholder || ''; el.classList.add('doc-placeholder'); }
   };
 
   set('pv-ฝ่าย',   g('ฝ่าย'),   'ส่วนงานจัดการศึกษา');
   set('pv-เลขที่',  g('เลขที่'),  'เลขที่');
   set('pv-วันที่',  toThaiDate(g('วันที่')), 'วันที่');
+  set('pv-เรื่อง',  g('เรื่อง'),  'เรื่อง');
   set('pv-เรียน',   g('เรียน'),   'เรียน');
   set('pv-ผู้ขอ',   g('ผู้ขอ'),   'ชื่อผู้ขออนุมัติ');
   set('pv-ตำแหน่ง', g('ตำแหน่ง'), 'ตำแหน่ง');
   set('pv-สถานที่', g('สถานที่'), 'สถานที่');
   set('pv-จังหวัด', g('จังหวัด'), 'จังหวัด');
   set('pv-เพื่อ',   g('เพื่อ'),   'วัตถุประสงค์');
-  set('pv-วันเริ่ม',    toThaiDate(g('วันเริ่ม')),    'วันที่เริ่ม');
-  set('pv-วันสิ้นสุด',  toThaiDate(g('วันสิ้นสุด')),  'วันที่สิ้นสุด');
+  set('pv-วันเริ่ม',   toThaiDate(g('วันเริ่ม')),   'วันที่เริ่ม');
+  set('pv-วันสิ้นสุด', toThaiDate(g('วันสิ้นสุด')), 'วันที่สิ้นสุด');
   set('pv-ลงชื่อ',       g('ลงชื่อ'),       'ชื่อผู้ลงนาม');
   set('pv-ตำแหน่งลงนาม', g('ตำแหน่งลงนาม'), 'ตำแหน่ง');
 
-  // วันที่ Thai date preview
+  // วันที่ preview bar
   const d = document.getElementById('thaiDatePreview');
   if (d) d.textContent = g('วันที่') ? toThaiDate(g('วันที่')) : '— วันที่จะแสดงที่นี่ —';
 
@@ -552,27 +555,40 @@ function updatePreview() {
   }
 
   // พาหนะ
-  const vehMap = {
-    'veh-school': 'รถโรงเรียน',
-    'veh-private': 'รถส่วนตัว',
-    'veh-bus': 'รถโดยสารประจำทาง/รับจ้าง',
-    'veh-plane': 'เครื่องบิน'
-  };
-  const selected = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => vehMap[id]);
-  set('pv-พาหนะ', selected.length ? ' ' + selected.join(', ') : '', ' —');
+  const selVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => VEH_LABEL[id]);
+  set('pv-พาหนะ', selVeh.length ? selVeh.join(', ') : '', 'โดย...');
+
+  // ค่าใช้จ่าย
+  const selExp = EXP_IDS.filter(id => document.getElementById(id)?.checked).map(id => EXP_LABEL[id]);
+  const expRow = document.getElementById('pv-exp-row');
+  if (selExp.length) {
+    expRow.style.display = '';
+    document.getElementById('pv-ค่าใช้จ่าย').textContent = selExp.join(', ');
+  } else {
+    expRow.style.display = 'none';
+  }
+
+  // ผู้แทน
+  const sub = g('ผู้แทน');
+  const subRow = document.getElementById('pv-sub-row');
+  if (sub) {
+    subRow.style.display = '';
+    document.getElementById('pv-ผู้แทน').textContent = sub;
+  } else {
+    subRow.style.display = 'none';
+  }
 }
 
-// ─── Auto-copy name → signature ──────────────────────────────
 function syncSigner() {
-  const nameEl   = document.getElementById('ผู้ขอ');
-  const posEl    = document.getElementById('ตำแหน่ง');
-  const signEl   = document.getElementById('ลงชื่อ');
-  const signPosEl= document.getElementById('ตำแหน่งลงนาม');
+  const nameEl    = document.getElementById('ผู้ขอ');
+  const posEl     = document.getElementById('ตำแหน่ง');
+  const signEl    = document.getElementById('ลงชื่อ');
+  const signPosEl = document.getElementById('ตำแหน่งลงนาม');
   if (nameEl && signEl && !signEl.dataset.edited) signEl.value = nameEl.value;
-  if (posEl  && signPosEl && !signPosEl.dataset.edited) signPosEl.value = posEl.value;
+  if (posEl && signPosEl && !signPosEl.dataset.edited) signPosEl.value = posEl.value;
 }
 
-// ─── Generate Word (.docx) ────────────────────────────────────
+// ─── Generate Word ────────────────────────────────────────────
 document.getElementById('travelForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = document.getElementById('genBtn');
@@ -583,16 +599,16 @@ document.getElementById('travelForm').addEventListener('submit', async function(
 
   const g = id => (document.getElementById(id)||{}).value || '';
   const days = calcDays(g('วันเริ่ม'), g('วันสิ้นสุด'));
-  const vehMap = {'veh-school':'รถโรงเรียน','veh-private':'รถส่วนตัว','veh-bus':'รถโดยสารประจำทาง/รับจ้าง','veh-plane':'เครื่องบิน'};
-  const selectedVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => vehMap[id]).join(', ');
+  const selVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => VEH_LABEL[id]);
+  const selExp = EXP_IDS.filter(id => document.getElementById(id)?.checked).map(id => EXP_LABEL[id]);
   const refLine = g('ตามหนังสือที่') ? `ตามหนังสือที่ ${g('ตามหนังสือที่')} ลงวันที่ ${toThaiDate(g('วันที่อ้างอิง'))}` : '';
 
   try {
-    // Build a simple docx from scratch using Office Open XML
     const docContent = buildDocx({
       ฝ่าย: g('ฝ่าย'),
       เลขที่: g('เลขที่'),
       วันที่: toThaiDate(g('วันที่')),
+      เรื่อง: g('เรื่อง'),
       เรียน: g('เรียน'),
       ผู้ขอ: g('ผู้ขอ'),
       ตำแหน่ง: g('ตำแหน่ง'),
@@ -602,8 +618,10 @@ document.getElementById('travelForm').addEventListener('submit', async function(
       refLine,
       วันเริ่ม: toThaiDate(g('วันเริ่ม')),
       วันสิ้นสุด: toThaiDate(g('วันสิ้นสุด')),
-      รวมวัน: days !== null ? String(days) : '—',
-      พาหนะ: selectedVeh || '—',
+      รวมวัน: days !== null ? String(days) : '',
+      พาหนะ: selVeh.join(', '),
+      ค่าใช้จ่าย: selExp.join(', '),
+      ผู้แทน: g('ผู้แทน'),
       ลงชื่อ: g('ลงชื่อ'),
       ตำแหน่งลงนาม: g('ตำแหน่งลงนาม'),
     });
@@ -632,23 +650,35 @@ function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function para(text, indent, bold) {
-  const indStr = indent ? '<w:ind w:firstLine="720"/>' : '';
-  const b = bold ? '<w:b/>' : '';
-  return `<w:p><w:pPr><w:jc w:val="both"/>${indStr}</w:pPr><w:r><w:rPr>${b}<w:lang w:val="th-TH"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
+// indent = 2.5cm = 1417 twips
+function para(text, indent) {
+  const indStr = indent ? '<w:ind w:firstLine="1417"/>' : '';
+  return `<w:p><w:pPr><w:jc w:val="both"/>${indStr}</w:pPr><w:r><w:rPr><w:lang w:val="th-TH"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
 }
 
 function fieldRow(label, value) {
-  return `<w:p><w:pPr></w:pPr>
+  return `<w:p>
     <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">${esc(label)}  </w:t></w:r>
-    <w:r><w:rPr></w:rPr><w:t xml:space="preserve">${esc(value)}</w:t></w:r>
+    <w:r><w:t xml:space="preserve">${esc(value)}</w:t></w:r>
   </w:p>`;
 }
 
+function signPara(text, rightIndent) {
+  // push signature to the right: use indent from left = ~8cm, or use right-aligned with indentation
+  const ind = `<w:ind w:left="4819"/>`;
+  return `<w:p><w:pPr><w:jc w:val="left"/>${ind}</w:pPr><w:r><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
+}
+
 function buildDocx(f) {
+  const expLine = f.ค่าใช้จ่าย
+    ? para(`การเดินทางไปราชการดังกล่าวข้างต้น ข้าพเจ้าขอเบิกค่าใช้จ่ายตามที่จ่ายจริง ประกอบด้วย ${f.ค่าใช้จ่าย}`, true)
+    : '';
+  const subLine = f.ผู้แทน
+    ? para(`สำหรับงานในหน้าที่ขอมอบให้ ${f.ผู้แทน} เป็นผู้ปฏิบัติราชการแทน`, true)
+    : '';
+
   const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <w:body>
   <w:sectPr>
@@ -659,42 +689,43 @@ function buildDocx(f) {
     <w:r><w:rPr><w:b/><w:sz w:val="58"/><w:szCs w:val="58"/></w:rPr><w:t>บันทึกข้อความ</w:t></w:r>
   </w:p>
   ${fieldRow('ส่วนงานจัดการศึกษา', f.ฝ่าย)}
-  <w:p><w:pPr></w:pPr>
+  <w:p>
     <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">ที่  </w:t></w:r>
     <w:r><w:t xml:space="preserve">${esc(f.เลขที่)}          </w:t></w:r>
     <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">วันที่  </w:t></w:r>
     <w:r><w:t xml:space="preserve">${esc(f.วันที่)}</w:t></w:r>
   </w:p>
   <w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="6" w:space="1" w:color="000000"/></w:pBdr></w:pPr></w:p>
-  ${fieldRow('เรื่อง', 'ขออนุมัติเดินทางไปราชการ')}
+  ${fieldRow('เรื่อง', f.เรื่อง)}
   ${fieldRow('เรียน', f.เรียน)}
   ${para(`ด้วย ${f.ผู้ขอ} ตำแหน่ง ${f.ตำแหน่ง} มีความประสงค์ขออนุมัติเดินทางไปราชการ ณ ${f.สถานที่} จังหวัด${f.จังหวัด}`, true)}
   ${para(`เพื่อ${f.เพื่อ}`, true)}
   ${f.refLine ? para(f.refLine, true) : ''}
   ${para(`ตั้งแต่วันที่ ${f.วันเริ่ม} ถึงวันที่ ${f.วันสิ้นสุด} รวม ${f.รวมวัน} วัน`, true)}
-  ${para(`พาหนะที่ใช้: ${f.พาหนะ}`, true)}
+  ${f.พาหนะ ? para(f.พาหนะ, true) : ''}
+  ${expLine}
+  ${subLine}
   ${para('จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ', true)}
-  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:t>ลงชื่อ  ................................................</w:t></w:r>
-  </w:p>
-  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:t xml:space="preserve">(${esc(f.ลงชื่อ)})</w:t></w:r>
-  </w:p>
-  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:t>${esc(f.ตำแหน่งลงนาม)}</w:t></w:r>
-  </w:p>
+  <w:p><w:pPr></w:pPr></w:p>
+  ${signPara('ลงชื่อ')}
+  ${signPara(`(${f.ลงชื่อ})`)}
+  ${signPara(f.ตำแหน่งลงนาม)}
+  <w:p><w:pPr></w:pPr></w:p>
+  <w:p><w:pPr><w:pBdr><w:top w:val="dashed" w:sz="6" w:space="1" w:color="aaaaaa"/></w:pBdr></w:pPr></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>คำสั่งผู้อำนวยการ</w:t></w:r></w:p>
+  <w:p><w:r><w:t>☐ อนุมัติ          ☐ ไม่อนุมัติ</w:t></w:r></w:p>
+  <w:p><w:pPr></w:pPr></w:p>
+  <w:p><w:r><w:t>ลงชื่อ</w:t></w:r></w:p>
+  <w:p><w:r><w:t>(ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี)</w:t></w:r></w:p>
 </w:body>
 </w:document>`;
 
   const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults>
-    <w:rPrDefault><w:rPr>
-      <w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>
-      <w:sz w:val="32"/><w:szCs w:val="32"/>
-      <w:lang w:val="th-TH"/>
-    </w:rPr></w:rPrDefault>
-  </w:docDefaults>
+  <w:docDefaults><w:rPrDefault><w:rPr>
+    <w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>
+    <w:sz w:val="32"/><w:szCs w:val="32"/><w:lang w:val="th-TH"/>
+  </w:rPr></w:rPrDefault></w:docDefaults>
 </w:styles>`;
 
   const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -718,54 +749,41 @@ function buildDocx(f) {
   return { documentXml, stylesXml, relsXml, contentTypesXml, dotRelsXml };
 }
 
-// ─── Print ────────────────────────────────────────────────────
 document.getElementById('printBtn').addEventListener('click', () => window.print());
 
-// ─── Clear ───────────────────────────────────────────────────
 document.getElementById('clearBtn').addEventListener('click', () => {
   if (!confirm('ล้างข้อมูลทั้งหมด?')) return;
   FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  VEH_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+  [...VEH_IDS, ...EXP_IDS].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
   ['ลงชื่อ','ตำแหน่งลงนาม'].forEach(id => { const el = document.getElementById(id); if (el) delete el.dataset.edited; });
   localStorage.removeItem(SAVE_KEY);
   updatePreview();
 });
 
-// ─── Mark signer as manually edited ─────────────────────────
 ['ลงชื่อ','ตำแหน่งลงนาม'].forEach(id => {
-  document.getElementById(id)?.addEventListener('input', function() {
-    this.dataset.edited = '1';
-  });
+  document.getElementById(id)?.addEventListener('input', function() { this.dataset.edited = '1'; });
 });
 
-// ─── Event listeners ─────────────────────────────────────────
-const allInputs = [...FIELDS.map(id => document.getElementById(id)).filter(Boolean),
-                   ...VEH_IDS.map(id => document.getElementById(id)).filter(Boolean)];
+const allInputs = [
+  ...FIELDS.map(id => document.getElementById(id)).filter(Boolean),
+  ...VEH_IDS.map(id => document.getElementById(id)).filter(Boolean),
+  ...EXP_IDS.map(id => document.getElementById(id)).filter(Boolean),
+];
 
 allInputs.forEach(el => {
   el.addEventListener('input', () => {
-    syncSigner();
-    updatePreview();
+    syncSigner(); updatePreview();
     document.getElementById('saveBadge').classList.add('unsaved');
     document.getElementById('saveText').textContent = 'มีการเปลี่ยนแปลง...';
   });
-  el.addEventListener('change', () => {
-    syncSigner();
-    updatePreview();
-    saveData();
-  });
+  el.addEventListener('change', () => { syncSigner(); updatePreview(); saveData(); });
 });
 
-// Debounced autosave on input
 let saveTimer;
 allInputs.forEach(el => {
-  el.addEventListener('input', () => {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveData, 1200);
-  });
+  el.addEventListener('input', () => { clearTimeout(saveTimer); saveTimer = setTimeout(saveData, 1200); });
 });
 
-// ─── Init ────────────────────────────────────────────────────
 loadData();
 updatePreview();
 </script>
