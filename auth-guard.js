@@ -11,12 +11,12 @@
 
 // ─── Firebase config (เหมือนใน login.html) ────────────────────────────────
 const _FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyAM1iGG5pTvVanGhigSoQxoTUUuc-vxv-w",
+  authDomain:        "school-info-bot.firebaseapp.com",
+  projectId:         "school-info-bot",
+  storageBucket:     "school-info-bot.firebasestorage.app",
+  messagingSenderId: "7049219218",
+  appId:             "1:7049219218:web:41f2fd74607188134b6a4b"
 };
 // ──────────────────────────────────────────────────────────────────────────
 
