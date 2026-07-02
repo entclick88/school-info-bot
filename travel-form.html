@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ขออนุมัติเดินทางไปราชการ — โรงเรียน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;}
+
+  .topbar{
+    background:var(--accent); color:#fff; padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex; align-items:center; gap:12px;}
+  .topbar a.back{color:rgba(255,255,255,.85); text-decoration:none; font-size:.88rem;}
+  .topbar a.back:hover{color:#fff;}
+  .topbar h1{font-size:1.1rem; font-weight:700;}
+  .save-badge{
+    font-size:.78rem; background:rgba(255,255,255,.2); border-radius:6px;
+    padding:3px 10px; display:flex; align-items:center; gap:5px;
+  }
+  .save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+  .save-badge.unsaved .dot{background:#fbbf24;}
+
+  .main{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    max-width:1400px; margin:0 auto; min-height:calc(100vh - 52px);
+  }
+
+  .form-side{padding:24px; overflow-y:auto; border-right:1px solid var(--border);}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; box-shadow:0 1px 6px rgba(20,40,80,.05); margin-bottom:16px;
+  }
+  .section-title{
+    font-weight:700; font-size:.95rem; color:var(--accent);
+    margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid #e8f0fb;
+    display:flex; align-items:center; gap:6px;
+  }
+  label{display:block; font-size:.84rem; font-weight:600; margin-bottom:5px; color:#445566;}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:end;}
+  input[type=text], input[type=date], textarea, select{
+    width:100%; padding:9px 12px; border:1.5px solid var(--border);
+    border-radius:8px; font-family:'Sarabun',sans-serif; font-size:.9rem;
+    background:#fbfcfe; color:var(--text); transition:border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--accent); background:#fff;
+    box-shadow:0 0 0 3px rgba(26,115,192,.1);
+  }
+  textarea{resize:vertical; min-height:72px; line-height:1.6;}
+  .hint{font-size:.75rem; color:#8a97a8; margin-top:3px;}
+  .req{color:var(--danger);}
+  .days-display{
+    background:#e8f0fb; border-radius:8px; padding:9px 14px;
+    font-weight:700; color:var(--accent); font-size:.95rem; white-space:nowrap;
+    display:flex; align-items:center; min-width:80px; justify-content:center;
+  }
+
+  /* checkboxes */
+  .checkbox-group{display:flex; flex-direction:column; gap:8px; margin-top:4px;}
+  .checkbox-item{display:flex; align-items:center; gap:10px; cursor:pointer;}
+  .checkbox-item input[type=checkbox]{
+    width:18px; height:18px; accent-color:var(--accent);
+    cursor:pointer; flex-shrink:0;
+  }
+  .checkbox-item span{font-size:.9rem;}
+
+  .form-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;}
+  button{
+    font-family:'Sarabun',sans-serif; font-size:.92rem; font-weight:600;
+    padding:11px 20px; border-radius:10px; border:none; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-primary:disabled{background:#aebed0; cursor:not-allowed;}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .btn-danger{background:#fef2f2; color:var(--danger); border:1.5px solid #fecaca;}
+  .btn-danger:hover{background:#fee2e2;}
+  .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
+  .btn-print:hover{background:#dcfce7;}
+  #genStatus{margin-top:10px; font-size:.84rem; min-height:1.2em;}
+  #genStatus.err{color:var(--danger);}
+  #genStatus.ok{color:var(--success);}
+
+  /* Preview */
+  .preview-side{
+    padding:20px 20px 24px; background:#f0f2f5;
+    overflow-y:auto; position:sticky; top:52px; height:calc(100vh - 52px);
+  }
+  .preview-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+  }
+  .preview-header h2{font-size:.9rem; color:var(--muted); font-weight:600;}
+  .preview-label{
+    font-size:.7rem; background:#e8f0fb; color:var(--accent);
+    padding:3px 9px; border-radius:20px; font-weight:600;
+  }
+  .doc-wrap{
+    width:100%; background:#fff; border:1px solid #c8d4e3;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);
+    aspect-ratio:210/297; overflow:hidden; position:relative;
+  }
+  .doc-inner{
+    position:absolute; inset:0;
+    padding:5% 7% 5% 11%;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:clamp(7px,1.2vw,11.5px);
+    line-height:1.75; color:#111; overflow:hidden;
+  }
+  .doc-header-row{
+    position:relative; text-align:center; margin-bottom:4px;
+    min-height:3.5em; display:flex; align-items:center;
+  }
+  .doc-logo{position:absolute; left:0; top:0; height:3.5em; width:auto; object-fit:contain;}
+  .doc-title{
+    width:100%; font-weight:700; font-size:1.8125em; line-height:1.1;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+  }
+  .doc-field{display:flex; align-items:baseline; line-height:1.85; gap:.3em; flex-wrap:wrap;}
+  .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
+  .doc-field-val{
+    flex:1; border-bottom:1px dotted #aaa; min-width:3em; word-break:break-word;
+    white-space:normal; padding-bottom:1px; font-size:1em; min-height:1.1em;
+  }
+  .doc-field-val:not(.empty){ border-bottom-color:transparent; }
+  .doc-field-val.empty{color:#bbb;}
+  .doc-row2{display:flex; gap:1em;}
+  .doc-row2 .doc-field{flex:1;}
+  .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 2px;}
+
+  /* Travel-specific */
+  .doc-para-indent{
+    text-indent:2.5em; text-align:justify; line-height:1.85; font-size:1em;
+  }
+  .doc-vehicle-row{display:flex; gap:2em; line-height:1.85; font-size:1em; margin-top:.2em;}
+  .doc-check{display:inline-block; width:1em; text-align:center;}
+  .doc-sign-area{margin-top:1.2em; display:flex; justify-content:center;}
+  .doc-sign-block{font-size:.9em; line-height:1.85; text-align:left;}
+  .doc-sign-row{white-space:nowrap; display:block;}
+  .doc-approve-row{
+    display:flex; gap:2.5em; margin-top:1em; font-size:.95em; line-height:1.85;
+  }
+  .doc-approve-col{display:flex; flex-direction:column; gap:.2em;}
+
+  .doc-placeholder{color:#bbb;}
+  .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
+
+  @media(max-width:900px){
+    .main{grid-template-columns:1fr;}
+    .preview-side{position:static; height:auto; border-top:1px solid var(--border);}
+    .form-side{border-right:none;}
+  }
+  @media print{
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions,#genStatus{display:none!important;}
+    .main{display:block; max-width:100%;}
+    .preview-side{padding:0; background:#fff; height:auto; position:static;}
+    .doc-wrap{
+      box-shadow:none; border:none; aspect-ratio:auto;
+      width:210mm; height:297mm; page-break-after:always;
+    }
+    .doc-inner{position:static; padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.8; overflow:visible;}
+    .doc-title{font-size:29pt;}
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./general-form.html">← กลับ</a>
+    <h1>🚗 ขออนุมัติเดินทางไปราชการ</h1>
+  </div>
+  <div class="save-badge" id="saveBadge">
+    <span class="dot"></span>
+    <span id="saveText">บันทึกอัตโนมัติ</span>
+  </div>
+</div>
+
+<div class="main">
+  <!-- ══ FORM ══ -->
+  <div class="form-side">
+    <form id="travelForm" autocomplete="off">
+
+      <div class="card">
+        <div class="section-title">📋 ส่วนหัวบันทึก</div>
+
+        <div class="field">
+          <label>ส่วนงานจัดการศึกษา <span class="req">*</span></label>
+          <select id="ฝ่าย" required>
+            <option value="">— เลือกฝ่าย —</option>
+            <option value="ฝ่ายวิชาการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายวิชาการ</option>
+            <option value="ฝ่ายพัฒนาผู้เรียน โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายพัฒนาผู้เรียน</option>
+            <option value="ฝ่ายนโยบาย โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายนโยบาย</option>
+            <option value="ฝ่ายสารสนเทศและเทคโนโลยี โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายสารสนเทศและเทคโนโลยี</option>
+            <option value="ฝ่ายบริการ โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">ฝ่ายบริการ</option>
+          </select>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>ที่ (เลขที่หนังสือ) <span class="req">*</span></label>
+            <input type="text" id="เลขที่" placeholder="เช่น มอ.ว.สฎ.1.6/69-136" required>
+          </div>
+          <div class="field">
+            <label>วันที่ <span class="req">*</span></label>
+            <input type="date" id="วันที่" required>
+          </div>
+        </div>
+        <div id="thaiDatePreview" style="font-size:.82rem;color:#335;background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:7px 12px;margin-bottom:14px;">— วันที่จะแสดงที่นี่ —</div>
+
+        <div class="field">
+          <label>เรียน <span class="req">*</span></label>
+          <input type="text" id="เรียน" value="ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี" required>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">👤 ผู้ขออนุมัติ</div>
+        <div class="row2">
+          <div class="field">
+            <label>ข้าพเจ้า (ชื่อ-สกุล) <span class="req">*</span></label>
+            <input type="text" id="ผู้ขอ" placeholder="นาย/นาง/น.ส. ชื่อ นามสกุล" required>
+          </div>
+          <div class="field">
+            <label>ตำแหน่ง <span class="req">*</span></label>
+            <input type="text" id="ตำแหน่ง" placeholder="เช่น ครูชำนาญการ" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">🗺️ รายละเอียดการเดินทาง</div>
+
+        <div class="row2">
+          <div class="field">
+            <label>ณ (สถานที่ปลายทาง) <span class="req">*</span></label>
+            <input type="text" id="สถานที่" placeholder="เช่น โรงแรม / มหาวิทยาลัย" required>
+          </div>
+          <div class="field">
+            <label>จังหวัด <span class="req">*</span></label>
+            <input type="text" id="จังหวัด" placeholder="เช่น กรุงเทพมหานคร" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>เพื่อ (วัตถุประสงค์) <span class="req">*</span></label>
+          <textarea id="เพื่อ" rows="2" placeholder="เช่น เข้าร่วมประชุม / อบรม / สัมมนา ..." required></textarea>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>ตามหนังสือ/คำสั่งที่</label>
+            <input type="text" id="ตามหนังสือที่" placeholder="เลขที่หนังสืออ้างอิง (ถ้ามี)">
+          </div>
+          <div class="field">
+            <label>ลงวันที่</label>
+            <input type="date" id="วันที่อ้างอิง">
+          </div>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label>ตั้งแต่วันที่ <span class="req">*</span></label>
+            <input type="date" id="วันเริ่ม" required>
+          </div>
+          <div class="field">
+            <label>ถึงวันที่ <span class="req">*</span></label>
+            <input type="date" id="วันสิ้นสุด" required>
+          </div>
+          <div class="field">
+            <label>รวม</label>
+            <div class="days-display" id="totalDays">— วัน</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">🚌 พาหนะที่ใช้เดินทาง</div>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" id="veh-school"> <span>รถโรงเรียน</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="veh-private"> <span>รถส่วนตัว</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="veh-bus"> <span>รถโดยสารประจำทาง / รถรับจ้าง</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="veh-plane"> <span>เครื่องบิน</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">✍️ ผู้ลงนาม</div>
+        <div class="row2">
+          <div class="field"><label>ลงชื่อ <span class="req">*</span></label><input type="text" id="ลงชื่อ" placeholder="ชื่อ-สกุล" required></div>
+          <div class="field"><label>ตำแหน่ง <span class="req">*</span></label><input type="text" id="ตำแหน่งลงนาม" placeholder="ตำแหน่ง" required></div>
+        </div>
+        <div class="hint">* ระบบจะคัดลอกจากช่อง "ผู้ขออนุมัติ" โดยอัตโนมัติ (แก้ไขได้)</div>
+      </div>
+
+      <div class="card">
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" id="genBtn">📄 สร้างไฟล์ Word (.docx)</button>
+          <button type="button" class="btn-print" id="printBtn">🖨️ พิมพ์ / บันทึก PDF</button>
+          <button type="button" class="btn-danger" id="clearBtn">🗑️ ล้างข้อมูลทั้งหมด</button>
+        </div>
+        <div id="genStatus"></div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ══ PREVIEW ══ -->
+  <div class="preview-side">
+    <div class="preview-header">
+      <h2>👁️ ตัวอย่างบันทึกข้อความ</h2>
+      <span class="preview-label">Live Preview</span>
+    </div>
+
+    <div class="doc-wrap">
+      <div class="doc-inner">
+
+        <!-- Header -->
+        <div class="doc-header-row">
+          <img src="./logo.png" class="doc-logo" alt="logo">
+          <div class="doc-title">บันทึกข้อความ</div>
+        </div>
+
+        <!-- ส่วนงาน -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">ส่วนงานจัดการศึกษา</span>
+          <span class="doc-field-val empty" id="pv-ฝ่าย"></span>
+        </div>
+
+        <!-- ที่ + วันที่ -->
+        <div class="doc-row2">
+          <div class="doc-field">
+            <span class="doc-field-lbl">ที่</span>
+            <span class="doc-field-val empty" id="pv-เลขที่"></span>
+          </div>
+          <div class="doc-field">
+            <span class="doc-field-lbl">วันที่</span>
+            <span class="doc-field-val empty" id="pv-วันที่"></span>
+          </div>
+        </div>
+
+        <hr class="doc-divider">
+
+        <!-- เรื่อง -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val">ขออนุมัติเดินทางไปราชการ</span>
+        </div>
+
+        <!-- เรียน -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรียน</span>
+          <span class="doc-field-val" id="pv-เรียน">ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</span>
+        </div>
+
+        <!-- Body paragraph -->
+        <div style="margin-top:.3em;">
+          <div class="doc-para-indent" id="pv-body1">
+            ด้วย <span id="pv-ผู้ขอ" class="doc-placeholder">ชื่อผู้ขออนุมัติ</span>
+            ตำแหน่ง <span id="pv-ตำแหน่ง" class="doc-placeholder">ตำแหน่ง</span>
+            มีความประสงค์ขออนุมัติเดินทางไปราชการ
+            ณ <span id="pv-สถานที่" class="doc-placeholder">สถานที่</span>
+            จังหวัด<span id="pv-จังหวัด" class="doc-placeholder">จังหวัด</span>
+          </div>
+          <div class="doc-para-indent">
+            เพื่อ<span id="pv-เพื่อ" class="doc-placeholder">วัตถุประสงค์</span>
+          </div>
+          <div class="doc-para-indent" id="pv-ref-row" style="display:none;">
+            ตามหนังสือที่ <span id="pv-ตามหนังสือที่"></span>
+            ลงวันที่ <span id="pv-วันที่อ้างอิง"></span>
+          </div>
+          <div class="doc-para-indent">
+            ตั้งแต่วันที่ <span id="pv-วันเริ่ม" class="doc-placeholder">วันที่เริ่ม</span>
+            ถึงวันที่ <span id="pv-วันสิ้นสุด" class="doc-placeholder">วันที่สิ้นสุด</span>
+            รวม <span id="pv-รวมวัน" class="doc-placeholder">?</span> วัน
+          </div>
+          <div class="doc-para-indent">
+            พาหนะที่ใช้:<span id="pv-พาหนะ" class="doc-placeholder"> —</span>
+          </div>
+          <div class="doc-para-indent">
+            จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ
+          </div>
+        </div>
+
+        <!-- ลงนาม -->
+        <div class="doc-sign-area">
+          <div class="doc-sign-block">
+            <span class="doc-sign-row">ลงชื่อ ................................................</span>
+            <span class="doc-sign-row" style="text-indent:2em;display:block;">
+              (<span id="pv-ลงชื่อ" class="doc-placeholder">ชื่อผู้ลงนาม</span>)
+            </span>
+            <span class="doc-sign-row" style="text-indent:2em;display:block;">
+              <span id="pv-ตำแหน่งลงนาม" class="doc-placeholder">ตำแหน่ง</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- ผู้อนุมัติ -->
+        <div class="doc-approve-row">
+          <div class="doc-approve-col">
+            <span style="font-weight:700;">ความเห็นของผู้บังคับบัญชา</span>
+            <span>☐ อนุมัติ &nbsp; ☐ ไม่อนุมัติ</span>
+            <span style="margin-top:.5em;">ลงชื่อ .................................</span>
+            <span style="font-size:.85em;">ผู้บังคับบัญชา</span>
+          </div>
+          <div class="doc-approve-col">
+            <span style="font-weight:700;">ความเห็นของผู้อำนวยการ</span>
+            <span>☐ อนุมัติ &nbsp; ☐ ไม่อนุมัติ</span>
+            <span style="margin-top:.5em;">ลงชื่อ .................................</span>
+            <span style="font-size:.85em;">ผู้อำนวยการโรงเรียน</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="preview-note">ตัวอย่างแสดงเฉพาะโครงสร้าง — ไฟล์ Word จะมีรูปแบบครบถ้วน</div>
+  </div>
+</div>
+
+<!-- PizZip + docxtemplater -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+// ─── Thai helpers ─────────────────────────────────────────────
+const THAI_MONTH = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+function toThaiDate(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  return `${d} ${THAI_MONTH[m]} พ.ศ. ${y + 543}`;
+}
+
+function calcDays(start, end) {
+  if (!start || !end) return null;
+  const ms = new Date(end) - new Date(start);
+  if (ms < 0) return null;
+  return Math.round(ms / 86400000) + 1;
+}
+
+// ─── Autosave ─────────────────────────────────────────────────
+const SAVE_KEY = '_travel_form_v1';
+const FIELDS = ['ฝ่าย','เลขที่','วันที่','เรียน','ผู้ขอ','ตำแหน่ง',
+  'สถานที่','จังหวัด','เพื่อ','ตามหนังสือที่','วันที่อ้างอิง',
+  'วันเริ่ม','วันสิ้นสุด','ลงชื่อ','ตำแหน่งลงนาม'];
+const VEH_IDS = ['veh-school','veh-private','veh-bus','veh-plane'];
+
+function saveData() {
+  const data = {};
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  VEH_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.checked;
+  });
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  const b = document.getElementById('saveBadge');
+  const t = document.getElementById('saveText');
+  b.classList.remove('unsaved');
+  t.textContent = 'บันทึกแล้ว ' + new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+}
+
+function loadData() {
+  try {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = data[id];
+    });
+    VEH_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.checked = data[id];
+    });
+  } catch(e) {}
+}
+
+// ─── Live preview ─────────────────────────────────────────────
+function updatePreview() {
+  const g = id => (document.getElementById(id)||{}).value || '';
+  const set = (pvId, val, placeholder) => {
+    const el = document.getElementById(pvId);
+    if (!el) return;
+    if (val) {
+      el.textContent = val;
+      el.classList.remove('doc-placeholder');
+    } else {
+      el.textContent = placeholder || '';
+      el.classList.add('doc-placeholder');
+    }
+  };
+
+  set('pv-ฝ่าย',   g('ฝ่าย'),   'ส่วนงานจัดการศึกษา');
+  set('pv-เลขที่',  g('เลขที่'),  'เลขที่');
+  set('pv-วันที่',  toThaiDate(g('วันที่')), 'วันที่');
+  set('pv-เรียน',   g('เรียน'),   'เรียน');
+  set('pv-ผู้ขอ',   g('ผู้ขอ'),   'ชื่อผู้ขออนุมัติ');
+  set('pv-ตำแหน่ง', g('ตำแหน่ง'), 'ตำแหน่ง');
+  set('pv-สถานที่', g('สถานที่'), 'สถานที่');
+  set('pv-จังหวัด', g('จังหวัด'), 'จังหวัด');
+  set('pv-เพื่อ',   g('เพื่อ'),   'วัตถุประสงค์');
+  set('pv-วันเริ่ม',    toThaiDate(g('วันเริ่ม')),    'วันที่เริ่ม');
+  set('pv-วันสิ้นสุด',  toThaiDate(g('วันสิ้นสุด')),  'วันที่สิ้นสุด');
+  set('pv-ลงชื่อ',       g('ลงชื่อ'),       'ชื่อผู้ลงนาม');
+  set('pv-ตำแหน่งลงนาม', g('ตำแหน่งลงนาม'), 'ตำแหน่ง');
+
+  // วันที่ Thai date preview
+  const d = document.getElementById('thaiDatePreview');
+  if (d) d.textContent = g('วันที่') ? toThaiDate(g('วันที่')) : '— วันที่จะแสดงที่นี่ —';
+
+  // รวมวัน
+  const days = calcDays(g('วันเริ่ม'), g('วันสิ้นสุด'));
+  document.getElementById('totalDays').textContent = days !== null ? `${days} วัน` : '— วัน';
+  set('pv-รวมวัน', days !== null ? String(days) : '', '?');
+
+  // ตามหนังสือที่
+  const ref = g('ตามหนังสือที่');
+  const refRow = document.getElementById('pv-ref-row');
+  if (ref) {
+    refRow.style.display = '';
+    document.getElementById('pv-ตามหนังสือที่').textContent = ref;
+    document.getElementById('pv-วันที่อ้างอิง').textContent = toThaiDate(g('วันที่อ้างอิง'));
+  } else {
+    refRow.style.display = 'none';
+  }
+
+  // พาหนะ
+  const vehMap = {
+    'veh-school': 'รถโรงเรียน',
+    'veh-private': 'รถส่วนตัว',
+    'veh-bus': 'รถโดยสารประจำทาง/รับจ้าง',
+    'veh-plane': 'เครื่องบิน'
+  };
+  const selected = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => vehMap[id]);
+  set('pv-พาหนะ', selected.length ? ' ' + selected.join(', ') : '', ' —');
+}
+
+// ─── Auto-copy name → signature ──────────────────────────────
+function syncSigner() {
+  const nameEl   = document.getElementById('ผู้ขอ');
+  const posEl    = document.getElementById('ตำแหน่ง');
+  const signEl   = document.getElementById('ลงชื่อ');
+  const signPosEl= document.getElementById('ตำแหน่งลงนาม');
+  if (nameEl && signEl && !signEl.dataset.edited) signEl.value = nameEl.value;
+  if (posEl  && signPosEl && !signPosEl.dataset.edited) signPosEl.value = posEl.value;
+}
+
+// ─── Generate Word (.docx) ────────────────────────────────────
+document.getElementById('travelForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('genBtn');
+  const status = document.getElementById('genStatus');
+  btn.disabled = true;
+  status.className = '';
+  status.textContent = 'กำลังสร้างไฟล์...';
+
+  const g = id => (document.getElementById(id)||{}).value || '';
+  const days = calcDays(g('วันเริ่ม'), g('วันสิ้นสุด'));
+  const vehMap = {'veh-school':'รถโรงเรียน','veh-private':'รถส่วนตัว','veh-bus':'รถโดยสารประจำทาง/รับจ้าง','veh-plane':'เครื่องบิน'};
+  const selectedVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => vehMap[id]).join(', ');
+  const refLine = g('ตามหนังสือที่') ? `ตามหนังสือที่ ${g('ตามหนังสือที่')} ลงวันที่ ${toThaiDate(g('วันที่อ้างอิง'))}` : '';
+
+  try {
+    // Build a simple docx from scratch using Office Open XML
+    const docContent = buildDocx({
+      ฝ่าย: g('ฝ่าย'),
+      เลขที่: g('เลขที่'),
+      วันที่: toThaiDate(g('วันที่')),
+      เรียน: g('เรียน'),
+      ผู้ขอ: g('ผู้ขอ'),
+      ตำแหน่ง: g('ตำแหน่ง'),
+      สถานที่: g('สถานที่'),
+      จังหวัด: g('จังหวัด'),
+      เพื่อ: g('เพื่อ'),
+      refLine,
+      วันเริ่ม: toThaiDate(g('วันเริ่ม')),
+      วันสิ้นสุด: toThaiDate(g('วันสิ้นสุด')),
+      รวมวัน: days !== null ? String(days) : '—',
+      พาหนะ: selectedVeh || '—',
+      ลงชื่อ: g('ลงชื่อ'),
+      ตำแหน่งลงนาม: g('ตำแหน่งลงนาม'),
+    });
+
+    const zip = new JSZip();
+    zip.file('word/document.xml', docContent.documentXml);
+    zip.file('word/styles.xml', docContent.stylesXml);
+    zip.file('word/_rels/document.xml.rels', docContent.relsXml);
+    zip.file('[Content_Types].xml', docContent.contentTypesXml);
+    zip.file('_rels/.rels', docContent.dotRelsXml);
+
+    const blob = await zip.generateAsync({type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const fname = `ขออนุมัติเดินทาง_${g('ผู้ขอ') || 'ไม่ระบุ'}_${g('วันที่') || ''}.docx`;
+    saveAs(blob, fname);
+    status.className = 'ok';
+    status.textContent = `✅ ดาวน์โหลดสำเร็จ: ${fname}`;
+  } catch(err) {
+    console.error(err);
+    status.className = 'err';
+    status.textContent = '❌ เกิดข้อผิดพลาด: ' + err.message;
+  }
+  btn.disabled = false;
+});
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function para(text, indent, bold) {
+  const indStr = indent ? '<w:ind w:firstLine="720"/>' : '';
+  const b = bold ? '<w:b/>' : '';
+  return `<w:p><w:pPr><w:jc w:val="both"/>${indStr}</w:pPr><w:r><w:rPr>${b}<w:lang w:val="th-TH"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
+}
+
+function fieldRow(label, value) {
+  return `<w:p><w:pPr></w:pPr>
+    <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">${esc(label)}  </w:t></w:r>
+    <w:r><w:rPr></w:rPr><w:t xml:space="preserve">${esc(value)}</w:t></w:r>
+  </w:p>`;
+}
+
+function buildDocx(f) {
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+  <w:sectPr>
+    <w:pgSz w:w="11906" w:h="16838"/>
+    <w:pgMar w:top="851" w:right="1134" w:bottom="851" w:left="1701" w:header="709" w:footer="709" w:gutter="0"/>
+  </w:sectPr>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:b/><w:sz w:val="58"/><w:szCs w:val="58"/></w:rPr><w:t>บันทึกข้อความ</w:t></w:r>
+  </w:p>
+  ${fieldRow('ส่วนงานจัดการศึกษา', f.ฝ่าย)}
+  <w:p><w:pPr></w:pPr>
+    <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">ที่  </w:t></w:r>
+    <w:r><w:t xml:space="preserve">${esc(f.เลขที่)}          </w:t></w:r>
+    <w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">วันที่  </w:t></w:r>
+    <w:r><w:t xml:space="preserve">${esc(f.วันที่)}</w:t></w:r>
+  </w:p>
+  <w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="6" w:space="1" w:color="000000"/></w:pBdr></w:pPr></w:p>
+  ${fieldRow('เรื่อง', 'ขออนุมัติเดินทางไปราชการ')}
+  ${fieldRow('เรียน', f.เรียน)}
+  ${para(`ด้วย ${f.ผู้ขอ} ตำแหน่ง ${f.ตำแหน่ง} มีความประสงค์ขออนุมัติเดินทางไปราชการ ณ ${f.สถานที่} จังหวัด${f.จังหวัด}`, true)}
+  ${para(`เพื่อ${f.เพื่อ}`, true)}
+  ${f.refLine ? para(f.refLine, true) : ''}
+  ${para(`ตั้งแต่วันที่ ${f.วันเริ่ม} ถึงวันที่ ${f.วันสิ้นสุด} รวม ${f.รวมวัน} วัน`, true)}
+  ${para(`พาหนะที่ใช้: ${f.พาหนะ}`, true)}
+  ${para('จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ', true)}
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:t>ลงชื่อ  ................................................</w:t></w:r>
+  </w:p>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:t xml:space="preserve">(${esc(f.ลงชื่อ)})</w:t></w:r>
+  </w:p>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:t>${esc(f.ตำแหน่งลงนาม)}</w:t></w:r>
+  </w:p>
+</w:body>
+</w:document>`;
+
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr>
+      <w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>
+      <w:sz w:val="32"/><w:szCs w:val="32"/>
+      <w:lang w:val="th-TH"/>
+    </w:rPr></w:rPrDefault>
+  </w:docDefaults>
+</w:styles>`;
+
+  const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const dotRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  return { documentXml, stylesXml, relsXml, contentTypesXml, dotRelsXml };
+}
+
+// ─── Print ────────────────────────────────────────────────────
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+// ─── Clear ───────────────────────────────────────────────────
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (!confirm('ล้างข้อมูลทั้งหมด?')) return;
+  FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  VEH_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+  ['ลงชื่อ','ตำแหน่งลงนาม'].forEach(id => { const el = document.getElementById(id); if (el) delete el.dataset.edited; });
+  localStorage.removeItem(SAVE_KEY);
+  updatePreview();
+});
+
+// ─── Mark signer as manually edited ─────────────────────────
+['ลงชื่อ','ตำแหน่งลงนาม'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', function() {
+    this.dataset.edited = '1';
+  });
+});
+
+// ─── Event listeners ─────────────────────────────────────────
+const allInputs = [...FIELDS.map(id => document.getElementById(id)).filter(Boolean),
+                   ...VEH_IDS.map(id => document.getElementById(id)).filter(Boolean)];
+
+allInputs.forEach(el => {
+  el.addEventListener('input', () => {
+    syncSigner();
+    updatePreview();
+    document.getElementById('saveBadge').classList.add('unsaved');
+    document.getElementById('saveText').textContent = 'มีการเปลี่ยนแปลง...';
+  });
+  el.addEventListener('change', () => {
+    syncSigner();
+    updatePreview();
+    saveData();
+  });
+});
+
+// Debounced autosave on input
+let saveTimer;
+allInputs.forEach(el => {
+  el.addEventListener('input', () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveData, 1200);
+  });
+});
+
+// ─── Init ────────────────────────────────────────────────────
+loadData();
+updatePreview();
+</script>
+</body>
+</html>
