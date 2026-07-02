@@ -333,6 +333,15 @@
       <input type="hidden" id="ตำแหน่งลงนาม">
 
       <div class="card">
+        <div class="section-title">🏫 ผู้อำนวยการโรงเรียน</div>
+        <div class="field">
+          <label>ชื่อผู้อำนวยการ</label>
+          <input type="text" id="ชื่อผู้อำนวยการ" placeholder="นาย/นาง/น.ส. ชื่อ นามสกุล">
+          <div class="hint">ปรากฏในส่วนคำสั่งผู้อำนวยการ</div>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="form-actions">
           <button type="submit" class="btn-primary" id="genBtn">📄 สร้างไฟล์ Word (.docx)</button>
           <button type="button" class="btn-print" id="printBtn">🖨️ พิมพ์ / บันทึก PDF</button>
@@ -427,6 +436,7 @@
             <span class="doc-sign-row">ลงชื่อ</span>
             <span class="doc-sign-row">(<span id="pv-ลงชื่อ" class="doc-placeholder">ชื่อผู้ลงนาม</span>)</span>
             <span class="doc-sign-row"><span id="pv-ตำแหน่งลงนาม" class="doc-placeholder">ตำแหน่ง</span></span>
+            <span class="doc-sign-row" id="pv-sign-date-row" style="display:none;font-size:.85em;">วันที่ <span id="pv-วันที่ลงนาม"></span></span>
           </div>
         </div>
 
@@ -436,7 +446,9 @@
           <div>☐ อนุมัติ &nbsp;&nbsp; ☐ ไม่อนุมัติ</div>
           <div class="doc-director-sign">
             <div>ลงชื่อ</div>
-            <div>(ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี)</div>
+            <div>(<span id="pv-ชื่อผู้อำนวยการ" class="doc-placeholder">ชื่อผู้อำนวยการ</span>)</div>
+            <div>ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
+            <div style="font-size:.85em;margin-top:.2em;">วันที่ ........../............/..........</div>
           </div>
         </div>
 
@@ -459,6 +471,15 @@ function toThaiDate(iso) {
   return `${d} ${THAI_MONTH[m]} พ.ศ. ${y + 543}`;
 }
 
+const THAI_MONTH_ABBR = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+  'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function toThaiDateAbbr(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  return `${d} / ${THAI_MONTH_ABBR[m]} / ${String(y + 543).slice(-2)}`;
+}
+
 function calcDays(start, end) {
   if (!start || !end) return null;
   const ms = new Date(end) - new Date(start);
@@ -466,10 +487,10 @@ function calcDays(start, end) {
   return Math.round(ms / 86400000) + 1;
 }
 
-const SAVE_KEY = '_travel_form_v2';
+const SAVE_KEY = '_travel_form_v3';
 const FIELDS = ['ฝ่าย','เลขที่','วันที่','เรื่อง','เรียน','ผู้ขอ','ตำแหน่ง',
   'สถานที่','จังหวัด','เพื่อ','ตามหนังสือที่','วันที่อ้างอิง',
-  'วันเริ่ม','วันสิ้นสุด','ผู้แทน','ลงชื่อ','ตำแหน่งลงนาม'];
+  'วันเริ่ม','วันสิ้นสุด','ผู้แทน','ชื่อผู้อำนวยการ','ลงชื่อ','ตำแหน่งลงนาม'];
 const VEH_IDS = ['veh-school','veh-private','veh-bus','veh-bus-regular','veh-train','veh-plane'];
 const EXP_IDS = ['exp-hotel','exp-allowance','exp-transport'];
 const VEH_LABEL = {
@@ -528,6 +549,17 @@ function updatePreview() {
   set('pv-วันสิ้นสุด', toThaiDate(g('วันสิ้นสุด')), 'วันที่สิ้นสุด');
   set('pv-ลงชื่อ',       g('ลงชื่อ'),       'ชื่อผู้ลงนาม');
   set('pv-ตำแหน่งลงนาม', g('ตำแหน่งลงนาม'), 'ตำแหน่ง');
+  set('pv-ชื่อผู้อำนวยการ', g('ชื่อผู้อำนวยการ'), 'ชื่อผู้อำนวยการ');
+
+  // วันที่ลงนาม (abbreviated) ใต้ชื่อผู้เสนอ
+  const signDateRow = document.getElementById('pv-sign-date-row');
+  const signDateVal = toThaiDateAbbr(g('วันที่'));
+  if (signDateVal) {
+    signDateRow.style.display = '';
+    document.getElementById('pv-วันที่ลงนาม').textContent = signDateVal;
+  } else {
+    signDateRow.style.display = 'none';
+  }
 
   // วันที่ preview bar
   const d = document.getElementById('thaiDatePreview');
@@ -619,6 +651,8 @@ document.getElementById('travelForm').addEventListener('submit', async function(
       ผู้แทน: g('ผู้แทน'),
       ลงชื่อ: g('ลงชื่อ'),
       ตำแหน่งลงนาม: g('ตำแหน่งลงนาม'),
+      วันที่ลงนาม: toThaiDateAbbr(g('วันที่')),
+      ชื่อผู้อำนวยการ: g('ชื่อผู้อำนวยการ'),
     });
 
     const zip = new JSZip();
@@ -705,13 +739,16 @@ function buildDocx(f) {
   ${signPara('ลงชื่อ')}
   ${signPara(`(${f.ลงชื่อ})`)}
   ${signPara(f.ตำแหน่งลงนาม)}
+  ${f.วันที่ลงนาม ? signPara(`วันที่ ${f.วันที่ลงนาม}`) : ''}
   <w:p><w:pPr></w:pPr></w:p>
   <w:p><w:pPr><w:pBdr><w:top w:val="dashed" w:sz="6" w:space="1" w:color="aaaaaa"/></w:pBdr></w:pPr></w:p>
   <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>คำสั่งผู้อำนวยการ</w:t></w:r></w:p>
   <w:p><w:r><w:t>☐ อนุมัติ          ☐ ไม่อนุมัติ</w:t></w:r></w:p>
   <w:p><w:pPr></w:pPr></w:p>
   <w:p><w:r><w:t>ลงชื่อ</w:t></w:r></w:p>
-  <w:p><w:r><w:t>(ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี)</w:t></w:r></w:p>
+  <w:p><w:r><w:t xml:space="preserve">(${esc(f.ชื่อผู้อำนวยการ || 'ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี')})</w:t></w:r></w:p>
+  <w:p><w:r><w:t>ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</w:t></w:r></w:p>
+  <w:p><w:r><w:t>วันที่ ........../............/..........</w:t></w:r></w:p>
 </w:body>
 </w:document>`;
 
