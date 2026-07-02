@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ — ระบบสารสนเทศ มอ.วิทยานุสรณ์</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a3a6e;
+      --accent:  #2563eb;
+      --bg:      #f1f5f9;
+      --border:  #e2e8f0;
+      --muted:   #64748b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100dvh;
+      background: linear-gradient(135deg, #1a3a6e 0%, #1e4d9b 50%, #2563eb 100%);
+      font-family: 'Sarabun', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ── Card ── */
+    .login-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+    }
+    .card-header-band {
+      background: linear-gradient(135deg, #1a3a6e 0%, #2563eb 100%);
+      color: #fff;
+      text-align: center;
+      padding: 28px 24px 22px;
+    }
+    .school-logo {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .card-header-band h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 2px;
+    }
+    .card-header-band p {
+      font-size: 0.78rem;
+      opacity: 0.82;
+      margin: 0;
+    }
+    .card-body-area { padding: 28px 28px 24px; }
+
+    /* ── Tab pills ── */
+    .tab-pills {
+      display: flex;
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .tab-pill {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .tab-pill.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    /* ── Form ── */
+    .form-label { font-size: 0.84rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    .form-control {
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 10px 14px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      outline: none;
+    }
+    .btn-primary-custom {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1a3a6e 0%, #2563eb 100%);
+      color: #fff;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-primary-custom:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-primary-custom:active { transform: translateY(0); }
+    .btn-primary-custom:disabled { opacity: .6; cursor: default; transform: none; }
+
+    /* ── Google sign-in ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .btn-google {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: #374151;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .google-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ── Alerts ── */
+    .alert-msg {
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .alert-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    /* ── Footer ── */
+    .card-footer-note {
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--muted);
+      padding: 0 24px 20px;
+    }
+
+    /* ── Spinner ── */
+    .spinner-sm {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Setup warning (shown when Firebase not configured) ── */
+    #setup-warning {
+      background: #fffbeb;
+      border: 1px solid #fbbf24;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      color: #92400e;
+      margin-bottom: 20px;
+    }
+    #setup-warning code {
+      background: #fef3c7;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+
+  <!-- Header -->
+  <div class="card-header-band">
+    <div class="school-logo">🏫</div>
+    <h1>ระบบสารสนเทศ มอ.วิทยานุสรณ์</h1>
+    <p>กรุณาเข้าสู่ระบบก่อนใช้งาน</p>
+  </div>
+
+  <div class="card-body-area">
+
+    <!-- Firebase setup warning (hidden after config) -->
+    <div id="setup-warning" style="display:none;">
+      ⚠️ ยังไม่ได้ตั้งค่า Firebase — กรุณาใส่ <code>firebaseConfig</code> ใน <code>auth-guard.js</code> ก่อน
+    </div>
+
+    <!-- Error / Success alerts -->
+    <div id="alert-error" class="alert-msg alert-error"></div>
+    <div id="alert-success" class="alert-msg alert-success"></div>
+
+    <!-- Tabs -->
+    <div class="tab-pills">
+      <button class="tab-pill active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+      <button class="tab-pill" onclick="switchTab('register')">สมัครสมาชิก</button>
+    </div>
+
+    <!-- Login tab -->
+    <div id="tab-login" class="tab-content active">
+      <div class="mb-3">
+        <label class="form-label">อีเมล</label>
+        <input type="email" id="login-email" class="form-control" placeholder="example@email.com" autocomplete="email">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">รหัสผ่าน</label>
+        <input type="password" id="login-pass" class="form-control" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary-custom" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+
+      <div class="divider">หรือ</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        เข้าสู่ระบบด้วย Google
+      </button>
+
+      <div class="text-center mt-3">
+        <button onclick="doForgotPassword()" style="background:none;border:none;color:var(--accent);font-family:'Sarabun',sans-serif;font-size:0.82rem;cursor:pointer;text-decoration:underline;">
+          ลืมรหัสผ่าน?
+        </button>
+      </div>
+    </div>
+
+    <!-- Register tab -->
+    <div id="tab-register" class="tab-content">
+      <div class="mb-3">
+        <label class="form-label">ชื่อ-นามสกุล</label>
+        <input type="text" id="reg-name" class="form-control" placeholder="ชื่อ นามสกุล">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">อีเมล</label>
+        <input type="email" id="reg-email" class="form-control" placeholder="example@email.com" autocomplete="email">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">รหัสผ่าน <span style="color:var(--muted);font-weight:400">(อย่างน้อย 6 ตัวอักษร)</span></label>
+        <input type="password" id="reg-pass" class="form-control" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">ยืนยันรหัสผ่าน</label>
+        <input type="password" id="reg-pass2" class="form-control" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="btn-primary-custom" id="btn-register" onclick="doRegister()">สมัครสมาชิก</button>
+
+      <div class="divider">หรือ</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        สมัครด้วย Google
+      </button>
+    </div>
+
+  </div><!-- /card-body -->
+
+  <div class="card-footer-note">
+    ระบบสารสนเทศ มอ.วิทยานุสรณ์ &bull; เฉพาะบุคลากรโรงเรียนเท่านั้น
+  </div>
+
+</div><!-- /login-card -->
+
+<!-- Firebase v9 compat (CDN) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script>
+// ─── Firebase config ────────────────────────────────────────────────────────
+// ⚠️  ให้ใส่ค่าจาก Firebase Console > Project Settings > Your apps
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+// ────────────────────────────────────────────────────────────────────────────
+
+const IS_CONFIGURED = firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+if (!IS_CONFIGURED) {
+  document.getElementById('setup-warning').style.display = 'block';
+}
+
+let auth;
+if (IS_CONFIGURED) {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+  // If already logged in → go home
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      const next = new URLSearchParams(location.search).get('next') || 'index.html';
+      location.replace(next);
+    }
+  });
+}
+
+// ─── UI helpers ─────────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('alert-success').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('alert-success');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('alert-error').style.display = 'none';
+}
+function clearAlerts() {
+  document.getElementById('alert-error').style.display = 'none';
+  document.getElementById('alert-success').style.display = 'none';
+}
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.orig = btn.textContent;
+    btn.innerHTML = '<span class="spinner-sm"></span>กำลังดำเนินการ...';
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.orig || btn.textContent;
+  }
+}
+
+function switchTab(tab) {
+  clearAlerts();
+  document.querySelectorAll('.tab-pill').forEach((b,i) => {
+    b.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+// ─── Translate Firebase errors to Thai ──────────────────────────────────────
+function firebaseErrTH(code) {
+  const map = {
+    'auth/invalid-email':            'รูปแบบอีเมลไม่ถูกต้อง',
+    'auth/user-not-found':           'ไม่พบบัญชีนี้ในระบบ',
+    'auth/wrong-password':           'รหัสผ่านไม่ถูกต้อง',
+    'auth/invalid-credential':       'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+    'auth/email-already-in-use':     'อีเมลนี้มีบัญชีอยู่แล้ว',
+    'auth/weak-password':            'รหัสผ่านสั้นเกินไป (อย่างน้อย 6 ตัวอักษร)',
+    'auth/too-many-requests':        'ล็อกอินผิดหลายครั้งเกินไป กรุณารอสักครู่',
+    'auth/network-request-failed':   'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
+    'auth/popup-closed-by-user':     'ปิด Popup ก่อนเสร็จ กรุณาลองใหม่',
+    'auth/cancelled-popup-request':  'คำขอถูกยกเลิก',
+  };
+  return map[code] || 'เกิดข้อผิดพลาด: ' + code;
+}
+
+// ─── Actions ────────────────────────────────────────────────────────────────
+async function doLogin() {
+  if (!IS_CONFIGURED) return showError('ยังไม่ได้ตั้งค่า Firebase');
+  clearAlerts();
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) return showError('กรุณากรอกอีเมลและรหัสผ่าน');
+  setLoading('btn-login', true);
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    showError(firebaseErrTH(e.code));
+    setLoading('btn-login', false);
+  }
+}
+
+async function doRegister() {
+  if (!IS_CONFIGURED) return showError('ยังไม่ได้ตั้งค่า Firebase');
+  clearAlerts();
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  if (!name)           return showError('กรุณากรอกชื่อ-นามสกุล');
+  if (!email)          return showError('กรุณากรอกอีเมล');
+  if (pass !== pass2)  return showError('รหัสผ่านทั้งสองช่องไม่ตรงกัน');
+  if (pass.length < 6) return showError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+  setLoading('btn-register', true);
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+    showSuccess(`สมัครสมาชิกสำเร็จ! ยินดีต้อนรับ ${name}`);
+  } catch(e) {
+    showError(firebaseErrTH(e.code));
+    setLoading('btn-register', false);
+  }
+}
+
+async function doGoogleLogin() {
+  if (!IS_CONFIGURED) return showError('ยังไม่ได้ตั้งค่า Firebase');
+  clearAlerts();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await auth.signInWithPopup(provider);
+  } catch(e) {
+    showError(firebaseErrTH(e.code));
+  }
+}
+
+async function doForgotPassword() {
+  if (!IS_CONFIGURED) return showError('ยังไม่ได้ตั้งค่า Firebase');
+  clearAlerts();
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) return showError('กรุณากรอกอีเมลในช่องด้านบนก่อน');
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showSuccess('ส่งลิงก์รีเซ็ตรหัสผ่านไปยัง ' + email + ' แล้ว');
+  } catch(e) {
+    showError(firebaseErrTH(e.code));
+  }
+}
+
+// Allow Enter key to submit
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.tab-content.active');
+  if (active.id === 'tab-login')    doLogin();
+  if (active.id === 'tab-register') doRegister();
+});
+</script>
+
+</body>
+</html>
