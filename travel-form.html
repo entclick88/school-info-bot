@@ -140,23 +140,23 @@
   }
   .doc-placeholder{color:#bbb;}
 
-  /* ลงชื่อผู้เสนอ — เยื้องขวา */
-  .doc-sign-area{
-    margin-top:1em;
-    display:flex;
-    justify-content:flex-end;
-    padding-right:6%;
+  /* ผู้ขออนุมัติ + คำสั่งผู้อำนวยการ — เคียงกัน */
+  .doc-bottom-pair{
+    display:flex; margin-top:1em; font-size:.92em; line-height:1.85;
   }
-  .doc-sign-block{font-size:.92em; line-height:1.85; text-align:center;}
+  .doc-bottom-left{
+    flex:1; text-align:center; padding-right:.5em;
+  }
+  .doc-bottom-right{
+    flex:1; border-left:1px dashed #ccc; padding-left:.8em;
+  }
   .doc-sign-row{white-space:nowrap; display:block;}
+  .doc-director-title{font-weight:700; margin-bottom:.1em;}
+  .doc-director-sign{margin-top:.4em;}
 
-  /* คำสั่งผู้อำนวยการ — อยู่ล่างผู้เสนอ */
-  .doc-director{
-    margin-top:1em; font-size:.92em; line-height:1.85;
-    border-top:1px dashed #ccc; padding-top:.5em;
-  }
-  .doc-director-title{font-weight:700; margin-bottom:.2em;}
-  .doc-director-sign{margin-top:.5em;}
+  /* vehicle registration inline */
+  .veh-reg-wrap{display:none; margin:4px 0 2px 28px;}
+  .veh-reg-wrap input{font-size:.82rem; padding:5px 10px;}
 
   .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
 
@@ -302,6 +302,13 @@
         <div class="section-title">🚌 พาหนะที่ใช้เดินทาง</div>
         <div class="checkbox-group">
           <label class="checkbox-item"><input type="checkbox" id="veh-school"> <span>โดยรถโรงเรียน</span></label>
+          <div class="veh-reg-wrap" id="reg-school-wrap">
+            <input type="text" id="reg-school" placeholder="หมายเลขทะเบียน เช่น นข-7514 สุราษฎร์ธานี">
+          </div>
+          <label class="checkbox-item"><input type="checkbox" id="veh-rental"> <span>โดยรถตู้เช่า</span></label>
+          <div class="veh-reg-wrap" id="reg-rental-wrap">
+            <input type="text" id="reg-rental" placeholder="หมายเลขทะเบียน เช่น กข-1234 กรุงเทพมหานคร">
+          </div>
           <label class="checkbox-item"><input type="checkbox" id="veh-private"> <span>โดยรถส่วนตัว</span></label>
           <label class="checkbox-item"><input type="checkbox" id="veh-bus"> <span>โดยรถโดยสารประจำทาง/รับจ้าง</span></label>
           <label class="checkbox-item"><input type="checkbox" id="veh-bus-regular"> <span>โดยรถประจำทางธรรมดา</span></label>
@@ -430,25 +437,23 @@
           </div>
         </div>
 
-        <!-- ลงนามผู้เสนอ (เยื้องขวา) -->
-        <div class="doc-sign-area">
-          <div class="doc-sign-block">
+        <!-- ผู้ขออนุมัติ (ซ้าย) | คำสั่งผู้อำนวยการ (ขวา) -->
+        <div class="doc-bottom-pair">
+          <div class="doc-bottom-left">
             <span class="doc-sign-row">ลงชื่อ</span>
             <span class="doc-sign-row">(<span id="pv-ลงชื่อ" class="doc-placeholder">ชื่อผู้ลงนาม</span>)</span>
             <span class="doc-sign-row"><span id="pv-ตำแหน่งลงนาม" class="doc-placeholder">ตำแหน่ง</span></span>
             <span class="doc-sign-row" id="pv-sign-date-row" style="display:none;font-size:.85em;">วันที่ <span id="pv-วันที่ลงนาม"></span></span>
           </div>
-        </div>
-
-        <!-- คำสั่งผู้อำนวยการ (อยู่ล่างผู้เสนอ) -->
-        <div class="doc-director">
-          <div class="doc-director-title">คำสั่งผู้อำนวยการ</div>
-          <div>☐ อนุมัติ &nbsp;&nbsp; ☐ ไม่อนุมัติ</div>
-          <div class="doc-director-sign">
-            <div>ลงชื่อ</div>
-            <div>(<span id="pv-ชื่อผู้อำนวยการ" class="doc-placeholder">ชื่อผู้อำนวยการ</span>)</div>
-            <div>ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
-            <div style="font-size:.85em;margin-top:.2em;">วันที่ ........../............/..........</div>
+          <div class="doc-bottom-right">
+            <div class="doc-director-title">คำสั่งผู้อำนวยการ</div>
+            <div>☐ อนุมัติ &nbsp; ☐ ไม่อนุมัติ</div>
+            <div class="doc-director-sign">
+              <div>ลงชื่อ</div>
+              <div>(<span id="pv-ชื่อผู้อำนวยการ" class="doc-placeholder">ชื่อผู้อำนวยการ</span>)</div>
+              <div>ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
+              <div style="font-size:.85em;margin-top:.2em;">วันที่ ........../............/..........</div>
+            </div>
           </div>
         </div>
 
@@ -487,20 +492,23 @@ function calcDays(start, end) {
   return Math.round(ms / 86400000) + 1;
 }
 
-const SAVE_KEY = '_travel_form_v3';
+const SAVE_KEY = '_travel_form_v4';
 const FIELDS = ['ฝ่าย','เลขที่','วันที่','เรื่อง','เรียน','ผู้ขอ','ตำแหน่ง',
   'สถานที่','จังหวัด','เพื่อ','ตามหนังสือที่','วันที่อ้างอิง',
-  'วันเริ่ม','วันสิ้นสุด','ผู้แทน','ชื่อผู้อำนวยการ','ลงชื่อ','ตำแหน่งลงนาม'];
-const VEH_IDS = ['veh-school','veh-private','veh-bus','veh-bus-regular','veh-train','veh-plane'];
+  'วันเริ่ม','วันสิ้นสุด','ผู้แทน','ชื่อผู้อำนวยการ','ลงชื่อ','ตำแหน่งลงนาม',
+  'reg-school','reg-rental'];
+const VEH_IDS = ['veh-school','veh-rental','veh-private','veh-bus','veh-bus-regular','veh-train','veh-plane'];
 const EXP_IDS = ['exp-hotel','exp-allowance','exp-transport'];
 const VEH_LABEL = {
   'veh-school':      'โดยรถโรงเรียน',
+  'veh-rental':      'โดยรถตู้เช่า',
   'veh-private':     'โดยรถส่วนตัว',
   'veh-bus':         'โดยรถโดยสารประจำทาง/รับจ้าง',
   'veh-bus-regular': 'โดยรถประจำทางธรรมดา',
   'veh-train':       'โดยรถไฟ',
   'veh-plane':       'โดยเครื่องบิน',
 };
+const VEH_REG = { 'veh-school': 'reg-school', 'veh-rental': 'reg-rental' };
 const EXP_LABEL = {
   'exp-hotel':      'ค่าเช่าที่พัก',
   'exp-allowance':  'เบี้ยเลี้ยง',
@@ -581,9 +589,26 @@ function updatePreview() {
     refRow.style.display = 'none';
   }
 
-  // พาหนะ
-  const selVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => VEH_LABEL[id]);
+  // พาหนะ (รวม หมายเลขทะเบียน ถ้ามี)
+  const selVeh = VEH_IDS
+    .filter(id => document.getElementById(id)?.checked)
+    .map(id => {
+      let label = VEH_LABEL[id];
+      const regId = VEH_REG[id];
+      if (regId) {
+        const reg = (document.getElementById(regId)||{}).value || '';
+        if (reg) label += ` หมายเลขทะเบียน ${reg}`;
+      }
+      return label;
+    });
   set('pv-พาหนะ', selVeh.length ? selVeh.join(', ') : '', 'โดย...');
+
+  // toggle registration inputs
+  Object.entries(VEH_REG).forEach(([vehId, regId]) => {
+    const checked = document.getElementById(vehId)?.checked;
+    const wrap = document.getElementById(`${regId}-wrap`);
+    if (wrap) wrap.style.display = checked ? '' : 'none';
+  });
 
   // ค่าใช้จ่าย
   const selExp = EXP_IDS.filter(id => document.getElementById(id)?.checked).map(id => EXP_LABEL[id]);
@@ -626,7 +651,14 @@ document.getElementById('travelForm').addEventListener('submit', async function(
 
   const g = id => (document.getElementById(id)||{}).value || '';
   const days = calcDays(g('วันเริ่ม'), g('วันสิ้นสุด'));
-  const selVeh = VEH_IDS.filter(id => document.getElementById(id)?.checked).map(id => VEH_LABEL[id]);
+  const selVeh = VEH_IDS
+    .filter(id => document.getElementById(id)?.checked)
+    .map(id => {
+      let label = VEH_LABEL[id];
+      const regId = VEH_REG[id];
+      if (regId) { const reg = g(regId); if (reg) label += ` หมายเลขทะเบียน ${reg}`; }
+      return label;
+    });
   const selExp = EXP_IDS.filter(id => document.getElementById(id)?.checked).map(id => EXP_LABEL[id]);
   const refLine = g('ตามหนังสือที่') ? `ตามหนังสือที่ ${g('ตามหนังสือที่')} ลงวันที่ ${toThaiDate(g('วันที่อ้างอิง'))}` : '';
 
@@ -800,6 +832,7 @@ const allInputs = [
   ...FIELDS.map(id => document.getElementById(id)).filter(Boolean),
   ...VEH_IDS.map(id => document.getElementById(id)).filter(Boolean),
   ...EXP_IDS.map(id => document.getElementById(id)).filter(Boolean),
+  ...Object.values(VEH_REG).map(id => document.getElementById(id)).filter(Boolean),
 ];
 
 allInputs.forEach(el => {
