@@ -305,9 +305,6 @@
           <div class="field"><label>ลงชื่อ <span class="req">*</span></label><input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required></div>
           <div class="field"><label>ตำแหน่ง <span class="req">*</span></label><input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required></div>
         </div>
-        <!-- hidden fields to keep FIELDS array valid -->
-        <input type="hidden" id="ลงชื่อ2"><input type="hidden" id="ตำแหน่ง2">
-        <input type="hidden" id="ลงชื่อ3"><input type="hidden" id="ตำแหน่ง3">
       </div>
 
       <div class="card">
@@ -386,7 +383,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.6/dist/pizzip.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.44.0/build/docxtemplater.js"></script>
 <script>
-const STORAGE_KEY = 'memoFormData_v2';
+const STORAGE_KEY = 'memoFormData_v3';
 
 const FIELDS = [
   'ฝ่าย','เลขที่','วันที่','เรื่อง','เรื่อง2','เรียน',
@@ -394,7 +391,7 @@ const FIELDS = [
   'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
   'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
   'จึงเรียนมาเพื่อ...',
-  'ลงชื่อ1','ตำแหน่ง1','ลงชื่อ2','ตำแหน่ง2','ลงชื่อ3','ตำแหน่ง3'
+  'ลงชื่อ1','ตำแหน่ง1'
 ];
 
 function thaiDate(iso){
@@ -485,12 +482,8 @@ function updatePreview(){
   bodyHTML += `<div class="doc-close">${closeVal ? escHtml(closeVal) : '<span class="doc-placeholder">จึงเรียนมาเพื่อ...</span>'}</div>`;
   document.getElementById('pvBody').innerHTML = bodyHTML;
 
-  // Signers — only filled, right-aligned, PDF format
-  const signers = [
-    {name:v['ลงชื่อ1'], pos:v['ตำแหน่ง1']},
-    {name:v['ลงชื่อ2'], pos:v['ตำแหน่ง2']},
-    {name:v['ลงชื่อ3'], pos:v['ตำแหน่ง3']},
-  ].filter(s=>s.name||s.pos);
+  // Signers — only 1 signer for general memo
+  const signers = [{name:v['ลงชื่อ1'], pos:v['ตำแหน่ง1']}].filter(s=>s.name||s.pos);
 
   const signRow=document.getElementById('pvSignRow');
   const renderSigner = s => `<div class="doc-sign-block">
@@ -566,8 +559,6 @@ document.getElementById('memoForm').addEventListener('submit', async function(e)
     'ภาคสรุป4':v['ภาคสรุป4'],
     'จึงเรียนมาเพื่อ...':v['จึงเรียนมาเพื่อ...'],
     'ลงชื่อ1':v['ลงชื่อ1'], 'ตำแหน่ง1':v['ตำแหน่ง1'],
-    'ลงชื่อ2':v['ลงชื่อ2'], 'ตำแหน่ง2':v['ตำแหน่ง2'],
-    'ลงชื่อ3':v['ลงชื่อ3'], 'ตำแหน่ง3':v['ตำแหน่ง3'],
   };
 
   genBtn.disabled=true; genBtn.textContent='⏳ กำลังสร้างไฟล์...';
