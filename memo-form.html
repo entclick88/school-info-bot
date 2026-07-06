@@ -99,25 +99,20 @@
     padding:3px 9px; border-radius:20px; font-weight:600;
   }
 
-  /* ── A4 document preview ── */
+  /* ── Document preview (readable, scrollable) ── */
   .doc-wrap{
     width:100%;
     background:#fff;
     border:1px solid #c8d4e3;
     box-shadow:0 4px 24px rgba(0,0,0,.12);
-    aspect-ratio:210/297;
-    overflow:hidden;
-    position:relative;
+    border-radius:4px;
   }
   .doc-inner{
-    position:absolute; inset:0;
-    /* margin: top 1.5cm, left 3cm, right 2cm, bottom 1.5cm — scaled */
-    padding:5% 7% 5% 11%;
+    padding:6% 7% 6% 11%;
     font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
-    font-size:clamp(7px,1.2vw,11.5px); /* ≈16pt scaled */
-    line-height:1.75;
+    font-size:14px;
+    line-height:1.85;
     color:#111;
-    overflow:hidden;
   }
 
   /* Header: logo absolute-left, title centered on full width */
