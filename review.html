@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตรวจสอบบันทึกข้อความ — ธุรการ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b; --warn:#b45309;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  .topbar{
+    background:var(--accent);color:#fff;padding:12px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar h1{font-size:1.1rem;font-weight:700;}
+  .topbar a.back{color:rgba(255,255,255,.85);text-decoration:none;font-size:.88rem;}
+
+  .container{max-width:900px;margin:0 auto;padding:24px;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .tab{
+    padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:600;
+    border:1.5px solid var(--border);background:#fff;font-family:'Sarabun',sans-serif;font-size:.9rem;
+  }
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  .memo-list{display:flex;flex-direction:column;gap:12px;}
+  .memo-card{
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:16px 20px;box-shadow:0 1px 6px rgba(20,40,80,.05);
+    cursor:pointer;transition:box-shadow .15s;
+  }
+  .memo-card:hover{box-shadow:0 4px 16px rgba(26,115,192,.12);}
+  .memo-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .memo-subject{font-weight:700;font-size:.95rem;}
+  .memo-meta{font-size:.78rem;color:var(--muted);margin-top:3px;}
+  .badge{
+    font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;
+  }
+  .badge-pending{background:#fef3c7;color:var(--warn);}
+  .badge-verified{background:#dcfce7;color:var(--success);}
+
+  /* Detail panel */
+  .detail-panel{
+    background:#fff;border:1px solid var(--border);border-radius:14px;
+    padding:24px;box-shadow:0 2px 12px rgba(20,40,80,.07);margin-bottom:20px;
+    display:none;
+  }
+  .detail-panel.open{display:block;}
+  .detail-title{font-weight:700;font-size:1rem;color:var(--accent);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e8f0fb;}
+  .detail-row{display:flex;gap:8px;margin-bottom:8px;font-size:.88rem;}
+  .detail-lbl{font-weight:600;color:#445566;min-width:120px;flex-shrink:0;}
+  .detail-val{color:var(--text);word-break:break-word;}
+  label.field-lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color:#445566;}
+  input[type=text]{
+    width:100%;padding:9px 12px;border:1.5px solid var(--border);
+    border-radius:8px;font-family:'Sarabun',sans-serif;font-size:.9rem;
+    background:#fbfcfe;color:var(--text);
+  }
+  input:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .btn-verify{
+    margin-top:14px;padding:11px 28px;background:var(--success);color:#fff;
+    border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:.95rem;
+    font-weight:700;cursor:pointer;
+  }
+  .btn-verify:disabled{background:#aaa;cursor:not-allowed;}
+  .btn-close{
+    float:right;background:#eef2f7;border:none;border-radius:8px;
+    padding:6px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:.82rem;
+  }
+  #verifyMsg{margin-top:10px;font-size:.84rem;min-height:1.2em;}
+  .empty-msg{text-align:center;color:var(--muted);padding:40px 0;font-size:.9rem;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a class="back" href="./general-form.html">← กลับ</a>
+    <h1>📋 ตรวจสอบบันทึกข้อความ (ธุรการ)</h1>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Detail panel (แสดงเมื่อคลิก memo) -->
+  <div class="detail-panel" id="detailPanel">
+    <button class="btn-close" id="closeDetail">✕ ปิด</button>
+    <div class="detail-title">รายละเอียดบันทึกข้อความ</div>
+    <div id="detailContent"></div>
+    <div style="margin-top:16px;">
+      <label class="field-lbl">ชื่อเจ้าหน้าที่ธุรการผู้ตรวจ</label>
+      <input type="text" id="reviewerNameInput" placeholder="ชื่อ-สกุล ผู้ตรวจสอบ">
+    </div>
+    <button class="btn-verify" id="verifyBtn">✅ ตรวจสอบแล้ว</button>
+    <div id="verifyMsg"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tabPending" onclick="switchTab('pending')">⏳ รอตรวจสอบ <span id="cntPending"></span></button>
+    <button class="tab" id="tabAll" onclick="switchTab('all')">📋 ทั้งหมด</button>
+  </div>
+
+  <div class="memo-list" id="memoList">
+    <div class="empty-msg">กำลังโหลด...</div>
+  </div>
+
+</div>
+
+<script>
+let allMemos = [];
+let currentTab = 'pending';
+let selectedMemoId = null;
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toThaiDT(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
+  document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('memoList');
+  const filtered = currentTab === 'pending'
+    ? allMemos.filter(m => m.status === 'pending')
+    : allMemos;
+
+  document.getElementById('cntPending').textContent =
+    '(' + allMemos.filter(m => m.status === 'pending').length + ')';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-msg">ไม่มีบันทึกข้อความ' + (currentTab === 'pending' ? 'ที่รอตรวจสอบ' : '') + '</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(m => `
+    <div class="memo-card" onclick="openDetail('${m.id}')">
+      <div class="memo-card-header">
+        <div>
+          <div class="memo-subject">${esc(m.เรื่อง || '(ไม่มีชื่อเรื่อง)')}</div>
+          <div class="memo-meta">
+            ผู้เสนอ: ${esc(m.ownerName||m.ownerEmail)} &nbsp;|&nbsp;
+            ธุรการ: ${esc(m.reviewerName||'—')} &nbsp;|&nbsp;
+            ส่งเมื่อ: ${toThaiDT(m.createdAt)}
+          </div>
+        </div>
+        <span class="badge ${m.status === 'verified' ? 'badge-verified' : 'badge-pending'}">
+          ${m.status === 'verified' ? '✅ ตรวจสอบแล้ว' : '⏳ รอตรวจสอบ'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openDetail(id) {
+  selectedMemoId = id;
+  const m = allMemos.find(x => x.id === id);
+  if (!m) return;
+
+  const fd = m.formData || {};
+  const rows = [
+    ['เรื่อง', m.เรื่อง],
+    ['ผู้เสนอ', m.ownerName || m.ownerEmail],
+    ['ส่งตรวจเมื่อ', toThaiDT(m.createdAt)],
+    ['สถานะ', m.status === 'verified' ? '✅ ตรวจสอบแล้ว โดย ' + (m.verifiedBy||'') : '⏳ รอตรวจสอบ'],
+    ...(m.status === 'verified' ? [['ตรวจสอบเมื่อ', toThaiDT(m.verifiedAt)]] : []),
+    ['ฝ่าย', fd['ฝ่าย']],
+    ['เลขที่', fd['เลขที่']],
+    ['วันที่', fd['วันที่']],
+    ['เรียน', fd['เรียน']],
+    ['ภาคเหตุ', fd['ภาคเหตุ']],
+  ].filter(r => r[1]);
+
+  document.getElementById('detailContent').innerHTML = rows.map(([l,v]) =>
+    `<div class="detail-row"><span class="detail-lbl">${esc(l)}</span><span class="detail-val">${esc(v)}</span></div>`
+  ).join('');
+
+  document.getElementById('reviewerNameInput').value = m.reviewerName || '';
+  document.getElementById('verifyBtn').disabled = m.status === 'verified';
+  document.getElementById('verifyMsg').textContent = m.status === 'verified'
+    ? `ตรวจสอบแล้วโดย ${m.verifiedBy||''} เมื่อ ${toThaiDT(m.verifiedAt)}` : '';
+  document.getElementById('verifyMsg').style.color = 'var(--success)';
+
+  const panel = document.getElementById('detailPanel');
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+document.getElementById('closeDetail').addEventListener('click', () => {
+  document.getElementById('detailPanel').classList.remove('open');
+  selectedMemoId = null;
+});
+
+document.getElementById('verifyBtn').addEventListener('click', async () => {
+  if (!selectedMemoId) return;
+  const btn = document.getElementById('verifyBtn');
+  const msg = document.getElementById('verifyMsg');
+  const reviewerName = document.getElementById('reviewerNameInput').value.trim();
+  const user = firebase.auth().currentUser;
+
+  btn.disabled = true;
+  msg.textContent = 'กำลังบันทึก...';
+  msg.style.color = 'var(--text)';
+
+  try {
+    await firebase.firestore().collection('memos').doc(selectedMemoId).update({
+      status:       'verified',
+      reviewerName: reviewerName || (user.displayName || user.email),
+      verifiedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+      verifiedBy:   reviewerName || (user.displayName || user.email),
+    });
+    msg.textContent = '✅ บันทึกเรียบร้อย';
+    msg.style.color = 'var(--success)';
+  } catch(err) {
+    console.error(err);
+    msg.textContent = '❌ ' + err.message;
+    msg.style.color = 'var(--danger)';
+    btn.disabled = false;
+  }
+});
+
+// Load memos from Firestore (real-time)
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return;
+  firebase.firestore().collection('memos')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snap => {
+      allMemos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderList();
+      // refresh open detail if still open
+      if (selectedMemoId) openDetail(selectedMemoId);
+    });
+});
+</script>
+</body>
+</html>
