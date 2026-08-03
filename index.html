@@ -978,37 +978,50 @@ const STATS = [
 ];
 
 // ── Tier 2.5: Wikipedia (ไทย → อังกฤษ) ──
+
+// ตัดคำถามภาษาไทยออก เหลือแค่คำสำคัญ
+function extractKeyword(q) {
+  return q
+    .replace(/คืออะไร|หมายถึงอะไร|หมายความว่า|คืออะไรนะ|อธิบาย|บอกหน่อย|ช่วยอธิบาย|คือ|อะไร|หมาย|ถึง/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
 async function askWikipedia(query) {
-  try {
-    // ค้นหา Wikipedia ภาษาไทยก่อน
-    const result = await searchWiki('th', query);
-    if (result) return result;
-    // fallback ภาษาอังกฤษ
-    return await searchWiki('en', query);
-  } catch (e) { return null; }
+  const kw = extractKeyword(query) || query;
+  // ลอง Thai Wikipedia ก่อน ด้วย keyword ที่ตัดแล้ว
+  const thResult = await searchWiki('th', kw);
+  if (thResult) return thResult;
+  // fallback English Wikipedia
+  const enResult = await searchWiki('en', kw);
+  return enResult;
 }
 
 async function searchWiki(lang, query) {
   try {
-    const searchRes = await fetch(
-      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`
+    // ใช้ opensearch — แม่นกว่า fulltext search สำหรับชื่อบทความ
+    const res = await fetch(
+      `https://${lang}.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=1&namespace=0&format=json&origin=*`
     );
-    if (!searchRes.ok) return null;
-    const searchData = await searchRes.json();
-    const hits = searchData?.query?.search;
-    if (!hits || !hits.length) return null;
+    if (!res.ok) return null;
+    const data = await res.json();
+    // data = [query, [titles], [descriptions], [urls]]
+    const titles = data[1];
+    const urls   = data[3];
+    if (!titles || !titles.length) return null;
 
-    const title = hits[0].title;
-    const summaryRes = await fetch(
+    const title = titles[0];
+    const pageUrl = urls[0];
+
+    // ดึง extract จาก REST API
+    const sumRes = await fetch(
       `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
     );
-    if (!summaryRes.ok) return null;
-    const s = await summaryRes.json();
-    if (!s.extract || s.extract.length < 30) return null;
+    if (!sumRes.ok) return null;
+    const s = await sumRes.json();
+    if (!s.extract || s.extract.length < 40) return null;
 
     const short = s.extract.length > 500 ? s.extract.slice(0, 500) + '…' : s.extract;
-    const url = s.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}`;
-    return { title: s.title || title, extract: short, url, lang };
+    return { title: s.title || title, extract: short, url: pageUrl, lang };
   } catch (e) { return null; }
 }
 
