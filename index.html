@@ -334,6 +334,9 @@
     }
     @keyframes dots { to { width: 0; } }
     .ai-tag { display: inline-block; font-size: 0.66rem; font-weight: 700; color: var(--accent); background: #eff6ff; border-radius: 8px; padding: 1px 7px; margin-bottom: 5px; }
+    .wiki-tag { display: inline-block; font-size: 0.66rem; font-weight: 700; color: #065f46; background: #d1fae5; border-radius: 8px; padding: 1px 7px; margin-bottom: 5px; }
+    .wiki-link { color: var(--accent); font-size: .82rem; text-decoration: none; display: inline-block; margin-top: 8px; }
+    .wiki-link:hover { text-decoration: underline; }
 
     /* ── Input area ── */
     .input-row {
@@ -974,7 +977,42 @@ const STATS = [
   }
 ];
 
-// ── Tier 2 fallback: Claude API (ผู้ใช้ตั้งค่า API key ของตัวเอง, เก็บใน localStorage เท่านั้น) ──
+// ── Tier 2.5: Wikipedia (ไทย → อังกฤษ) ──
+async function askWikipedia(query) {
+  try {
+    // ค้นหา Wikipedia ภาษาไทยก่อน
+    const result = await searchWiki('th', query);
+    if (result) return result;
+    // fallback ภาษาอังกฤษ
+    return await searchWiki('en', query);
+  } catch (e) { return null; }
+}
+
+async function searchWiki(lang, query) {
+  try {
+    const searchRes = await fetch(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`
+    );
+    if (!searchRes.ok) return null;
+    const searchData = await searchRes.json();
+    const hits = searchData?.query?.search;
+    if (!hits || !hits.length) return null;
+
+    const title = hits[0].title;
+    const summaryRes = await fetch(
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+    );
+    if (!summaryRes.ok) return null;
+    const s = await summaryRes.json();
+    if (!s.extract || s.extract.length < 30) return null;
+
+    const short = s.extract.length > 500 ? s.extract.slice(0, 500) + '…' : s.extract;
+    const url = s.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}`;
+    return { title: s.title || title, extract: short, url, lang };
+  } catch (e) { return null; }
+}
+
+// ── Tier 3 fallback: Claude API (ผู้ใช้ตั้งค่า API key ของตัวเอง, เก็บใน localStorage เท่านั้น) ──
 function getApiKey() { return localStorage.getItem('claude_api_key') || ''; }
 function setApiKey(k) {
   if (k) localStorage.setItem('claude_api_key', k);
@@ -1226,6 +1264,21 @@ async function send() {
     return;
   }
 
+  // Tier 2.5: Wikipedia
+  const thinkingWiki = addBotMsg('<span class="thinking">ครูฮูก กำลังค้น Wikipedia</span>');
+  const wikiResult = await askWikipedia(q);
+  thinkingWiki.remove();
+  if (wikiResult) {
+    const langNote = wikiResult.lang === 'en' ? ' <span style="font-weight:400;opacity:.7;">(ภาษาอังกฤษ)</span>' : '';
+    addBotMsg(
+      `<span class="wiki-tag">📖 Wikipedia${langNote}</span><br>` +
+      `<strong>${wikiResult.title}</strong><br><br>` +
+      `${wikiResult.extract.replace(/\n/g, '<br>')}` +
+      `<br><a class="wiki-link" href="${wikiResult.url}" target="_blank" rel="noopener noreferrer">อ่านเพิ่มเติมใน Wikipedia →</a>`
+    );
+    return;
+  }
+
   // Tier 3: Claude API fallback for open-ended questions
   const key = getApiKey();
   if (!key) {
@@ -1255,7 +1308,8 @@ addBotMsg(`
   • กดปุ่มฝ่ายด้านบน เพื่อดูลิงก์ทั้งหมดในฝ่ายนั้น<br>
   • พิมพ์คำค้นหาลิงก์ เช่น <em>ประชุม, STEM, ระเบียบ, SAR, ทุน, รถ</em><br>
   • ถามข้อมูลสดได้เลย เช่น <em>"นักเรียนทั้งหมดกี่คน"</em>, <em>"บุคลากรทั้งหมดกี่คน"</em>, <em>"มีชุมนุมอะไรบ้าง"</em> หรือ <em>"งบประมาณโครงการทั้งหมด"</em> — ดึงตัวเลขล่าสุดจากชีทจริง<br>
-  • กดปุ่ม ⚙️ มุมขวาบนเพื่อตั้งค่า Claude API Key ของคุณเอง หากต้องการให้ AI ช่วยตอบคำถามปลายเปิดเพิ่มเติม (AI จะใช้ข้อมูลสรุป/รวมยอดสดล่าสุดด้วย แต่จะไม่เข้าถึงข้อมูลส่วนบุคคลของนักเรียน/บุคลากรเด็ดขาด)
+  • ถามคำถามเชิงวิชาการได้เลย เช่น <em>"โฟโตซินธีซิสคืออะไร"</em>, <em>"สมการกำลังสองคืออะไร"</em> — ครูฮูกจะค้น <strong>Wikipedia</strong> (ไทย/อังกฤษ) ให้อัตโนมัติ<br>
+  • กดปุ่ม ⚙️ มุมขวาบนเพื่อตั้งค่า Claude API Key ของคุณเอง หากต้องการให้ AI ช่วยตอบคำถามปลายเปิดเพิ่มเติม
 `);
 </script>
 </body>
