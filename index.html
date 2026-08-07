@@ -1096,6 +1096,98 @@ async function askClaude(question) {
 }
 
 
+// ════════════════════════════════════════════════
+// Tier 1.5 — School DB (D1 via Cloudflare Worker)
+// ════════════════════════════════════════════════
+const SCHOOL_API = 'https://school-info-api.entclick88.workers.dev';
+
+function getAuthEmail() {
+  const u = firebase.auth ? firebase.auth().currentUser : null;
+  return u ? u.email : '';
+}
+
+async function dbQuery(path) {
+  const res = await fetch(SCHOOL_API + path, {
+    headers: { 'X-Email': getAuthEmail() }
+  });
+  return res.json();
+}
+
+async function handleSchoolQuery(q) {
+  const txt = q;
+
+  // จับ ม.X/Y หรือ ม.X ห้อง Y
+  const gradeRoomRe = /ม[.]?\s*(\d+)[/.](\d+)|ม[.]?\s*(\d+)\s*ห้อง\s*(\d+)/;
+  const gradeOnlyRe = /ม[.]?\s*(\d+)/;
+  const grRm = txt.match(gradeRoomRe);
+  const grOnly = txt.match(gradeOnlyRe);
+  const grade = grRm ? (grRm[1] || grRm[3]) : (grOnly ? grOnly[1] : null);
+  const room  = grRm ? (grRm[2] || grRm[4]) : null;
+
+  // รายชื่อนักเรียน
+  const wantList = /รายชื่อ|รายการ|ทุกคน|ทั้งหมด.*นักเรียน|นักเรียน.*ทั้งหมด/.test(txt);
+  // จำนวน/นับ
+  const wantCount = /กี่คน|จำนวน|นับ|มีกี่/.test(txt);
+  // ค้นหาชื่อนักเรียน
+  const searchMatch = txt.match(/(?:หา|ค้นหา|ข้อมูล|ดูข้อมูล|เบอร์|ที่อยู่|ผู้ปกครอง)\s+(?:นักเรียน\s+)?([ก-์a-zA-Z][ก-์a-zA-Z\s]{1,30})/);
+
+  // staff keywords
+  const isStaff = /บุคลากร|ครู|อาจารย์|ผู้สอน/.test(txt) && !/นักเรียน/.test(txt);
+  const staffSearch = txt.match(/(?:หา|ค้นหา|ข้อมูล)\s+(?:ครู|บุคลากร|อาจารย์)\s+([ก-์a-zA-Z][ก-์a-zA-Z\s]{1,30})/);
+
+  // ── Staff ──
+  if (isStaff) {
+    if (staffSearch) {
+      const d = await dbQuery('/staff/lookup?q=' + encodeURIComponent(staffSearch[1].trim()));
+      if (!d.ok) return null;
+      let html = `<strong>👨‍🏫 บุคลากร "${staffSearch[1].trim()}"</strong><br>`;
+      d.list.forEach(p => {
+        html += `<br>• <strong>${p.full_name}</strong><br>`;
+        if (p.position) html += `&nbsp;&nbsp;ตำแหน่ง: ${p.position}<br>`;
+        if (p.department) html += `&nbsp;&nbsp;ฝ่าย: ${p.department}<br>`;
+        if (p.email) html += `&nbsp;&nbsp;อีเมล: ${p.email}<br>`;
+      });
+      return html;
+    }
+    // นับบุคลากร
+    const d = await dbQuery('/staff/count');
+    if (!d.ok) return null;
+    return `👨‍🏫 บุคลากรทั้งหมด <strong>${d.total} คน</strong>`;
+  }
+
+  // ── Students ──
+  if (searchMatch) {
+    const name = searchMatch[1].trim();
+    const d = await dbQuery('/students/lookup?q=' + encodeURIComponent(name));
+    if (!d.ok) return null;
+    let html = `<strong>🔍 ผลการค้นหา "${name}"</strong> (พบ ${d.count} คน)<br>`;
+    d.list.forEach(s => {
+      html += `<br>• <strong>${s.full_name}</strong> ม.${s.grade}/${s.room} เลขที่ ${s.number}<br>`;
+      if (s.phone) html += `&nbsp;&nbsp;📞 ${s.phone}<br>`;
+      if (s.address) html += `&nbsp;&nbsp;🏠 ${s.address}<br>`;
+    });
+    return html;
+  }
+
+  if (grade && wantList) {
+    const params = '?grade=' + grade + (room ? '&room=' + room : '');
+    const d = await dbQuery('/students/list' + params);
+    if (!d.ok) return null;
+    let html = `<strong>📋 รายชื่อนักเรียน ม.${grade}${room ? '/' + room : ''}</strong> (${d.count} คน)<br><br>`;
+    html += d.list.map((s, i) => `${s.number}. ${s.full_name}`).join('<br>');
+    return html;
+  }
+
+  if (/นักเรียน/.test(txt) && (wantCount || grade)) {
+    const params = grade ? ('?grade=' + grade + (room ? '&room=' + room : '')) : '';
+    const d = await dbQuery('/students/count' + params);
+    if (!d.ok) return null;
+    return `🧑‍🎓 นักเรียน${d.label} <strong>${d.total} คน</strong>`;
+  }
+
+  return null;
+}
+
 document.getElementById('settingsBtn').addEventListener('click', () => {
   const current = getApiKey();
   const masked = current ? current.slice(0, 8) + '...' + current.slice(-4) : '(ยังไม่ได้ตั้งค่า)';
@@ -1268,6 +1360,16 @@ async function send() {
       }
       break;
     }
+  }
+
+  // Tier 1.5: School DB — นักเรียน / บุคลากร
+  if (/นักเรียน|บุคลากร|ครู|อาจารย์|ม[.]?\d|รายชื่อ/.test(q)) {
+    const thinkingDb = addBotMsg('<span class="thinking">ค้นข้อมูลโรงเรียน</span>');
+    try {
+      const dbResult = await handleSchoolQuery(q);
+      thinkingDb.remove();
+      if (dbResult) { addBotMsg(dbResult); return; }
+    } catch (e) { thinkingDb.remove(); }
   }
 
   // Tier 2: link/department search (existing MENU directory)
